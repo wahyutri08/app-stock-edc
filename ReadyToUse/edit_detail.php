@@ -163,7 +163,7 @@ require_once '../partials/header.php';
                                                     </div>
                                                 <?php else : ?>
                                                     <div class="form-group">
-                                                        <label for="date">Date:</label>
+                                                        <label for="date">Date Used:</label>
                                                         <input type="date" name="date" class="form-control" id="date" placeholder="Date" value="">
                                                     </div>
                                                 <?php endif; ?>

@@ -70,8 +70,11 @@ require_once '../partials/header.php';
                         <div class="col">
                             <div class="card card-outline card-success">
                                 <div class="card-header text-left">
+                                    <a href="#" id="btnDelete" class="btn btn-sm bg-gradient-warning disabled mr-2">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
                                     <a href="#" id="btnNotyetused" data-status="Not yet used"
-                                        class="btn btn-action btn-sm bg-gradient-primary disabled mr-2">
+                                        class="btn btn-action btn-sm bg-gradient-primary disabled">
                                         <i class="fas fa-times"></i> Not yet Used
                                     </a>
                                 </div>

@@ -10,24 +10,17 @@ $user_id = $_SESSION['id'];
 $role = $_SESSION['role'];
 
 if ($role == 'Admin') {
-    $stck = query("SELECT stock.*, users.name, detail_list_stock.*
-                   FROM stock
-                   JOIN users 
-                   ON stock.user_id = users.id
-                   LEFT JOIN detail_list_stock 
-                   ON stock.id_stock = detail_list_stock.stock_id
-                   WHERE stock.status_edc = 'Not yet used'");
+    $return = query("SELECT * FROM return_edc
+               JOIN users
+               ON return_edc.user_id = users.id");
 } elseif ($role == 'User') {
-    $stck = query("SELECT stock.*, users.name, detail_list_stock.*
-                   FROM stock
-                   JOIN users 
-                   ON stock.user_id = users.id
-                   LEFT JOIN detail_list_stock 
-                   ON stock.id_stock = detail_list_stock.stock_id
-                   WHERE stock.status_edc = 'Not yet used' AND user_id = $user_id");
+    $return = query("SELECT * FROM return_edc
+               JOIN users
+               ON return_edc.user_id = users.id WHERE user_id = $user_id");
 }
 
-$title = "Ready To Use";
+
+$title = "List Return EDC";
 require_once '../partials/header.php';
 
 ?>
@@ -54,7 +47,7 @@ require_once '../partials/header.php';
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="../dashboard">Home</a></li>
-                                <li class="breadcrumb-item">Status EDC</li>
+                                <li class="breadcrumb-item">Return EDC</li>
                                 <li class="breadcrumb-item"><?= $title;  ?></li>
                             </ol>
                         </div><!-- /.col -->
@@ -68,18 +61,13 @@ require_once '../partials/header.php';
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col">
-                            <div class="card card-outline card-success">
+                            <div class="card card-outline card-primary">
                                 <div class="card-header text-left">
-                                    <a href="#" id="btnDelete" class="btn btn-sm bg-gradient-warning disabled mr-2">
+                                    <a href="add_list.php" class="btn btn-sm bg-gradient-primary mr-2">
+                                        <i class="fas fa-plus"></i> Add
+                                    </a>
+                                    <a href="#" id="btnDelete" class="btn btn-sm bg-gradient-warning disabled">
                                         <i class="fas fa-trash"></i> Delete
-                                    </a>
-                                    <a href="#" id="btnNotyetused" data-status="Not yet used"
-                                        class="btn btn-action btn-sm bg-gradient-primary disabled mr-2">
-                                        <i class="fas fa-times"></i> Not yet Used
-                                    </a>
-                                    <a href="#" id="btnUsed" data-status="Used"
-                                        class="btn btn-action btn-sm bg-gradient-success disabled">
-                                        <i class="fas fa-check"></i> Used
                                     </a>
                                 </div>
                                 <!-- /.card-header -->
@@ -97,25 +85,23 @@ require_once '../partials/header.php';
                                                 <th class="text-center">No</th>
                                                 <th class="text-center">Name</th>
                                                 <th class="text-center">SN EDC</th>
-                                                <th class="text-center">Simcard</th>
-                                                <th class="text-center">Samcard1</th>
-                                                <th class="text-center">Samcard2</th>
-                                                <th class="text-center">Samcard3</th>
+                                                <th class="text-center">SN Simcard</th>
+                                                <th class="text-center">SN Samcard 1</th>
+                                                <th class="text-center">SN Samcard 2</th>
+                                                <th class="text-center">SN Samcard 3</th>
                                                 <th class="text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach ($stck as $i => $row) : ?>
+                                            <?php foreach ($return as $i => $row) : ?>
                                                 <tr>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
-                                                            <input
+                                                            <input class="custom-control-input custom-control-input-danger checkbox-item"
                                                                 type="checkbox"
-                                                                class="custom-control-input custom-control-input-danger checkbox-item"
-                                                                id="check<?= $row['stock_id']; ?>"
-                                                                value="<?= $row['stock_id']; ?>"
-                                                                data-idstock="<?= $row['id_stock']; ?>">
-                                                            <label for="check<?= $row['stock_id']; ?>" class="custom-control-label"></label>
+                                                                id="check<?= $row['id_return']; ?>"
+                                                                value="<?= $row['id_return']; ?>">
+                                                            <label for="check<?= $row['id_return']; ?>" class="custom-control-label"></label>
                                                         </div>
                                                     </td>
                                                     <td class="text-center"><?= $i + 1; ?></td>
@@ -125,8 +111,21 @@ require_once '../partials/header.php';
                                                     <td class="text-center"><?= $row["sn_samcard1"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_samcard2"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_samcard3"]; ?></td>
+                                                    <!-- <?php if ($row["status_edc"] == "Not yet used") : ?>
+                                                        <td class="text-center"><span class="badge bg-primary"><?= $row["status_edc"]; ?></span></td>
+                                                    <?php else : ?>
+                                                        <td class="text-center"><span class="badge bg-success"><?= $row["status_edc"]; ?></span></td>
+                                                    <?php endif; ?> -->
                                                     <td class="text-center">
-                                                        <a href="edit_detail.php?id_stock=<?= $row["id_stock"]; ?>"><button class="btn btn-sm btn-success"><i class="fas fa-edit"></i></button></a>
+                                                        <div class="dropdown">
+                                                            <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-expanded="false">
+                                                                Action
+                                                            </button>
+                                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                                <li><a class="dropdown-item" href="edit_return.php?id_return=<?= $row["id_return"]; ?>"><i class="fas fa-edit"></i> Edit</a></li>
+                                                                <li><a class="dropdown-item tombol-hapus" href="delete_return.php?id_return=<?= $row["id_return"]; ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
+                                                            </ul>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -169,6 +168,81 @@ require_once '../partials/header.php';
                 "responsive": false,
                 "buttons": ["excel", "print", "colvis"]
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+
+            // CHECK ALL
+            $('#checkAll').on('change', function() {
+                $('.checkbox-item').prop('checked', this.checked);
+                toggleDeleteButton();
+            });
+
+            // CHECK SATUAN
+            $(document).on('change', '.checkbox-item', function() {
+                $('#checkAll').prop(
+                    'checked',
+                    $('.checkbox-item:checked').length === $('.checkbox-item').length
+                );
+                toggleDeleteButton();
+            });
+
+            // 🔥 TOGGLE CLASS DISABLED
+            function toggleDeleteButton() {
+                if ($('.checkbox-item:checked').length > 0) {
+                    $('#btnDelete').removeClass('disabled');
+                } else {
+                    $('#btnDelete').addClass('disabled');
+                }
+            }
+
+            // 🗑️ CLICK DELETE (CEGAH JIKA DISABLED)
+            $('#btnDelete').on('click', function(e) {
+                if ($(this).hasClass('disabled')) {
+                    e.preventDefault();
+                    return;
+                }
+
+                e.preventDefault();
+
+                let ids = [];
+                $('.checkbox-item:checked').each(function() {
+                    ids.push($(this).val());
+                });
+
+                Swal.fire({
+                    title: 'Are You Sure?',
+                    text: ids.length + ' Data Will be Deleted',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Delete!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: 'delete_stock_bulk.php',
+                            type: 'POST',
+                            data: {
+                                ids: ids
+                            },
+                            success: function(res) {
+                                let response = JSON.parse(res);
+
+                                if (response.status === 'success') {
+                                    Swal.fire('Deleted!', response.message, 'success')
+                                        .then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function() {
+                                Swal.fire('Error', 'Server error', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+
         });
     </script>
     <script>

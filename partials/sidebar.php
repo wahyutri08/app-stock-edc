@@ -82,7 +82,7 @@ $user = query("SELECT * FROM users WHERE id = $id")[0];
                         </li>
                     </ul>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-sign-out-alt"></i>
                         <p>
@@ -92,9 +92,21 @@ $user = query("SELECT * FROM users WHERE id = $id")[0];
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="../return_edc" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>List Return EDC</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../technician" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Technician</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../ho" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>HO</p>
                             </a>
                         </li>
                     </ul>
