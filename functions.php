@@ -315,6 +315,201 @@ function deleteDetail($stock_id)
     return mysqli_affected_rows($db);
 }
 
+function addListReturn($data)
+{
+    global $db;
+
+    $user_id = $_SESSION["id"];
+    $created_at = date('Y-m-d H:i:s');
+
+    // TRIM + ESCAPE (BENAR)
+    $sn_edc      = trim(mysqli_real_escape_string($db, $data["sn_edc"]));
+    $sn_simcard  = trim(mysqli_real_escape_string($db, $data["sn_simcard"]));
+    $sn_samcard1 = trim(mysqli_real_escape_string($db, $data["sn_samcard1"]));
+    $sn_samcard2 = trim(mysqli_real_escape_string($db, $data["sn_samcard2"]));
+    $sn_samcard3 = trim(mysqli_real_escape_string($db, $data["sn_samcard3"]));
+    $status1  = trim(mysqli_real_escape_string($db, $data["status1"]));
+    $status2  = trim(mysqli_real_escape_string($db, $data["status2"]));
+    $date       = mysqli_real_escape_string($db, $data['date']);
+    $note  = trim(mysqli_real_escape_string($db, $data["note"]));
+
+    // 1️⃣ SN EDC
+    if ($sn_edc !== '') {
+        $cek = mysqli_query($db, "SELECT id_return FROM return_edc WHERE sn_edc = '$sn_edc' LIMIT 1");
+        if (mysqli_fetch_assoc($cek)) {
+            return -1;
+        }
+    }
+
+    // 2️⃣ SN SIMCARD (OPSIONAL)
+    if ($sn_simcard !== '') {
+        $cek = mysqli_query($db, "SELECT id_return FROM return_edc WHERE sn_simcard = '$sn_simcard' LIMIT 1");
+        if (mysqli_fetch_assoc($cek)) {
+            return -2;
+        }
+    }
+
+    // 3️⃣ SN SAMCARD 1
+    if ($sn_samcard1 !== '') {
+        $cek = mysqli_query($db, "SELECT id_return FROM return_edc WHERE sn_samcard1 = '$sn_samcard1' LIMIT 1");
+        if (mysqli_fetch_assoc($cek)) {
+            return -3;
+        }
+    }
+
+    // 4️⃣ SN SAMCARD 2
+    if ($sn_samcard2 !== '') {
+        $cek = mysqli_query($db, "SELECT id_return FROM return_edc WHERE sn_samcard2 = '$sn_samcard2' LIMIT 1");
+        if (mysqli_fetch_assoc($cek)) {
+            return -4;
+        }
+    }
+
+    // 5️⃣ SN SAMCARD 3
+    if ($sn_samcard3 !== '') {
+        $cek = mysqli_query($db, "SELECT id_return FROM return_edc WHERE sn_samcard3 = '$sn_samcard3' LIMIT 1");
+        if (mysqli_fetch_assoc($cek)) {
+            return -5;
+        }
+    }
+
+    /* =======================
+       INSERT DATA
+       ======================= */
+
+    $query = "
+        INSERT INTO return_edc
+        (user_id, sn_edc, sn_simcard, sn_samcard1, sn_samcard2, sn_samcard3, status1, status2, date, note, created_at)
+        VALUES (
+            '$user_id',
+            " . ($sn_edc  === '' ? "NULL" : "'$sn_edc'") . ",
+            " . ($sn_simcard  === '' ? "NULL" : "'$sn_simcard'") . ",
+            " . ($sn_samcard1 === '' ? "NULL" : "'$sn_samcard1'") . ",
+            " . ($sn_samcard2 === '' ? "NULL" : "'$sn_samcard2'") . ",
+            " . ($sn_samcard3 === '' ? "NULL" : "'$sn_samcard3'") . ",
+            '$status1',
+            '$status2',
+            " . ($date === '' ? "NULL" : "'$date'") . ",
+            '$note',
+            '$created_at'
+        )
+    ";
+
+    $insert = mysqli_query($db, $query);
+
+    if (!$insert) {
+        return 0; // insert gagal
+    }
+
+    return mysqli_affected_rows($db);
+}
+
+function editListReturn($data)
+{
+    global $db;
+
+    $id_return = (int)$data['id_return'];
+    $user_id  = (int)$data['user_id'];
+    $status1   = mysqli_real_escape_string($db, $data['status1']);
+    $status2   = mysqli_real_escape_string($db, $data['status2']);
+    $date       = mysqli_real_escape_string($db, $data['date']);
+    $note  = trim(mysqli_real_escape_string($db, $data["note"]));
+    $updated_at = date('Y-m-d H:i:s');
+
+    $sn_edc      = trim(mysqli_real_escape_string($db, $data['sn_edc']));
+    $sn_simcard  = trim(mysqli_real_escape_string($db, $data['sn_simcard']));
+    $sn_samcard1 = trim(mysqli_real_escape_string($db, $data['sn_samcard1']));
+    $sn_samcard2 = trim(mysqli_real_escape_string($db, $data['sn_samcard2']));
+    $sn_samcard3 = trim(mysqli_real_escape_string($db, $data['sn_samcard3']));
+
+    /* ================= CEK DUPLIKASI ================= */
+
+    // SN EDC
+    if ($sn_edc !== '') {
+        $cek = mysqli_query(
+            $db,
+            "SELECT id_return FROM return_edc 
+             WHERE sn_edc = '$sn_edc' AND id_return != $id_return
+             LIMIT 1"
+        );
+        if (mysqli_fetch_assoc($cek)) return -1;
+    }
+
+    // SN SIMCARD
+    if ($sn_simcard !== '') {
+        $cek = mysqli_query(
+            $db,
+            "SELECT id_return FROM return_edc 
+             WHERE sn_simcard = '$sn_simcard' AND id_return != $id_return
+             LIMIT 1"
+        );
+        if (mysqli_fetch_assoc($cek)) return -2;
+    }
+
+    // SN SAMCARD 1
+    if ($sn_samcard1 !== '') {
+        $cek = mysqli_query(
+            $db,
+            "SELECT id_return FROM return_edc 
+             WHERE sn_samcard1 = '$sn_samcard1' AND id_return != $id_return
+             LIMIT 1"
+        );
+        if (mysqli_fetch_assoc($cek)) return -3;
+    }
+
+    // SN SAMCARD 2
+    if ($sn_samcard2 !== '') {
+        $cek = mysqli_query(
+            $db,
+            "SELECT id_return FROM return_edc 
+             WHERE sn_samcard2 = '$sn_samcard2' AND id_return != $id_return
+             LIMIT 1"
+        );
+        if (mysqli_fetch_assoc($cek)) return -4;
+    }
+
+    // SN SAMCARD 3
+    if ($sn_samcard3 !== '') {
+        $cek = mysqli_query(
+            $db,
+            "SELECT id_return FROM return_edc 
+             WHERE sn_samcard3 = '$sn_samcard3' AND id_return != $id_return
+             LIMIT 1"
+        );
+        if (mysqli_fetch_assoc($cek)) return -5;
+    }
+
+    /* ================= UPDATE DINAMIS ================= */
+
+    $update = [];
+    $update[] = "user_id = '$user_id'";
+    $update[] = "status1 = '$status1'";
+    $update[] = "status2 = '$status2'";
+    $update[] = "date = '$date'";
+    $update[] = "note = '$note'";
+    $update[] = "updated_at = '$updated_at'";
+
+    if ($sn_edc !== '')      $update[] = "sn_edc = '$sn_edc'";
+    if ($sn_simcard !== '')  $update[] = "sn_simcard = '$sn_simcard'";
+    if ($sn_samcard1 !== '') $update[] = "sn_samcard1 = '$sn_samcard1'";
+    if ($sn_samcard2 !== '') $update[] = "sn_samcard2 = '$sn_samcard2'";
+    if ($sn_samcard3 !== '') $update[] = "sn_samcard3 = '$sn_samcard3'";
+
+    $query = "UPDATE return_edc SET " . implode(', ', $update) . "
+              WHERE id_return = $id_return";
+
+    mysqli_query($db, $query);
+
+    return mysqli_affected_rows($db);
+}
+
+function deleteList($id_return)
+{
+    global $db;
+    mysqli_query($db, "DELETE FROM return_edc WHERE id_return = $id_return");
+    return mysqli_affected_rows($db);
+}
+
 function is_user_active($id)
 {
     global $db;

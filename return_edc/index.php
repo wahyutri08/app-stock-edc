@@ -66,7 +66,7 @@ require_once '../partials/header.php';
                                     <a href="add_list.php" class="btn btn-sm bg-gradient-primary mr-2">
                                         <i class="fas fa-plus"></i> Add
                                     </a>
-                                    <a href="#" id="btnDelete" class="btn btn-sm bg-gradient-warning disabled">
+                                    <a href="#" id="btnDeleteReturn" class="btn btn-sm bg-gradient-warning disabled">
                                         <i class="fas fa-trash"></i> Delete
                                     </a>
                                 </div>
@@ -123,7 +123,7 @@ require_once '../partials/header.php';
                                                             </button>
                                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                                                 <li><a class="dropdown-item" href="edit_return.php?id_return=<?= $row["id_return"]; ?>"><i class="fas fa-edit"></i> Edit</a></li>
-                                                                <li><a class="dropdown-item tombol-hapus" href="delete_return.php?id_return=<?= $row["id_return"]; ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
+                                                                <li><a class="dropdown-item tombol-hapus" href="delete_list.php?id_return=<?= $row["id_return"]; ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
                                                             </ul>
                                                         </div>
                                                     </td>
@@ -170,7 +170,7 @@ require_once '../partials/header.php';
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
         });
     </script>
-    <script>
+    <!-- <script>
         $(document).ready(function() {
 
             // CHECK ALL
@@ -244,7 +244,7 @@ require_once '../partials/header.php';
             });
 
         });
-    </script>
+    </script> -->
     <script>
         $(document).on('click', '.tombol-hapus', function(e) {
             e.preventDefault();

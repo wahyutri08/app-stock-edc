@@ -6,14 +6,41 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
-$id = $_SESSION["id"];
+$user_id = $_SESSION['id'];
 $role = $_SESSION['role'];
-$user = query("SELECT * FROM users WHERE id = $id")[0];
+
+
+if (isset($_GET["id_return"]) && is_numeric($_GET["id_return"])) {
+    $id_return = $_GET["id_return"];
+} else {
+    header("HTTP/1.1 404 Not Found");
+    include("../error/error-404.html");
+    exit;
+}
+
+if ($role == 'Admin') {
+    $return = query("SELECT * FROM return_edc 
+                JOIN users
+                ON return_edc.user_id = users.id WHERE id_return = $id_return");
+} else {
+    $return = query("SELECT * FROM return_edc 
+                JOIN users
+                ON return_edc.user_id = users.id WHERE id_return = $id_return AND user_id = $user_id");
+}
+
+if (empty($return)) {
+    header("HTTP/1.1 404 Not Found");
+    include("../errors/404.html");
+    exit;
+}
+
+$return = $return[0];
+$users = query("SELECT * FROM users");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $result = addListReturn($_POST);
+    $result = editListReturn($_POST);
     if ($result > 0) {
-        echo json_encode(["status" => "success", "message" => "Data Added Successfully"]);
+        echo json_encode(["status" => "success", "message" => "Data Successfully Changed"]);
     } elseif ($result == -1) {
         echo json_encode(["status" => "error", "message" => "SN EDC Already Exists"]);
     } elseif ($result == -2) {
@@ -30,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
 }
 
-$title = "Add List Return";
+$title = "Edit Return EDC";
 require_once '../partials/header.php';
 
 ?>
@@ -52,7 +79,7 @@ require_once '../partials/header.php';
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0">Add List Return</h1>
+                            <h1 class="m-0">Edit Stock</h1>
                         </div><!-- /.col -->
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
@@ -76,33 +103,34 @@ require_once '../partials/header.php';
                             <!-- jquery validation -->
                             <div class="card card-primary">
                                 <div class="card-header">
-                                    <h3 class="card-title">Add List Return EDC</h3>
+                                    <h3 class="card-title">Edit Return EDC</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <!-- form start -->
                                 <form method="POST" action="" enctype="multipart/form-data" id="quickForm">
+                                    <input type="hidden" name="id_return" id="id_return" value="<?= $return["id_return"]; ?>">
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="sn_edc">SN EDC:</label>
-                                                    <input type="text" name="sn_edc" class="form-control" id="sn_edc" placeholder="SN EDC">
+                                                    <input type="text" name="sn_edc" class="form-control" id="sn_edc" placeholder="SN EDC" value="<?= $return["sn_edc"]; ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="sn_simcard">SN Simcard:</label>
-                                                    <input type="text" name="sn_simcard" class="form-control" id="sn_simcard" placeholder="SN Simcard">
+                                                    <input type="text" name="sn_simcard" class="form-control" id="sn_simcard" placeholder="SN Simcard" value="<?= $return["sn_simcard"]; ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="sn_samcard1">SN Samcard 1:</label>
-                                                    <input type="text" name="sn_samcard1" class="form-control" id="sn_samcard1" placeholder="SN Samcard 1">
+                                                    <input type="text" name="sn_samcard1" class="form-control" id="sn_samcard1" placeholder="SN Samcard 1" value="<?= $return["sn_samcard1"]; ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="sn_samcard2">SN Samcard 2:</label>
-                                                    <input type="text" name="sn_samcard2" class="form-control" id="sn_samcard2" placeholder="SN Samcard 2">
+                                                    <input type="text" name="sn_samcard2" class="form-control" id="sn_samcard2" placeholder="SN Samcard 2" value="<?= $return["sn_samcard2"]; ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="sn_samcard3">SN Samcard 3:</label>
-                                                    <input type="text" name="sn_samcard3" class="form-control" id="sn_samcard3" placeholder="SN Samcard 3">
+                                                    <input type="text" name="sn_samcard3" class="form-control" id="sn_samcard3" placeholder="SN Samcard 3" value="<?= $return["sn_samcard3"]; ?>">
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
@@ -110,38 +138,45 @@ require_once '../partials/header.php';
                                                     <label>Status:</label>
                                                     <select class="custom-select form-control" id="status1" name="status1">
                                                         <option value="" disabled selected>--Selected One--</option>
-                                                        <option value="Technician">Technician</option>
-                                                        <option value="HO">HO</option>
+                                                        <option value="Technician" <?= ($return['status1'] == 'Technician') ? 'selected' : '' ?>>Technician</option>
+                                                        <option value="HO" <?= ($return['status1'] == 'HO') ? 'selected' : '' ?>>HO</option>
                                                     </select>
                                                 </div>
                                                 <div class="form-group">
                                                     <label>Status Condition:</label>
                                                     <select class="form-control select2 select2-primary" id="status2" name="status2" data-dropdown-css-class="select2-primary" style="width: 100%;">
                                                         <option value="" disabled selected>--Selected One--</option>
-                                                        <option value="EDC Normal / Lengkap">EDC Normal / Lengkap</option>
-                                                        <option value="EDC Normal / TIdak Lengkap">EDC Normal / TIdak Lengkap</option>
-                                                        <option value="EDC Rusak / Lengkap">EDC Rusak / Lengkap</option>
-                                                        <option value="EDC Rusak / TIdak Lengkap">EDC Rusak / TIdak Lengkap</option>
+                                                        <option value="EDC Normal / Lengkap" <?= ($return['status2'] == 'EDC Normal / Lengkap') ? 'selected' : '' ?>>EDC Normal / Lengkap</option>
+                                                        <option value="EDC Normal / TIdak Lengkap" <?= ($return['status2'] == 'EDC Normal / TIdak Lengkap') ? 'selected' : '' ?>>EDC Normal / TIdak Lengkap</option>
+                                                        <option value="EDC Rusak / Lengkap" <?= ($return['status2'] == 'EDC Rusak / Lengkap') ? 'selected' : '' ?>>EDC Rusak / Lengkap</option>
+                                                        <option value="EDC Rusak / TIdak Lengkap" <?= ($return['status2'] == 'EDC Rusak / TIdak Lengkap') ? 'selected' : '' ?>>EDC Rusak / TIdak Lengkap</option>
                                                     </select>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="date">Date:
-                                                        <span class="text-danger small font-italic">(*Opsional: Jika Ingin Langsung Dikembalikan Ke HO)</span>
-                                                    </label>
-                                                    <input type="date" name="date" class="form-control" id="date" placeholder="Date" value="<?= $stock["date"]; ?>">
+                                                    <label>User:</label>
+                                                    <select class="form-control select2 select2-primary" id="user_id" name="user_id" data-dropdown-css-class="select2-primary" style="width: 100%;">
+                                                        <?php foreach ($users as $user) : ?>
+                                                            <option value="<?= $user["id"]; ?>"
+                                                                <?= ($return["user_id"] == $user["id"]) ? "selected" : "" ?>>
+                                                                <?= $user["name"]; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="date">Date:</label>
+                                                    <input type="date" name="date" class="form-control" id="date" placeholder="Date" value="<?= $return["date"]; ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="note">Note:</label>
-                                                    <textarea class="form-control" id="note" name="note" rows="3"><?= htmlspecialchars($stock["note"] ?? '') ?></textarea>
+                                                    <textarea class="form-control" id="note" name="note" rows="3"><?= htmlspecialchars($return["note"] ?? '') ?></textarea>
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
                                     <!-- /.card-body -->
                                     <div class="card-footer">
-                                        <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-solid fa-check"></i> Submit</button>
-                                        <button type="reset" class="btn btn-sm btn-dark">Reset</button>
+                                        <button type="submit" class="btn btn-primary"><i class="fas fa-solid fa-check"></i> Submit</button>
                                     </div>
                                 </form>
                             </div>
@@ -197,7 +232,7 @@ require_once '../partials/header.php';
                     }
                 },
                 messages: {
-                    status2: {
+                    status1: {
                         required: "Please enter an Status"
                     },
                     status2: {
