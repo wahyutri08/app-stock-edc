@@ -35,11 +35,20 @@ if ($role === 'Admin') {
     ");
 } else {
     $stock = query("
-        SELECT stock.*, users.name
+        SELECT 
+            stock.*,
+            users.name,
+            detail_list_stock.tid,
+            detail_list_stock.mid,
+            detail_list_stock.merchant_name,
+            detail_list_stock.addres_name,
+            detail_list_stock.date,
+            detail_list_stock.note
         FROM stock
         JOIN users ON stock.user_id = users.id
-        WHERE stock.id_stock = $id_stock
-        AND stock.user_id = $user_id
+        LEFT JOIN detail_list_stock 
+            ON stock.id_stock = detail_list_stock.stock_id
+        WHERE stock.id_stock = $id_stock AND stock.user_id = $user_id
     ");
 }
 
@@ -49,6 +58,14 @@ if (!$stock) {
 }
 
 $stock = $stock[0];
+$snEdcFilled = !empty($stock['sn_edc']);
+$snSimFilled = !empty($stock['sn_simcard']);
+
+$samcardFilled =
+    !empty($stock['sn_samcard1']) ||
+    !empty($stock['sn_samcard2']) ||
+    !empty($stock['sn_samcard3']);
+
 $users = query("SELECT * FROM users");
 
 /* ================= AJAX POST ================= */
@@ -62,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-
+$isUser = ($role == 'User');
 $title = "Edit Detail";
 require_once '../partials/header.php';
 
@@ -120,23 +137,53 @@ require_once '../partials/header.php';
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="sn_edc">SN EDC:</label>
-                                                    <input type="text" name="sn_edc" class="form-control" id="sn_edc" placeholder="SN EDC" value="<?= $stock["sn_edc"]; ?>">
+                                                    <input type="text"
+                                                        name="sn_edc"
+                                                        class="form-control"
+                                                        id="sn_edc"
+                                                        value="<?= $stock['sn_edc']; ?>"
+                                                        placeholder="SN EDC"
+                                                        <?= ($role === 'Admin') ? '' : ($snEdcFilled && !$samcardFilled ? 'readonly' : '') ?>>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="sn_simcard">SN Simcard:</label>
-                                                    <input type="text" name="sn_simcard" class="form-control" id="sn_simcard" placeholder="SN Simcard" value="<?= $stock["sn_simcard"]; ?>">
+                                                    <input type="text"
+                                                        name="sn_simcard"
+                                                        class="form-control"
+                                                        id="sn_simcard"
+                                                        placeholder="SN Simcard"
+                                                        value="<?= $stock['sn_simcard']; ?>"
+                                                        <?= ($role === 'Admin') ? '' : ($snSimFilled && !$samcardFilled ? 'readonly' : '') ?>>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="sn_samcard1">SN Samcard 1:</label>
-                                                    <input type="text" name="sn_samcard1" class="form-control" id="sn_samcard1" placeholder="SN Samcard 1" value="<?= $stock["sn_samcard1"]; ?>">
+                                                    <input type="text"
+                                                        name="sn_samcard1"
+                                                        class="form-control"
+                                                        id="sn_samcard1"
+                                                        placeholder="SN Samcard 1"
+                                                        value="<?= $stock['sn_samcard1']; ?>"
+                                                        <?= ($role === 'Admin') ? '' : ($samcardFilled && !$snEdcFilled && !$snSimFilled && !empty($stock['sn_samcard1']) ? 'readonly' : '') ?>>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="sn_samcard2">SN Samcard 2:</label>
-                                                    <input type="text" name="sn_samcard2" class="form-control" id="sn_samcard2" placeholder="SN Samcard 2" value="<?= $stock["sn_samcard2"]; ?>">
+                                                    <input type="text"
+                                                        name="sn_samcard2"
+                                                        class="form-control"
+                                                        id="sn_samcard2"
+                                                        placeholder="Samcard 2"
+                                                        value="<?= $stock['sn_samcard2']; ?>"
+                                                        <?= ($role === 'Admin') ? '' : ($samcardFilled && !$snEdcFilled && !$snSimFilled && !empty($stock['sn_samcard2']) ? 'readonly' : '') ?>>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="sn_samcard3">SN Samcard 3:</label>
-                                                    <input type="text" name="sn_samcard3" class="form-control" id="sn_samcard3" placeholder="SN Samcard 3" value="<?= $stock["sn_samcard3"]; ?>">
+                                                    <input type="text"
+                                                        name="sn_samcard3"
+                                                        class="form-control"
+                                                        id="sn_samcard3"
+                                                        placeholder="Samcard 3"
+                                                        value="<?= $stock['sn_samcard3']; ?>"
+                                                        <?= ($role === 'Admin') ? '' : ($samcardFilled && !$snEdcFilled && !$snSimFilled && !empty($stock['sn_samcard3']) ? 'readonly' : '') ?>>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="tid">TID:</label>

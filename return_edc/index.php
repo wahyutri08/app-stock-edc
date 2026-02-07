@@ -66,9 +66,11 @@ require_once '../partials/header.php';
                                     <a href="add_list.php" class="btn btn-sm bg-gradient-primary mr-2">
                                         <i class="fas fa-plus"></i> Add
                                     </a>
-                                    <a href="#" id="btnDeleteReturn" class="btn btn-sm bg-gradient-warning disabled">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </a>
+                                    <?php if ($role === 'Admin') : ?>
+                                        <a href="#" id="btnDeleteReturn" class="btn btn-sm bg-gradient-warning disabled">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    <?php endif; ?>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body table-responsive">
@@ -89,7 +91,6 @@ require_once '../partials/header.php';
                                                 <th class="text-center">SN Samcard 1</th>
                                                 <th class="text-center">SN Samcard 2</th>
                                                 <th class="text-center">SN Samcard 3</th>
-                                                <th class="text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -111,22 +112,6 @@ require_once '../partials/header.php';
                                                     <td class="text-center"><?= $row["sn_samcard1"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_samcard2"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_samcard3"]; ?></td>
-                                                    <!-- <?php if ($row["status_edc"] == "Not yet used") : ?>
-                                                        <td class="text-center"><span class="badge bg-primary"><?= $row["status_edc"]; ?></span></td>
-                                                    <?php else : ?>
-                                                        <td class="text-center"><span class="badge bg-success"><?= $row["status_edc"]; ?></span></td>
-                                                    <?php endif; ?> -->
-                                                    <td class="text-center">
-                                                        <div class="dropdown">
-                                                            <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-expanded="false">
-                                                                Action
-                                                            </button>
-                                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                                <li><a class="dropdown-item" href="edit_return.php?id_return=<?= $row["id_return"]; ?>"><i class="fas fa-edit"></i> Edit</a></li>
-                                                                <li><a class="dropdown-item tombol-hapus" href="delete_list.php?id_return=<?= $row["id_return"]; ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
-                                                            </ul>
-                                                        </div>
-                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -170,7 +155,7 @@ require_once '../partials/header.php';
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
         });
     </script>
-    <!-- <script>
+    <script>
         $(document).ready(function() {
 
             // CHECK ALL
@@ -191,14 +176,14 @@ require_once '../partials/header.php';
             // 🔥 TOGGLE CLASS DISABLED
             function toggleDeleteButton() {
                 if ($('.checkbox-item:checked').length > 0) {
-                    $('#btnDelete').removeClass('disabled');
+                    $('#btnDeleteReturn, #btnHO, #btnTechnician').removeClass('disabled');
                 } else {
-                    $('#btnDelete').addClass('disabled');
+                    $('#btnDeleteReturn, #btnHO, #btnTechnician').addClass('disabled');
                 }
             }
 
             // 🗑️ CLICK DELETE (CEGAH JIKA DISABLED)
-            $('#btnDelete').on('click', function(e) {
+            $('#btnDeleteReturn').on('click', function(e) {
                 if ($(this).hasClass('disabled')) {
                     e.preventDefault();
                     return;
@@ -206,28 +191,29 @@ require_once '../partials/header.php';
 
                 e.preventDefault();
 
-                let ids = [];
+                let listIds = [];
                 $('.checkbox-item:checked').each(function() {
-                    ids.push($(this).val());
+                    listIds.push($(this).val());
                 });
 
                 Swal.fire({
                     title: 'Are You Sure?',
-                    text: ids.length + ' Data Will be Deleted',
+                    text: listIds.length + ' Data Will be Deleted',
                     icon: 'warning',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, Delete!'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: 'delete_stock_bulk.php',
+                            url: 'delete_return_bulk.php',
                             type: 'POST',
+                            dataType: 'json',
                             data: {
-                                ids: ids
+                                listIds: listIds
                             },
-                            success: function(res) {
-                                let response = JSON.parse(res);
-
+                            success: function(response) {
                                 if (response.status === 'success') {
                                     Swal.fire('Deleted!', response.message, 'success')
                                         .then(() => location.reload());
@@ -235,16 +221,61 @@ require_once '../partials/header.php';
                                     Swal.fire('Error', response.message, 'error');
                                 }
                             },
-                            error: function() {
+                            error: function(xhr) {
+                                console.error(xhr.responseText);
                                 Swal.fire('Error', 'Server error', 'error');
                             }
                         });
                     }
                 });
             });
+            $('.btn-action').on('click', function(e) {
+                e.preventDefault();
+                if ($(this).hasClass('disabled')) return;
 
+                let status = $(this).data('status');
+                let idStatus = [];
+
+                $('.checkbox-item:checked').each(function() {
+                    idStatus.push($(this).data('idstatus')); // ⬅️ PENTING
+                });
+
+                Swal.fire({
+                    title: 'Are You Sure?',
+                    text: idStatus.length + ' Data Will Be Changed',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, Change!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: 'edit_status_bulk.php',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                idStatus: idStatus,
+                                status: status
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    Swal.fire('Success', response.message, 'success')
+                                        .then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error(xhr.responseText);
+                                Swal.fire('Error', 'Server error', 'error');
+                            }
+                        });
+                    }
+                });
+            });
         });
-    </script> -->
+    </script>
     <script>
         $(document).on('click', '.tombol-hapus', function(e) {
             e.preventDefault();

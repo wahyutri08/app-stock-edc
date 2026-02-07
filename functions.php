@@ -509,6 +509,7 @@ function deleteList($id_return)
     mysqli_query($db, "DELETE FROM return_edc WHERE id_return = $id_return");
     return mysqli_affected_rows($db);
 }
+function editProfile ()
 
 function is_user_active($id)
 {

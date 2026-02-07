@@ -64,12 +64,9 @@ require_once '../partials/header.php';
                         <div class="col">
                             <div class="card card-outline card-success">
                                 <div class="card-header text-left">
-                                    <a href="#" id="btnDelete" class="btn btn-sm bg-gradient-warning disabled mr-2">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </a>
-                                    <a href="#" id="btnHO" data-status="Not yet used"
+                                    <a href="#" id="btnHO" data-status="HO"
                                         class="btn btn-action btn-sm bg-gradient-primary disabled mr-2">
-                                        <i class="fas fa-times"></i> HO
+                                        <i class="fas fa-check"></i> Send To HO
                                     </a>
                                     <!-- <a href="#" id="btnUsed" data-status="Used"
                                         class="btn btn-action btn-sm bg-gradient-success disabled">
@@ -112,7 +109,7 @@ require_once '../partials/header.php';
                                                                 class="custom-control-input custom-control-input-danger checkbox-item"
                                                                 id="check<?= $row['id_return']; ?>"
                                                                 value="<?= $row['id_return']; ?>"
-                                                                data-idstock="<?= $row['id_return']; ?>">
+                                                                data-idstatus="<?= $row['id_return']; ?>">
                                                             <label for="check<?= $row['id_return']; ?>" class="custom-control-label"></label>
                                                         </div>
                                                     </td>
@@ -128,7 +125,7 @@ require_once '../partials/header.php';
                                                     <td class="text-center"><?= $row["date"]; ?></td>
                                                     <td class="text-center"><?= $row["note"]; ?></td>
                                                     <td class="text-center">
-                                                        <a href="edit_detail.php?id_return=<?= $row["id_return"]; ?>"><button class="btn btn-sm btn-success"><i class="fas fa-edit"></i></button></a>
+                                                        <a href="edit_return.php?id_return=<?= $row["id_return"]; ?>"><button class="btn btn-sm btn-success"><i class="fas fa-edit"></i></button></a>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -171,6 +168,127 @@ require_once '../partials/header.php';
                 "responsive": false,
                 "buttons": ["excel", "print", "colvis"]
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+
+            // CHECK ALL
+            $('#checkAll').on('change', function() {
+                $('.checkbox-item').prop('checked', this.checked);
+                toggleDeleteButton();
+            });
+
+            // CHECK SATUAN
+            $(document).on('change', '.checkbox-item', function() {
+                $('#checkAll').prop(
+                    'checked',
+                    $('.checkbox-item:checked').length === $('.checkbox-item').length
+                );
+                toggleDeleteButton();
+            });
+
+            // 🔥 TOGGLE CLASS DISABLED
+            function toggleDeleteButton() {
+                if ($('.checkbox-item:checked').length > 0) {
+                    $('#btnDeleteReturn, #btnHO, #btnTechnician').removeClass('disabled');
+                } else {
+                    $('#btnDeleteReturn, #btnHO, #btnTechnician').addClass('disabled');
+                }
+            }
+
+            // 🗑️ CLICK DELETE (CEGAH JIKA DISABLED)
+            $('#btnDeleteReturn').on('click', function(e) {
+                if ($(this).hasClass('disabled')) {
+                    e.preventDefault();
+                    return;
+                }
+
+                e.preventDefault();
+
+                let listIds = [];
+                $('.checkbox-item:checked').each(function() {
+                    listIds.push($(this).val());
+                });
+
+                Swal.fire({
+                    title: 'Are You Sure?',
+                    text: listIds.length + ' Data Will be Deleted',
+                    icon: 'warning',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Delete!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: 'delete_return_bulk.php',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                listIds: listIds
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    Swal.fire('Deleted!', response.message, 'success')
+                                        .then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error(xhr.responseText);
+                                Swal.fire('Error', 'Server error', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+            $('.btn-action').on('click', function(e) {
+                e.preventDefault();
+                if ($(this).hasClass('disabled')) return;
+
+                let status = $(this).data('status');
+                let idStatus = [];
+
+                $('.checkbox-item:checked').each(function() {
+                    idStatus.push($(this).data('idstatus')); // ⬅️ PENTING
+                });
+
+                Swal.fire({
+                    title: 'Are You Sure?',
+                    text: idStatus.length + ' Data Will Be Changed',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, Change!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: 'edit_status_bulk.php',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                idStatus: idStatus,
+                                status: status
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    Swal.fire('Success', response.message, 'success')
+                                        .then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error(xhr.responseText);
+                                Swal.fire('Error', 'Server error', 'error');
+                            }
+                        });
+                    }
+                });
+            });
         });
     </script>
     <script>

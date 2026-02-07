@@ -66,9 +66,11 @@ require_once '../partials/header.php';
                                     <a href="add_stock.php" class="btn btn-sm bg-gradient-danger mr-2">
                                         <i class="fas fa-plus"></i> Add Stock
                                     </a>
-                                    <a href="#" id="btnDelete" class="btn btn-sm bg-gradient-warning disabled">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </a>
+                                    <?php if ($role === 'Admin') : ?>
+                                        <a href="#" id="btnDelete" class="btn btn-sm bg-gradient-warning disabled">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    <?php endif; ?>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body table-responsive">
@@ -91,7 +93,9 @@ require_once '../partials/header.php';
                                                 <th class="text-center">SN Samcard 3</th>
                                                 <!-- <th class="text-center">Status</th> -->
                                                 <th class="text-center">Date Pickup</th>
-                                                <th></th>
+                                                <?php if ($role == 'Admin') : ?>
+                                                    <th></th>
+                                                <?php endif; ?>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -119,17 +123,19 @@ require_once '../partials/header.php';
                                                         <td class="text-center"><span class="badge bg-success"><?= $row["status_edc"]; ?></span></td>
                                                     <?php endif; ?> -->
                                                     <td class="text-center"><?= $row["date"]; ?></td>
-                                                    <td class="text-center">
-                                                        <div class="dropdown">
-                                                            <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-expanded="false">
-                                                                Action
-                                                            </button>
-                                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                                <li><a class="dropdown-item" href="edit_stock.php?id_stock=<?= $row["id_stock"]; ?>"><i class="fas fa-edit"></i> Edit</a></li>
-                                                                <li><a class="dropdown-item tombol-hapus" href="delete_stock.php?id_stock=<?= $row["id_stock"]; ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
-                                                            </ul>
-                                                        </div>
-                                                    </td>
+                                                    <?php if ($role === 'Admin') : ?>
+                                                        <td class="text-center">
+                                                            <div class="dropdown">
+                                                                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-expanded="false">
+                                                                    Action
+                                                                </button>
+                                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                                    <li><a class="dropdown-item" href="edit_stock.php?id_stock=<?= $row["id_stock"]; ?>"><i class="fas fa-edit"></i> Edit</a></li>
+                                                                    <li><a class="dropdown-item tombol-hapus" href="delete_stock.php?id_stock=<?= $row["id_stock"]; ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </td>
+                                                    <?php endif; ?>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -173,81 +179,83 @@ require_once '../partials/header.php';
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
         });
     </script>
-    <script>
-        $(document).ready(function() {
+    <?php if ($role == 'Admin') : ?>
+        <script>
+            $(document).ready(function() {
 
-            // CHECK ALL
-            $('#checkAll').on('change', function() {
-                $('.checkbox-item').prop('checked', this.checked);
-                toggleDeleteButton();
-            });
-
-            // CHECK SATUAN
-            $(document).on('change', '.checkbox-item', function() {
-                $('#checkAll').prop(
-                    'checked',
-                    $('.checkbox-item:checked').length === $('.checkbox-item').length
-                );
-                toggleDeleteButton();
-            });
-
-            // 🔥 TOGGLE CLASS DISABLED
-            function toggleDeleteButton() {
-                if ($('.checkbox-item:checked').length > 0) {
-                    $('#btnDelete').removeClass('disabled');
-                } else {
-                    $('#btnDelete').addClass('disabled');
-                }
-            }
-
-            // 🗑️ CLICK DELETE (CEGAH JIKA DISABLED)
-            $('#btnDelete').on('click', function(e) {
-                if ($(this).hasClass('disabled')) {
-                    e.preventDefault();
-                    return;
-                }
-
-                e.preventDefault();
-
-                let ids = [];
-                $('.checkbox-item:checked').each(function() {
-                    ids.push($(this).val());
+                // CHECK ALL
+                $('#checkAll').on('change', function() {
+                    $('.checkbox-item').prop('checked', this.checked);
+                    toggleDeleteButton();
                 });
 
-                Swal.fire({
-                    title: 'Are You Sure?',
-                    text: ids.length + ' Data Will be Deleted',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, Delete!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: 'delete_stock_bulk.php',
-                            type: 'POST',
-                            data: {
-                                ids: ids
-                            },
-                            success: function(res) {
-                                let response = JSON.parse(res);
+                // CHECK SATUAN
+                $(document).on('change', '.checkbox-item', function() {
+                    $('#checkAll').prop(
+                        'checked',
+                        $('.checkbox-item:checked').length === $('.checkbox-item').length
+                    );
+                    toggleDeleteButton();
+                });
 
-                                if (response.status === 'success') {
-                                    Swal.fire('Deleted!', response.message, 'success')
-                                        .then(() => location.reload());
-                                } else {
-                                    Swal.fire('Error', response.message, 'error');
-                                }
-                            },
-                            error: function() {
-                                Swal.fire('Error', 'Server error', 'error');
-                            }
-                        });
+                // 🔥 TOGGLE CLASS DISABLED
+                function toggleDeleteButton() {
+                    if ($('.checkbox-item:checked').length > 0) {
+                        $('#btnDelete').removeClass('disabled');
+                    } else {
+                        $('#btnDelete').addClass('disabled');
                     }
-                });
-            });
+                }
 
-        });
-    </script>
+                // 🗑️ CLICK DELETE (CEGAH JIKA DISABLED)
+                $('#btnDelete').on('click', function(e) {
+                    if ($(this).hasClass('disabled')) {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    e.preventDefault();
+
+                    let ids = [];
+                    $('.checkbox-item:checked').each(function() {
+                        ids.push($(this).val());
+                    });
+
+                    Swal.fire({
+                        title: 'Are You Sure?',
+                        text: ids.length + ' Data Will be Deleted',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, Delete!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: 'delete_stock_bulk.php',
+                                type: 'POST',
+                                data: {
+                                    ids: ids
+                                },
+                                success: function(res) {
+                                    let response = JSON.parse(res);
+
+                                    if (response.status === 'success') {
+                                        Swal.fire('Deleted!', response.message, 'success')
+                                            .then(() => location.reload());
+                                    } else {
+                                        Swal.fire('Error', response.message, 'error');
+                                    }
+                                },
+                                error: function() {
+                                    Swal.fire('Error', 'Server error', 'error');
+                                }
+                            });
+                        }
+                    });
+                });
+
+            });
+        </script>
+    <?php endif; ?>
     <script>
         $(document).on('click', '.tombol-hapus', function(e) {
             e.preventDefault();

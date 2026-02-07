@@ -30,8 +30,6 @@
 <script src="../assets/dist/js/adminlte.min.js"></script>
 <script src="../assets/plugins/sweetalert/sweetalert2.all.min.js"></script>
 <script src="../assets/js/logoutsweetalert.js"></script>
-<script src="../assets/js/checkall.js"></script>
-<script src="../assets/js/checkall_return.js"></script>
 
 <!-- Sidebar JS -->
 <script src="../assets/js/sidebar.js"></script>

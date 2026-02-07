@@ -70,16 +70,9 @@ require_once '../partials/header.php';
                         <div class="col">
                             <div class="card card-outline card-success">
                                 <div class="card-header text-left">
-                                    <a href="#" id="btnDelete" class="btn btn-sm bg-gradient-warning disabled mr-2">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </a>
-                                    <a href="#" id="btnNotyetused" data-status="Not yet used"
-                                        class="btn btn-action btn-sm bg-gradient-primary disabled mr-2">
-                                        <i class="fas fa-times"></i> Not yet Used
-                                    </a>
                                     <a href="#" id="btnUsed" data-status="Used"
                                         class="btn btn-action btn-sm bg-gradient-success disabled">
-                                        <i class="fas fa-check"></i> Used
+                                        <i class="fas fa-check"></i> Send To Used
                                     </a>
                                 </div>
                                 <!-- /.card-header -->
@@ -172,46 +165,75 @@ require_once '../partials/header.php';
         });
     </script>
     <script>
-        $(document).on('click', '.tombol-hapus', function(e) {
-            e.preventDefault();
+        $(document).ready(function() {
 
-            const href = $(this).attr('href');
+            // CHECK ALL
+            $('#checkAll').on('change', function() {
+                $('.checkbox-item').prop('checked', this.checked);
+                toggleDeleteButton();
+            });
 
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "Data will be deleted",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: href,
-                        type: 'GET',
-                        success: function(response) {
-                            let res = JSON.parse(response);
+            // CHECK SATUAN
+            $(document).on('change', '.checkbox-item', function() {
+                $('#checkAll').prop(
+                    'checked',
+                    $('.checkbox-item:checked').length === $('.checkbox-item').length
+                );
+                toggleDeleteButton();
+            });
 
-                            if (res.status === 'success') {
-                                Swal.fire({
-                                    title: 'Deleted!',
-                                    text: 'Data Successfully Deleted',
-                                    icon: 'success'
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else if (res.status === 'error') {
-                                Swal.fire('Error', 'Data Deletion Failed', 'error');
-                            } else if (res.status === 'redirect') {
-                                window.location.href = '../login';
-                            }
-                        },
-                        error: function() {
-                            Swal.fire('Error', 'Server Error', 'error');
-                        }
-                    });
+            // 🔥 TOGGLE CLASS DISABLED
+            function toggleDeleteButton() {
+                if ($('.checkbox-item:checked').length > 0) {
+                    $('#btnUsed').removeClass('disabled');
+                } else {
+                    $('#btnUsed').addClass('disabled');
                 }
+            }
+            $('.btn-action').on('click', function(e) {
+                e.preventDefault();
+                if ($(this).hasClass('disabled')) return;
+
+                let status = $(this).data('status');
+                let idStocks = [];
+
+                $('.checkbox-item:checked').each(function() {
+                    idStocks.push($(this).data('idstock')); // ⬅️ PENTING
+                });
+
+                Swal.fire({
+                    title: 'Are You Sure?',
+                    text: idStocks.length + ' Data Will Be Changed',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, Change!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: 'edit_stock_bulk.php',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                idStocks: idStocks,
+                                status: status
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    Swal.fire('Success', response.message, 'success')
+                                        .then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error(xhr.responseText);
+                                Swal.fire('Error', 'Server error', 'error');
+                            }
+                        });
+                    }
+                });
             });
         });
     </script>

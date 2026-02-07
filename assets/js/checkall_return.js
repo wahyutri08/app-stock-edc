@@ -18,9 +18,9 @@
             // 🔥 TOGGLE CLASS DISABLED
             function toggleDeleteButton() {
                 if ($('.checkbox-item:checked').length > 0) {
-                    $('#btnDeleteReturn').removeClass('disabled');
+                    $('#btnDeleteReturn, #btnHO, #btnTechnician').removeClass('disabled');
                 } else {
-                    $('#btnDeleteReturn').addClass('disabled');
+                    $('#btnDeleteReturn, #btnHO, #btnTechnician').addClass('disabled');
                 }
             }
 
@@ -76,15 +76,15 @@
                 if ($(this).hasClass('disabled')) return;
 
                 let status = $(this).data('status');
-                let idStocks = [];
+                let idStatus = [];
 
                 $('.checkbox-item:checked').each(function() {
-                    idStocks.push($(this).data('idstock')); // ⬅️ PENTING
+                    idStatus.push($(this).data('idstatus')); // ⬅️ PENTING
                 });
 
                 Swal.fire({
                     title: 'Are You Sure?',
-                    text: idStocks.length + ' Data Will Be Changed',
+                    text: idStatus.length + ' Data Will Be Changed',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -93,11 +93,11 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: 'edit_stock_bulk.php',
+                            url: 'edit_status_bulk.php',
                             type: 'POST',
                             dataType: 'json',
                             data: {
-                                idStocks: idStocks,
+                                idStatus: idStatus,
                                 status: status
                             },
                             success: function(response) {
