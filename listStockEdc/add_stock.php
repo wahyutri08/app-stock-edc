@@ -111,7 +111,7 @@ require_once '../partials/header.php';
                                         </div>
                                         <div class="form-group col-md-5">
                                             <label for="nama_atribut">Date:</label>
-                                            <input type="date" name="date" class="form-control" id="date" placeholder="Date">
+                                            <input type="date" name="date" class="form-control" id="date" value="<?= date('Y-m-d', strtotime('now')); ?>" placeholder="Date">
                                         </div>
                                     </div>
                                     <!-- /.card-body -->

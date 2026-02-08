@@ -30,7 +30,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- icheck bootstrap -->
     <link rel="stylesheet" href="../assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <style>
-        #example1 {
+        /* #example1 {
             table-layout: fixed;
             width: 100%;
         }
@@ -40,8 +40,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
             min-width: 350px;
             max-width: 500px;
             white-space: normal;
-            /* biar wrap rapi */
             word-break: break-word;
+        } */
+        #example1 th,
+        #example1 td {
+            white-space: nowrap;
         }
     </style>
 </head>

@@ -201,7 +201,7 @@ require_once '../partials/header.php';
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="addres_name">Address:</label>
-                                                    <input type="text" name="addres_name" class="form-control" id="addres_name" placeholder="Address Name" value="<?= $stock["addres_name"]; ?>">
+                                                    <textarea class="form-control" id="addres_name" name="addres_name" rows="3"><?= htmlspecialchars($stock["addres_name"] ?? '') ?></textarea>
                                                 </div>
                                                 <?php if (!empty($stock['date'])) : ?>
                                                     <div class="form-group">

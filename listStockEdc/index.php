@@ -74,17 +74,18 @@ require_once '../partials/header.php';
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body table-responsive">
-                                    <table id="example1" class="table table-hover">
+                                    <table id="example1" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th class="text-center">
-                                                    <div class="custom-control custom-checkbox">
-                                                        <input class="custom-control-input custom-control-input-danger"
-                                                            type="checkbox" id="checkAll">
-                                                        <label for="checkAll" class="custom-control-label"></label>
-                                                    </div>
-                                                </th>
-                                                <th class="text-center">No</th>
+                                                <?php if ($role === 'Admin') : ?>
+                                                    <th class="text-center" style="width: 8px;">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input class="custom-control-input custom-control-input-danger"
+                                                                type="checkbox" id="checkAll">
+                                                            <label for="checkAll" class="custom-control-label"></label>
+                                                        </div>
+                                                    </th>
+                                                <?php endif; ?>
                                                 <th class="text-center">Name</th>
                                                 <th class="text-center">SN EDC</th>
                                                 <th class="text-center">SN Simcard</th>
@@ -101,16 +102,17 @@ require_once '../partials/header.php';
                                         <tbody>
                                             <?php foreach ($stck as $i => $row) : ?>
                                                 <tr>
-                                                    <td class="text-center">
-                                                        <div class="custom-control custom-checkbox">
-                                                            <input class="custom-control-input custom-control-input-danger checkbox-item"
-                                                                type="checkbox"
-                                                                id="check<?= $row['id_stock']; ?>"
-                                                                value="<?= $row['id_stock']; ?>">
-                                                            <label for="check<?= $row['id_stock']; ?>" class="custom-control-label"></label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center"><?= $i + 1; ?></td>
+                                                    <?php if ($role === 'Admin') : ?>
+                                                        <td class="text-center" style="width: 8px;">
+                                                            <div class="custom-control custom-checkbox">
+                                                                <input class="custom-control-input custom-control-input-danger checkbox-item"
+                                                                    type="checkbox"
+                                                                    id="check<?= $row['id_stock']; ?>"
+                                                                    value="<?= $row['id_stock']; ?>">
+                                                                <label for="check<?= $row['id_stock']; ?>" class="custom-control-label"></label>
+                                                            </div>
+                                                        </td>
+                                                    <?php endif; ?>
                                                     <td class="text-center"><?= $row["name"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_edc"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_simcard"]; ?></td>
@@ -175,7 +177,8 @@ require_once '../partials/header.php';
                 "info": true,
                 "autoWidth": true,
                 "responsive": false,
-                "buttons": ["excel", "print", "colvis"]
+                <?php if ($role === 'Admin') : ?> "buttons": ["excel", "print", "colvis"]
+                <?php endif; ?>
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
         });
     </script>

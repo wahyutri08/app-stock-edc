@@ -6,22 +6,15 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
-$user_id = $_SESSION['id'];
-$role = $_SESSION['role'];
-
-if ($role == 'Admin') {
-    $return = query("SELECT * FROM return_edc
-               JOIN users
-               ON return_edc.user_id = users.id
-               WHERE status1 = 'HO'");
-} elseif ($role == 'User') {
-    $return = query("SELECT * FROM return_edc
-               JOIN users
-               ON return_edc.user_id = users.id 
-               WHERE status1 = 'HO' AND user_id = $user_id");
+if ($_SESSION['role'] !== 'Admin') {
+    header("HTTP/1.1 403 Not Found");
+    include("../errors/403.html");
+    exit;
 }
 
-$title = "HO";
+$users = query("SELECT * FROM users");
+
+$title = "User Management";
 require_once '../partials/header.php';
 
 ?>
@@ -48,8 +41,8 @@ require_once '../partials/header.php';
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="../dashboard">Home</a></li>
-                                <li class="breadcrumb-item">Return EDC</li>
-                                <li class="breadcrumb-item"><?= $title;  ?></li>
+                                <li class="breadcrumb-item">Settings</li>
+                                <li class="breadcrumb-item active"><?= $title;  ?></li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -62,15 +55,15 @@ require_once '../partials/header.php';
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col">
-                            <div class="card card-outline card-success">
-                                <?php if ($role === 'Admin') : ?>
-                                    <div class="card-header text-left">
-                                        <a href="#" id="btnTechnician" data-status="Technician"
-                                            class="btn btn-action btn-sm bg-gradient-primary disabled mr-2">
-                                            <i class="fas fa-check"></i> Back To Technician
-                                        </a>
-                                    </div>
-                                <?php endif; ?>
+                            <div class="card card-outline card-warning">
+                                <div class="card-header text-left">
+                                    <a href="../register" class="btn btn-sm bg-warning mr-2">
+                                        <i class="fas fa-plus"></i> Add Stock
+                                    </a>
+                                    <a href="#" id="btnDelete" class="btn btn-sm bg-danger disabled">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
+                                </div>
                                 <!-- /.card-header -->
                                 <div class="card-body table-responsive">
                                     <table id="example1" class="table table-bordered table-hover">
@@ -83,43 +76,52 @@ require_once '../partials/header.php';
                                                         <label for="checkAll" class="custom-control-label"></label>
                                                     </div>
                                                 </th>
+                                                <th class="text-center">Username</th>
                                                 <th class="text-center">Name</th>
-                                                <th class="text-center">SN EDC</th>
-                                                <th class="text-center">Simcard</th>
-                                                <th class="text-center">Samcard1</th>
-                                                <th class="text-center">Samcard2</th>
-                                                <th class="text-center">Samcard3</th>
+                                                <th class="text-center">Email</th>
+                                                <th class="text-center">No Telefon</th>
                                                 <th class="text-center">Status</th>
-                                                <th class="text-center">Status Condition</th>
-                                                <th class="text-center">Date</th>
-                                                <th class="text-center">Note</th>
+                                                <th class="text-center">Role</th>
+                                                <th class="text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach ($return as $i => $row) : ?>
+                                            <?php foreach ($users as $i => $row) : ?>
                                                 <tr>
                                                     <td class="text-center" style="width: 8px;">
                                                         <div class="custom-control custom-checkbox">
-                                                            <input
+                                                            <input class="custom-control-input custom-control-input-danger checkbox-item"
                                                                 type="checkbox"
-                                                                class="custom-control-input custom-control-input-danger checkbox-item"
-                                                                id="check<?= $row['id_return']; ?>"
-                                                                value="<?= $row['id_return']; ?>"
-                                                                data-idstatus="<?= $row['id_return']; ?>">
-                                                            <label for="check<?= $row['id_return']; ?>" class="custom-control-label"></label>
+                                                                id="check<?= $row['id']; ?>"
+                                                                value="<?= $row['id']; ?>">
+                                                            <label for="check<?= $row['id']; ?>" class="custom-control-label"></label>
                                                         </div>
                                                     </td>
-                                                    <td class="text-center"><?= $i + 1; ?></td>
+                                                    <td class="text-center"><?= $row["username"]; ?></td>
                                                     <td class="text-center"><?= $row["name"]; ?></td>
-                                                    <td class="text-center"><?= $row["sn_edc"]; ?></td>
-                                                    <td class="text-center"><?= $row["sn_simcard"]; ?></td>
-                                                    <td class="text-center"><?= $row["sn_samcard1"]; ?></td>
-                                                    <td class="text-center"><?= $row["sn_samcard2"]; ?></td>
-                                                    <td class="text-center"><?= $row["sn_samcard3"]; ?></td>
-                                                    <td class="text-center"><?= $row["status1"]; ?></td>
-                                                    <td class="text-center"><?= $row["status2"]; ?></td>
-                                                    <td class="text-center"><?= $row["date"]; ?></td>
-                                                    <td class="text-center"><?= $row["note"]; ?></td>
+                                                    <td class="text-center"><?= $row["email"]; ?></td>
+                                                    <td class="text-center"><?= $row["no_telfon"]; ?></td>
+                                                    <?php if ($row["status"] == "Active") : ?>
+                                                        <td class="text-center"><span class="badge bg-success">Active</span></td>
+                                                    <?php else : ?>
+                                                        <td class="text-center"><span class="badge bg-danger">Not active</span></td>
+                                                    <?php endif; ?>
+                                                    <?php if ($row["role"] === "Admin") : ?>
+                                                        <td class="text-center"><span class="badge bg-primary">Admin</span></td>
+                                                    <?php else : ?>
+                                                        <td class="text-center"><span class="badge bg-warning">User</span></td>
+                                                    <?php endif; ?>
+                                                    <td class="text-center">
+                                                        <div class="dropdown">
+                                                            <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-expanded="false">
+                                                                Action
+                                                            </button>
+                                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                                <li><a class="dropdown-item" href="edit_users.php?id=<?= $row["id"]; ?>"><i class="fas fa-edit"></i> Edit</a></li>
+                                                                <li><a class="dropdown-item tombol-hapus" href="delete_users.php?id=<?= $row["id"]; ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -159,8 +161,7 @@ require_once '../partials/header.php';
                 "info": true,
                 "autoWidth": true,
                 "responsive": false,
-                <?php if ($role === 'Admin') : ?> "buttons": ["excel", "print", "colvis"]
-                <?php endif; ?>
+                "buttons": ["excel", "print", "colvis"]
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
         });
     </script>
@@ -185,14 +186,14 @@ require_once '../partials/header.php';
             // 🔥 TOGGLE CLASS DISABLED
             function toggleDeleteButton() {
                 if ($('.checkbox-item:checked').length > 0) {
-                    $('#btnDeleteReturn, #btnHO, #btnTechnician').removeClass('disabled');
+                    $('#btnDelete').removeClass('disabled');
                 } else {
-                    $('#btnDeleteReturn, #btnHO, #btnTechnician').addClass('disabled');
+                    $('#btnDelete').addClass('disabled');
                 }
             }
 
             // 🗑️ CLICK DELETE (CEGAH JIKA DISABLED)
-            $('#btnDeleteReturn').on('click', function(e) {
+            $('#btnDelete').on('click', function(e) {
                 if ($(this).hasClass('disabled')) {
                     e.preventDefault();
                     return;
@@ -200,29 +201,30 @@ require_once '../partials/header.php';
 
                 e.preventDefault();
 
-                let listIds = [];
+                let ids = [];
                 $('.checkbox-item:checked').each(function() {
-                    listIds.push($(this).val());
+                    ids.push($(this).val());
                 });
 
                 Swal.fire({
                     title: 'Are You Sure?',
-                    text: listIds.length + ' Data Will be Deleted',
+                    text: ids.length + ' Data Will be Deleted',
                     icon: 'warning',
+                    showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    showCancelButton: true,
                     confirmButtonText: 'Yes, Delete!'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: 'delete_return_bulk.php',
+                            url: 'delete_user_bulk.php',
                             type: 'POST',
-                            dataType: 'json',
                             data: {
-                                listIds: listIds
+                                ids: ids
                             },
-                            success: function(response) {
+                            success: function(res) {
+                                let response = JSON.parse(res);
+
                                 if (response.status === 'success') {
                                     Swal.fire('Deleted!', response.message, 'success')
                                         .then(() => location.reload());
@@ -230,59 +232,14 @@ require_once '../partials/header.php';
                                     Swal.fire('Error', response.message, 'error');
                                 }
                             },
-                            error: function(xhr) {
-                                console.error(xhr.responseText);
+                            error: function() {
                                 Swal.fire('Error', 'Server error', 'error');
                             }
                         });
                     }
                 });
             });
-            $('.btn-action').on('click', function(e) {
-                e.preventDefault();
-                if ($(this).hasClass('disabled')) return;
 
-                let status = $(this).data('status');
-                let idStatus = [];
-
-                $('.checkbox-item:checked').each(function() {
-                    idStatus.push($(this).data('idstatus')); // ⬅️ PENTING
-                });
-
-                Swal.fire({
-                    title: 'Are You Sure?',
-                    text: idStatus.length + ' Data Will Be Changed',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, Change!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: 'edit_status_bulk.php',
-                            type: 'POST',
-                            dataType: 'json',
-                            data: {
-                                idStatus: idStatus,
-                                status: status
-                            },
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    Swal.fire('Success', response.message, 'success')
-                                        .then(() => location.reload());
-                                } else {
-                                    Swal.fire('Error', response.message, 'error');
-                                }
-                            },
-                            error: function(xhr) {
-                                console.error(xhr.responseText);
-                                Swal.fire('Error', 'Server error', 'error');
-                            }
-                        });
-                    }
-                });
-            });
         });
     </script>
     <script>

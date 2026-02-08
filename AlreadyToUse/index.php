@@ -69,25 +69,27 @@ require_once '../partials/header.php';
                     <div class="row">
                         <div class="col">
                             <div class="card card-outline card-success">
-                                <div class="card-header text-left">
-                                    <a href="#" id="btnNotyetused" data-status="Not yet used"
-                                        class="btn btn-action btn-sm bg-gradient-primary disabled">
-                                        <i class="fas fa-times"></i> Not yet Used
-                                    </a>
-                                </div>
+                                <?php if ($role === 'Admin') : ?>
+                                    <div class="card-header text-left">
+                                        <a href="#" id="btnNotyetused" data-status="Not yet used"
+                                            class="btn btn-action btn-sm bg-gradient-primary disabled">
+                                            <i class="fas fa-times"></i> Rollback
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
                                 <!-- /.card-header -->
                                 <div class="card-body table-responsive">
-                                    <table id="example1" class="table table-hover">
+                                    <table id="example1" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th class="text-center">
+                                                <th class="text-center" style="width: 8px;">
                                                     <div class="custom-control custom-checkbox">
                                                         <input class="custom-control-input custom-control-input-danger"
                                                             type="checkbox" id="checkAll">
                                                         <label for="checkAll" class="custom-control-label"></label>
                                                     </div>
                                                 </th>
-                                                <th class="text-center">No</th>
+                                                <!-- <th class="text-center">No</th> -->
                                                 <th class="text-center">Name</th>
                                                 <th class="text-center">SN EDC</th>
                                                 <th class="text-center">Simcard</th>
@@ -97,7 +99,6 @@ require_once '../partials/header.php';
                                                 <th class="text-center">TID</th>
                                                 <th class="text-center">MID</th>
                                                 <th class="text-center">Merchant</th>
-                                                <th class="text-center">Address</th>
                                                 <th class="text-center">Date</th>
                                                 <th class="text-center">Status</th>
                                                 <th class="text-center">Note</th>
@@ -106,7 +107,7 @@ require_once '../partials/header.php';
                                         <tbody>
                                             <?php foreach ($stck as $i => $row) : ?>
                                                 <tr>
-                                                    <td class="text-center">
+                                                    <td class="text-center" style="width: 8px;">
                                                         <div class="custom-control custom-checkbox">
                                                             <input
                                                                 type="checkbox"
@@ -117,7 +118,7 @@ require_once '../partials/header.php';
                                                             <label for="check<?= $row['stock_id']; ?>" class="custom-control-label"></label>
                                                         </div>
                                                     </td>
-                                                    <td class="text-center"><?= $i + 1; ?></td>
+                                                    <!-- <td class="text-center"><?= $i + 1; ?></td> -->
                                                     <td class="text-center"><?= $row["name"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_edc"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_simcard"]; ?></td>
@@ -126,8 +127,9 @@ require_once '../partials/header.php';
                                                     <td class="text-center"><?= $row["sn_samcard3"]; ?></td>
                                                     <td class="text-center"><?= $row["tid"]; ?></td>
                                                     <td class="text-center"><?= $row["mid"]; ?></td>
-                                                    <td class="text-center"><?= $row["merchant_name"]; ?></td>
-                                                    <td class="text-center"><?= $row["addres_name"]; ?></td>
+                                                    <td class="text-center"><?= $row["merchant_name"]; ?>
+                                                        <h6 style="font-size:smaller;"><?= $row["addres_name"]; ?></h6>
+                                                    </td>
                                                     <td class="text-center"><?= $row["date"]; ?></td>
                                                     <td class="text-center"><span class="badge bg-success"><?= $row["status_edc"]; ?></span></td>
                                                     <td class="text-center"><?= $row["note"]; ?></td>
@@ -156,97 +158,23 @@ require_once '../partials/header.php';
     <?php require_once '../partials/scripts.php'; ?>
 
     <script>
-        // $(function() {
-        //     $("#example1").DataTable({
-        //         "paging": true,
-        //         "lengthChange": true,
-        //         "pageLength": 10,
-        //         "lengthMenu": [
-        //             [10, 25, 50, 100, -1],
-        //             [10, 25, 50, 100, "All"]
-        //         ],
-        //         "searching": true,
-        //         "ordering": true,
-        //         "info": true,
-        //         "autoWidth": true,
-        //         "responsive": false,
-        //         "buttons": ["excel", "print", "colvis"]
-        //     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-        // });
         $(function() {
             $("#example1").DataTable({
-                    paging: true,
-                    lengthChange: true,
-                    pageLength: 10,
-                    searching: true,
-                    ordering: true,
-                    info: true,
-                    responsive: false,
-                    autoWidth: false,
-
-                    columnDefs: [{
-                            width: "80px",
-                            targets: 1
-                        },
-                        {
-                            width: "130px",
-                            targets: 2
-                        },
-                        {
-                            width: "180px",
-                            targets: 3
-                        },
-                        {
-                            width: "150px",
-                            targets: 4
-                        },
-                        {
-                            width: "180px",
-                            targets: 5
-                        },
-                        {
-                            width: "180px",
-                            targets: 6
-                        },
-                        {
-                            width: "180px",
-                            targets: 7
-                        },
-                        {
-                            width: "180px",
-                            targets: 8
-                        },
-                        {
-                            width: "180px",
-                            targets: 9
-                        },
-                        {
-                            width: "120px",
-                            targets: 10
-                        }, // Merchant
-                        {
-                            width: "500px",
-                            targets: 11
-                        },
-                        {
-                            width: "180px",
-                            targets: 12
-                        },
-                        {
-                            width: "80px",
-                            targets: 13
-                        },
-                        {
-                            width: "180px",
-                            targets: 14
-                        },
-                    ],
-
-                    buttons: ["excel", "print", "colvis"]
-                })
-                .buttons()
-                .container()
-                .appendTo('#example1_wrapper .col-md-6:eq(0)');
+                "paging": true,
+                "lengthChange": true,
+                "pageLength": 10,
+                "lengthMenu": [
+                    [10, 25, 50, 100, -1],
+                    [10, 25, 50, 100, "All"]
+                ],
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": true,
+                "responsive": false,
+                <?php if ($role === 'Admin') : ?> "buttons": ["excel", "print", "colvis"]
+                <?php endif; ?>
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
         });
     </script>
     <script>
