@@ -6,24 +6,22 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
-$id = $_SESSION["id"];
-$role = $_SESSION['role'];
-$user = query("SELECT * FROM users WHERE id = $id")[0];
+// if ($_SESSION["role"] !== 'Admin') {
+//     header("HTTP/1.1 404 Not Found");
+//     include("../errors/404.html");
+//     exit;
+// }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = addListReturn($_POST);
     if ($result > 0) {
         echo json_encode(["status" => "success", "message" => "Data Added Successfully"]);
     } elseif ($result == -1) {
-        echo json_encode(["status" => "error", "message" => "SN EDC Already Exists"]);
+        echo json_encode(["status" => "error", "message" => "Username Already Exists"]);
     } elseif ($result == -2) {
-        echo json_encode(["status" => "error", "message" => "SN SIMCARD Already Exists"]);
+        echo json_encode(["status" => "error", "message" => "Confirm Password Invalid"]);
     } elseif ($result == -3) {
-        echo json_encode(["status" => "error", "message" => "SN SAMCARD 1 Already Exists"]);
-    } elseif ($result == -4) {
-        echo json_encode(["status" => "error", "message" => "SN SAMCARD 2 Already Exists"]);
-    } elseif ($result == -5) {
-        echo json_encode(["status" => "error", "message" => "SN SAMCARD 3 Already Exists"]);
+        echo json_encode(["status" => "error", "message" => "Your File Not Image"]);
     } else {
         echo json_encode(["status" => "error", "message" => "Data Failed to Change"]);
     }
@@ -140,8 +138,8 @@ require_once '../partials/header.php';
                                     </div>
                                     <!-- /.card-body -->
                                     <div class="card-footer">
-                                        <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-solid fa-check"></i> Submit</button>
-                                        <button type="reset" class="btn btn-sm btn-dark">Reset</button>
+                                        <button type="submit" class="btn btn-primary"><i class="fas fa-solid fa-check"></i> Submit</button>
+                                        <button type="reset" class="btn btn-dark">Reset</button>
                                     </div>
                                 </form>
                             </div>

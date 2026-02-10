@@ -76,13 +76,15 @@ require_once '../partials/header.php';
                                     <table id="example1" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th class="text-center" style="width: 8px;">
-                                                    <div class="custom-control custom-checkbox">
-                                                        <input class="custom-control-input custom-control-input-danger"
-                                                            type="checkbox" id="checkAll">
-                                                        <label for="checkAll" class="custom-control-label"></label>
-                                                    </div>
-                                                </th>
+                                                <?php if ($role === 'Admin') : ?>
+                                                    <th class="text-center" style="width: 8px;">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input class="custom-control-input custom-control-input-danger"
+                                                                type="checkbox" id="checkAll">
+                                                            <label for="checkAll" class="custom-control-label"></label>
+                                                        </div>
+                                                    </th>
+                                                <?php endif; ?>
                                                 <th class="text-center">Name</th>
                                                 <th class="text-center">SN EDC</th>
                                                 <th class="text-center">Simcard</th>
@@ -99,17 +101,18 @@ require_once '../partials/header.php';
                                             <?php foreach ($return as $i => $row) : ?>
                                                 <tr>
                                                     <td class="text-center" style="width: 8px;">
-                                                        <div class="custom-control custom-checkbox">
-                                                            <input
-                                                                type="checkbox"
-                                                                class="custom-control-input custom-control-input-danger checkbox-item"
-                                                                id="check<?= $row['id_return']; ?>"
-                                                                value="<?= $row['id_return']; ?>"
-                                                                data-idstatus="<?= $row['id_return']; ?>">
-                                                            <label for="check<?= $row['id_return']; ?>" class="custom-control-label"></label>
-                                                        </div>
+                                                        <?php if ($role === 'Admin') : ?>
+                                                            <div class="custom-control custom-checkbox">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    class="custom-control-input custom-control-input-danger checkbox-item"
+                                                                    id="check<?= $row['id_return']; ?>"
+                                                                    value="<?= $row['id_return']; ?>"
+                                                                    data-idstatus="<?= $row['id_return']; ?>">
+                                                                <label for="check<?= $row['id_return']; ?>" class="custom-control-label"></label>
+                                                            </div>
+                                                        <?php endif; ?>
                                                     </td>
-                                                    <td class="text-center"><?= $i + 1; ?></td>
                                                     <td class="text-center"><?= $row["name"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_edc"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_simcard"]; ?></td>

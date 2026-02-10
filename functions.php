@@ -28,6 +28,106 @@ function query($query)
     return $rows;
 }
 
+function addUser($data)
+{
+    global $db;
+
+    $username = strtolower(stripcslashes($data["username"]));
+    $email = strtolower(stripslashes($data["email"]));
+    $name = ucfirst(stripslashes($data["name"]));
+    $no_telfon = htmlspecialchars($data["no_telfon"]);
+    $password = mysqli_real_escape_string($db, $data["password"]);
+    $password2 = mysqli_real_escape_string($db, $data["password2"]);
+    $role = htmlspecialchars($data["role"]);
+    $status = htmlspecialchars($data["status"]);
+    $created_at = date('Y-m-d H:i:s');
+
+
+    //  Upload Gambar
+    $avatar = upload();
+    if ($avatar === -1) {
+        return -3;
+    }
+
+    $result = mysqli_query($db, "SELECT * FROM users WHERE username = '$username'");
+
+    if (mysqli_fetch_assoc($result)) {
+        // Jika Nama Username Sudah Ada
+        return -1;
+    }
+
+    if ($password !== $password2) {
+        // Password 1 tidak sesuai dengan password 2
+        return -2;
+    }
+
+    $password = password_hash($password, PASSWORD_DEFAULT);
+
+    mysqli_query($db, "INSERT INTO users 
+    (username, name, email, no_telfon, password, avatar, status, role, created_at) 
+    VALUES 
+    ('$username','$name', '$email', '$no_telfon', '$password', '$avatar', '$status', '$role', '$created_at')");
+    return mysqli_affected_rows($db);
+}
+
+function editUsers($data)
+{
+    global $db;
+    $id = ($data["id"]);
+    $username = strtolower(stripslashes($data["username"]));
+    $name = ucfirst(stripcslashes($data["name"]));
+    $email = strtolower(stripslashes($data["email"]));
+    $password = mysqli_real_escape_string($db, $data["password"]);
+    $password2 = mysqli_real_escape_string($db, $data["password2"]);
+    $avatarLama = htmlspecialchars($data["avatarLama"]);
+    $role = htmlspecialchars($data["role"]);
+    $no_telfon = htmlspecialchars($data["no_telfon"]);
+    $status = htmlspecialchars($data["status"]);
+    $updated_at = date('Y-m-d H:i:s');
+    // $usernameLama = htmlspecialchars($data["username"]);
+
+    // Cek apakah user pilih avatar baru atau tidak
+    if ($_FILES['avatar']['error'] === 4) {
+        $avatar = $avatarLama;
+    } else {
+        $avatar = upload();
+        if ($avatar === -1) {
+            // Kesalahan Jika Bukan Gambar
+            return -1;
+        } elseif ($avatar === -2) {
+            // Kesalahan Ukuran Terlalu Besar
+            return -2;
+        }
+    }
+
+    if ($password !== $password2) {
+        // Password 1 tidak sesuai dengan password 2
+        return -3;
+    }
+
+    $password = password_hash($password, PASSWORD_DEFAULT);
+    $query = "UPDATE users SET 
+        username = '$username', 
+        name = '$name', 
+        email = '$email',
+        no_telfon = '$no_telfon',
+        avatar = '$avatar',
+        status = '$status',
+        role = '$role',
+        updated_at = '$updated_at' WHERE id = $id";
+    mysqli_query($db, $query);
+
+    return mysqli_affected_rows($db);
+}
+
+function deleteUsers($id)
+{
+    global $db;
+    mysqli_query($db, "DELETE FROM users WHERE id = $id");
+    return mysqli_affected_rows($db);
+}
+
+
 function addStock($data)
 {
     global $db;
@@ -90,7 +190,7 @@ function addStock($data)
 
     $query = "
         INSERT INTO stock
-        (user_id, sn_edc, sn_simcard, sn_samcard1, sn_samcard2, sn_samcard3, date, status_edc, created_at)
+        (user_id, sn_edc, sn_simcard, sn_samcard1, sn_samcard2, sn_samcard3, date_pickup, status_edc, created_at)
         VALUES (
             '$user_id',
             " . ($sn_edc  === '' ? "NULL" : "'$sn_edc'") . ",
@@ -235,7 +335,7 @@ function editDetail($data)
     $mid           = mysqli_real_escape_string($db, trim($data['mid']));
     $merchant_name = mysqli_real_escape_string($db, trim($data['merchant_name']));
     $addres_name   = mysqli_real_escape_string($db, trim($data['addres_name']));
-    $date       = mysqli_real_escape_string($db, $data['date']); // tanggal transaksi
+    $date       = mysqli_real_escape_string($db, $data['date_used']); // tanggal transaksi
     $note          = mysqli_real_escape_string($db, trim($data['note']));
 
     mysqli_begin_transaction($db);
@@ -257,7 +357,7 @@ function editDetail($data)
         ");
 
         if (!$updateStock) {
-            throw new Exception('Update stock gagal');
+            throw new Exception('Update Stock Failed');
         }
 
         /* ========= CEK DETAIL ========= */
@@ -275,7 +375,7 @@ function editDetail($data)
                     mid = '$mid',
                     merchant_name = '$merchant_name',
                     addres_name = '$addres_name',
-                    date = '$date',
+                    date_used = '$date',
                     note = '$note',
                     updated_at = '$now'
                 WHERE stock_id = $stock_id
@@ -289,7 +389,7 @@ function editDetail($data)
             /* ===== INSERT DETAIL ===== */
             $insertDetail = mysqli_query($db, "
                 INSERT INTO detail_list_stock
-                    (stock_id, tid, mid, merchant_name, addres_name, date, note, updated_at)
+                    (stock_id, tid, mid, merchant_name, addres_name, date_used, note, updated_at)
                 VALUES
                     ($stock_id, '$tid', '$mid', '$merchant_name', '$addres_name', '$date', '$note', '$now')
             ");
@@ -509,7 +609,93 @@ function deleteList($id_return)
     mysqli_query($db, "DELETE FROM return_edc WHERE id_return = $id_return");
     return mysqli_affected_rows($db);
 }
-function editProfile($data) {}
+
+function editProfile($data)
+{
+    global $db;
+    $id = ($data["id"]);
+    $name = ucfirst(stripcslashes($data["name"]));
+    $email = strtolower(stripslashes($data["email"]));
+    $no_telfon = htmlspecialchars($data["no_telfon"]);
+    $avatarLama = htmlspecialchars($data["avatarLama"]);
+
+    // Cek apakah user pilih avatar baru atau tidak
+    if ($_FILES['avatar']['error'] === 4) {
+        $avatar = $avatarLama;
+    } else {
+        $avatar = upload();
+        if ($avatar === -1) {
+            // Kesalahan Jika Bukan Gambar
+            return -1;
+        } elseif ($avatar === -2) {
+            // Kesalahan Jika Ukuran Terlalu Besar
+            return -2;
+        }
+    }
+
+    $query = "UPDATE users SET 
+        name = '$name',  
+        email = '$email',
+        no_telfon = '$no_telfon',
+        avatar = '$avatar' WHERE id = $id";
+    mysqli_query($db, $query);
+
+    return mysqli_affected_rows($db);
+}
+
+function changePassword($data)
+{
+    global $db;
+    $id = ($data["id"]);
+    $password = mysqli_real_escape_string($db, $data["password"]);
+    $password2 = mysqli_real_escape_string($db, $data["password2"]);
+
+    if ($password !== $password2) {
+        return -1;
+    }
+
+    $password = password_hash($password, PASSWORD_DEFAULT);
+    $query = "UPDATE users SET 
+    password = '$password' WHERE id = $id";
+    mysqli_query($db, $query);
+
+    return mysqli_affected_rows($db);
+}
+
+
+function upload()
+{
+
+    $namaFile = $_FILES['avatar']['name'];
+    $ukuranFiles = $_FILES['avatar']['size'];
+    $error = $_FILES['avatar']['error'];
+    $tmpName = $_FILES['avatar']['tmp_name'];
+
+    // Cek apakah yang diupload adalah gambar
+    $ekstensiAvatarValid = ['', 'jpg', 'jpeg', 'png'];
+    $ekstensiAvatar = explode('.', $namaFile);
+    $ekstensiAvatar = strtolower(end($ekstensiAvatar));
+    if (!in_array($ekstensiAvatar, $ekstensiAvatarValid)) {
+        // Jika Avatar Bukan Gambar
+        return -1;
+    }
+
+    if ($ukuranFiles > 10000000) {
+        // Cek jika ukuran terlalu besar
+        return -2;
+    }
+
+    // Gambar Siap Upload
+    // generate nama gambar baru
+
+    $namaFileBaru = uniqid();
+    $namaFileBaru .= '.';
+    $namaFileBaru .= $ekstensiAvatar;
+
+    move_uploaded_file($tmpName, '../assets/dist/img/profile/' . $namaFileBaru);
+
+    return $namaFileBaru;
+}
 
 function is_user_active($id)
 {

@@ -73,7 +73,7 @@ require_once '../partials/header.php';
                                     <div class="card-header text-left">
                                         <a href="#" id="btnNotyetused" data-status="Not yet used"
                                             class="btn btn-action btn-sm bg-gradient-primary disabled">
-                                            <i class="fas fa-times"></i> Rollback
+                                            <i class="nav-icon fas fa-sign-out-alt"></i> Rollback
                                         </a>
                                     </div>
                                 <?php endif; ?>
@@ -82,14 +82,15 @@ require_once '../partials/header.php';
                                     <table id="example1" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th class="text-center" style="width: 8px;">
-                                                    <div class="custom-control custom-checkbox">
-                                                        <input class="custom-control-input custom-control-input-danger"
-                                                            type="checkbox" id="checkAll">
-                                                        <label for="checkAll" class="custom-control-label"></label>
-                                                    </div>
-                                                </th>
-                                                <!-- <th class="text-center">No</th> -->
+                                                <?php if ($role === 'Admin') : ?>
+                                                    <th class="text-center" style="width: 8px;">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input class="custom-control-input custom-control-input-danger"
+                                                                type="checkbox" id="checkAll">
+                                                            <label for="checkAll" class="custom-control-label"></label>
+                                                        </div>
+                                                    </th>
+                                                <?php endif; ?>
                                                 <th class="text-center">Name</th>
                                                 <th class="text-center">SN EDC</th>
                                                 <th class="text-center">Simcard</th>
@@ -99,7 +100,7 @@ require_once '../partials/header.php';
                                                 <th class="text-center">TID</th>
                                                 <th class="text-center">MID</th>
                                                 <th class="text-center">Merchant</th>
-                                                <th class="text-center">Date</th>
+                                                <th class="text-center">Date Used</th>
                                                 <th class="text-center">Status</th>
                                                 <th class="text-center">Note</th>
                                             </tr>
@@ -107,18 +108,19 @@ require_once '../partials/header.php';
                                         <tbody>
                                             <?php foreach ($stck as $i => $row) : ?>
                                                 <tr>
-                                                    <td class="text-center" style="width: 8px;">
-                                                        <div class="custom-control custom-checkbox">
-                                                            <input
-                                                                type="checkbox"
-                                                                class="custom-control-input custom-control-input-danger checkbox-item"
-                                                                id="check<?= $row['stock_id']; ?>"
-                                                                value="<?= $row['stock_id']; ?>"
-                                                                data-idstock="<?= $row['id_stock']; ?>">
-                                                            <label for="check<?= $row['stock_id']; ?>" class="custom-control-label"></label>
-                                                        </div>
-                                                    </td>
-                                                    <!-- <td class="text-center"><?= $i + 1; ?></td> -->
+                                                    <?php if ($role === 'Admin') : ?>
+                                                        <td class="text-center" style="width: 8px;">
+                                                            <div class="custom-control custom-checkbox">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    class="custom-control-input custom-control-input-danger checkbox-item"
+                                                                    id="check<?= $row['stock_id']; ?>"
+                                                                    value="<?= $row['stock_id']; ?>"
+                                                                    data-idstock="<?= $row['id_stock']; ?>">
+                                                                <label for="check<?= $row['stock_id']; ?>" class="custom-control-label"></label>
+                                                            </div>
+                                                        </td>
+                                                    <?php endif; ?>
                                                     <td class="text-center"><?= $row["name"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_edc"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_simcard"]; ?></td>
@@ -130,7 +132,7 @@ require_once '../partials/header.php';
                                                     <td class="text-center"><?= $row["merchant_name"]; ?>
                                                         <h6 style="font-size:smaller;"><?= $row["addres_name"]; ?></h6>
                                                     </td>
-                                                    <td class="text-center"><?= $row["date"]; ?></td>
+                                                    <td class="text-center"><?= $row["date_used"]; ?></td>
                                                     <td class="text-center"><span class="badge bg-success"><?= $row["status_edc"]; ?></span></td>
                                                     <td class="text-center"><?= $row["note"]; ?></td>
                                                 </tr>

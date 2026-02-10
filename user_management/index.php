@@ -57,8 +57,8 @@ require_once '../partials/header.php';
                         <div class="col">
                             <div class="card card-outline card-warning">
                                 <div class="card-header text-left">
-                                    <a href="../register" class="btn btn-sm bg-warning mr-2">
-                                        <i class="fas fa-plus"></i> Add Stock
+                                    <a href="../add_user" class="btn btn-sm bg-warning mr-2">
+                                        <i class="fas fa-plus"></i> Add User
                                     </a>
                                     <a href="#" id="btnDelete" class="btn btn-sm bg-danger disabled">
                                         <i class="fas fa-trash"></i> Delete
@@ -117,7 +117,7 @@ require_once '../partials/header.php';
                                                                 Action
                                                             </button>
                                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                                <li><a class="dropdown-item" href="edit_users.php?id=<?= $row["id"]; ?>"><i class="fas fa-edit"></i> Edit</a></li>
+                                                                <li><a class="dropdown-item" href="edit_user.php?id=<?= $row["id"]; ?>"><i class="fas fa-edit"></i> Edit</a></li>
                                                                 <li><a class="dropdown-item tombol-hapus" href="delete_users.php?id=<?= $row["id"]; ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
                                                             </ul>
                                                         </div>

@@ -47,12 +47,18 @@ require_once '../partials/header.php';
 
 ?>
 
-<body class="hold-transition login-page">
+<body class="hold-transition login-page" style="background-position: center; background-size: cover; background-image: url('../assets/dist/img/bg.png');">
     <div class="login-box">
         <!-- /.login-logo -->
         <div class="card card-outline card-primary">
-            <div class="card-header text-center">
-                <a href="../../index2.html" class="h1"><b>STOCK </b>EDC</a>
+            <div class="card-header d-flex align-items-center justify-content-center text-center">
+                <img src="../assets/dist/img/Yokke.png"
+                    alt="Logo"
+                    class="brand-image img-circle me-2"
+                    style="width: 60px; height: 60px;">
+                <a href="../login" class="link-dark text-decoration-none ms-2 ml-2">
+                    <h5 class="mb-0 fw-bold"><b>ASSET MANAGEMENT STOCK</b></h5>
+                </a>
             </div>
             <div class="card-body">
                 <p class="login-box-msg">Sign in to start your session</p>

@@ -10,9 +10,11 @@ $user_id = $_SESSION['id'];
 $role = $_SESSION['role'];
 
 if ($role == 'Admin') {
-    $stck = query("SELECT stock.*, users.name, detail_list_stock.*
+    $stck = query("SELECT stock.*,
+                   detail_list_stock.*,
+                   IF(users.name IS NULL, 'Deleted User', users.name) AS name
                    FROM stock
-                   JOIN users 
+                   LEFT JOIN users 
                    ON stock.user_id = users.id
                    LEFT JOIN detail_list_stock 
                    ON stock.id_stock = detail_list_stock.stock_id

@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { selector: 'a[href*="../profile"]', path: '/profile' },
         { selector: 'a[href*="../change_password"]', path: '/change_password' },
         { selector: 'a[href*="../user_management"]', path: '/user_management' },
-        { selector: 'a[href*="../user_management"]', path: '/register' },
+        { selector: 'a[href*="../user_management"]', path: '/add_user' },
         { selector: 'a[href*="../dashboard"]', path: '/dashboard' }
     ];
 

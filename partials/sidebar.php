@@ -8,24 +8,75 @@ if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {
 $id = $_SESSION["id"];
 $role = $_SESSION["role"];
 $user = query("SELECT * FROM users WHERE id = $id")[0];
+
+$user_id = (int) $_SESSION['id'];
+if ($role == 'Admin') {
+    $query = query("SELECT 
+                (SELECT COUNT(*) FROM stock) AS total_stock,
+                (SELECT COUNT(*) FROM stock WHERE status_edc = 'Not yet used') AS total_not_used,
+                (SELECT COUNT(*) FROM stock WHERE status_edc = 'Used') AS total_used,
+                (SELECT COUNT(*) FROM return_edc) AS total_return,
+                (SELECT COUNT(*)FROM return_edc WHERE status1 = 'Technician') AS total_return_technician,
+                (SELECT COUNT(*)FROM return_edc WHERE status1 = 'HO') AS total_return_ho");
+} else {
+    $query = query("SELECT 
+                  (SELECT COUNT(*) 
+                  FROM stock 
+                  WHERE user_id = $user_id) AS total_stock,
+                  
+                  (SELECT COUNT(*) 
+                  FROM stock 
+                  WHERE status_edc = 'Not yet used' 
+                  AND user_id = $user_id) AS total_not_used,
+                  
+                  (SELECT COUNT(*) 
+                  FROM stock 
+                  WHERE status_edc = 'Used' 
+                  AND user_id = $user_id) AS total_used,
+                  
+                  (SELECT COUNT(*) 
+                  FROM return_edc 
+                  WHERE user_id = $user_id) AS total_return,
+                  
+                  (SELECT COUNT(*) 
+                  FROM return_edc 
+                  WHERE status1 = 'Technician' 
+                  AND user_id = $user_id) AS total_return_technician,
+
+                  (SELECT COUNT(*) 
+                  FROM return_edc 
+                  WHERE status1 = 'HO' 
+                  AND user_id = $user_id) AS total_return_ho");
+}
+
+$totalStock     = $query[0]['total_stock'];
+$totalNotUsed   = $query[0]['total_not_used'];
+$totalUsed      = $query[0]['total_used'];
+$totalReturn    = $query[0]['total_return'];
+$totalReturnTechnician    = $query[0]['total_return_technician'];
+$totalReturnHo    = $query[0]['total_return_ho'];
+
 ?>
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="index3.html" class="brand-link">
-        <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">AdminLTE 3</span>
+    <a href="../dashboard" class="brand-link">
+        <img src="../assets/dist/img/Yokke.png" alt="Yokke" sty class="brand-image" style="opacity: .9">
+        <span class="brand-text font-weight-bold ml-2"> PT. MTI (Yokke)</span>
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
         <!-- Sidebar user panel (optional) -->
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-            <div class="image">
-                <!-- <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image"> -->
+            <div class="image mt-2">
+                <img src="../assets/dist/img/profile/<?= $user['avatar']; ?>" class="brand-image img-circle elevation-2" alt="User Image" style="width: 40px; height: 40px;">
             </div>
             <div class="info">
-                <a href="#" class="d-block"><?= $user["name"];  ?></a>
+                <a href="../dashboard" class="d-block ">
+                    <span style="font-size: 14px;"><?= $user["name"]; ?></span>
+                    <h6><span style="font-size: 14px;"><?= $role; ?></span></h6>
+                </a>
             </div>
         </div>
 
@@ -54,7 +105,7 @@ $user = query("SELECT * FROM users WHERE id = $id")[0];
                         <li class="nav-item">
                             <a href="../listStockEdc" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>List Stock EDC</p>
+                                <p>List Stock EDC <span class="right badge badge-danger"><?= $totalStock; ?></span></p>
                             </a>
                         </li>
                     </ul>
@@ -71,13 +122,13 @@ $user = query("SELECT * FROM users WHERE id = $id")[0];
                         <li class="nav-item">
                             <a href="../ReadyToUse" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Ready To Use <span class="right badge badge-danger">New</span></p>
+                                <p>Ready To Use <span class="right badge badge-danger"><?= $totalNotUsed; ?></span></p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="../AlreadyToUse" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Already Used</p>
+                                <p>Already Used <span class="right badge badge-danger"><?= $totalUsed; ?></span></p>
                             </a>
                         </li>
                     </ul>
@@ -94,19 +145,19 @@ $user = query("SELECT * FROM users WHERE id = $id")[0];
                         <li class="nav-item">
                             <a href="../return_edc" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>List Return EDC</p>
+                                <p>List Return EDC <span class="right badge badge-danger"><?= $totalReturn; ?></span></p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="../technician" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Technician</p>
+                                <p>Technician <span class="right badge badge-danger"><?= $totalReturnTechnician; ?></span></p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="../ho" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>HO</p>
+                                <p>HO <span class="right badge badge-danger"><?= $totalReturnHo; ?></span></p>
                             </a>
                         </li>
                     </ul>

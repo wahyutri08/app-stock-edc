@@ -8,7 +8,51 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
 
 $id = $_SESSION["id"];
 $role = $_SESSION['role'];
-$user = query("SELECT * FROM users WHERE id = $id")[0];
+$user_id = query("SELECT * FROM users WHERE id = $id")[0];
+
+$user_id = (int) $_SESSION['id'];
+if ($role == 'Admin') {
+    $query = query("SELECT 
+              (SELECT COUNT(*) FROM stock) AS total_stock,
+              (SELECT COUNT(*) FROM stock WHERE status_edc = 'Not yet used') AS total_not_used,
+              (SELECT COUNT(*) FROM stock WHERE status_edc = 'Used') AS total_used,
+              (SELECT COUNT(*) FROM return_edc) AS total_return");
+} else {
+    $query = query("SELECT 
+                  (SELECT COUNT(*) 
+                  FROM stock 
+                  WHERE user_id = $user_id) AS total_stock,
+                  
+                  (SELECT COUNT(*) 
+                  FROM stock 
+                  WHERE status_edc = 'Not yet used' 
+                  AND user_id = $user_id) AS total_not_used,
+                  
+                  (SELECT COUNT(*) 
+                  FROM stock 
+                  WHERE status_edc = 'Used' 
+                  AND user_id = $user_id) AS total_used,
+                  
+                  (SELECT COUNT(*) 
+                  FROM return_edc 
+                  WHERE user_id = $user_id) AS total_return,
+                  
+                  (SELECT COUNT(*) 
+                  FROM return_edc 
+                  WHERE status1 = 'Technician' 
+                  AND user_id = $user_id) AS total_return_technician,
+
+                  (SELECT COUNT(*) 
+                  FROM return_edc 
+                  WHERE status1 = 'HO' 
+                  AND user_id = $user_id) AS total_return_ho");
+}
+
+$totalStock     = $query[0]['total_stock'];
+$totalNotUsed   = $query[0]['total_not_used'];
+$totalUsed      = $query[0]['total_used'];
+$totalReturn    = $query[0]['total_return'];
+
 
 $title = "Dashboard";
 require_once '../partials/header.php';
@@ -53,7 +97,7 @@ require_once '../partials/header.php';
                             <!-- small box -->
                             <div class="small-box bg-info">
                                 <div class="inner">
-                                    <h3><?= $totalPc; ?></h3>
+                                    <h3><?= $totalStock; ?></h3>
 
                                     <p>TOTAL EDC</p>
                                 </div>
@@ -68,7 +112,7 @@ require_once '../partials/header.php';
                             <!-- small box -->
                             <div class="small-box bg-success">
                                 <div class="inner">
-                                    <h3><?= $totalAtribut; ?></h3>
+                                    <h3><?= $totalNotUsed; ?></h3>
 
                                     <p>READY TO USE</p>
                                 </div>
@@ -83,7 +127,7 @@ require_once '../partials/header.php';
                             <!-- small box -->
                             <div class="small-box bg-warning">
                                 <div class="inner">
-                                    <h3><?= $totalCluster; ?></h3>
+                                    <h3><?= $totalUsed; ?></h3>
 
                                     <p>ALREADY USED</p>
                                 </div>
@@ -98,7 +142,7 @@ require_once '../partials/header.php';
                             <!-- small box -->
                             <div class="small-box bg-danger">
                                 <div class="inner">
-                                    <h3><?= $totalUsers; ?></h3>
+                                    <h3><?= $totalReturn; ?></h3>
 
                                     <p>RETURN EDC</p>
                                 </div>

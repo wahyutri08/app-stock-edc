@@ -7,30 +7,21 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
 }
 
 $id = $_SESSION["id"];
-$role = $_SESSION['role'];
 $user = query("SELECT * FROM users WHERE id = $id")[0];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $result = addStock($_POST);
+    $result = changePassword($_POST);
     if ($result > 0) {
-        echo json_encode(["status" => "success", "message" => "Data Added Successfully"]);
+        echo json_encode(["status" => "success", "message" => "Password Changed Successfully Please Login Again"]);
     } elseif ($result == -1) {
-        echo json_encode(["status" => "error", "message" => "SN EDC Already Exists"]);
-    } elseif ($result == -2) {
-        echo json_encode(["status" => "error", "message" => "SN SIMCARD Already Exists"]);
-    } elseif ($result == -3) {
-        echo json_encode(["status" => "error", "message" => "SN SAMCARD 1 Already Exists"]);
-    } elseif ($result == -4) {
-        echo json_encode(["status" => "error", "message" => "SN SAMCARD 2 Already Exists"]);
-    } elseif ($result == -5) {
-        echo json_encode(["status" => "error", "message" => "SN SAMCARD 3 Already Exists"]);
+        echo json_encode(["status" => "error", "message" => "Confirm Password Invalid"]);
     } else {
-        echo json_encode(["status" => "error", "message" => "Data Failed to Change"]);
+        echo json_encode(["status" => "error", "message" => "Password Change Failed"]);
     }
     exit;
 }
 
-$title = "Add Stock";
+$title = "Change Password";
 require_once '../partials/header.php';
 
 ?>
@@ -52,14 +43,14 @@ require_once '../partials/header.php';
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0">Add Stock</h1>
+                            <h1 class="m-0"><?= $title; ?></h1>
                         </div><!-- /.col -->
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="../dashboard">Home</a></li>
-                                <li class="breadcrumb-item">My Assets</li>
-                                <li class="breadcrumb-item">List Stock EDC</li>
-                                <li class="breadcrumb-item"><?= $title;  ?></li>
+                                <li class="breadcrumb-item">Settings</li>
+                                <li class="breadcrumb-item">Account</li>
+                                <li class="breadcrumb-item active"><?= $title; ?></li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -76,49 +67,25 @@ require_once '../partials/header.php';
                             <!-- jquery validation -->
                             <div class="card card-danger">
                                 <div class="card-header">
-                                    <h3 class="card-title">Add Stock EDC</h3>
+                                    <h3 class="card-title">Change Password</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <!-- form start -->
                                 <form method="POST" action="" enctype="multipart/form-data" id="quickForm">
+                                    <input type="hidden" name="id" value="<?= $user["id"]; ?>">
                                     <div class="card-body">
                                         <div class="form-group col-md-5">
-                                            <label for="sn_edc">SN EDC:</label>
-                                            <input type="text" name="sn_edc" class="form-control" id="sn_edc" placeholder="SN EDC">
+                                            <label for="password">Password:</label>
+                                            <input type="password" name="password" class="form-control" id="password" placeholder="Password">
                                         </div>
                                         <div class="form-group col-md-5">
-                                            <label for="sn_simcard">SN Simcard:</label>
-                                            <input type="text" name="sn_simcard" class="form-control" id="sn_simcard" placeholder="SN Simcard">
-                                        </div>
-                                        <div class="form-group col-md-5">
-                                            <label for="sn_samcard1">SN Samcard 1:</label>
-                                            <input type="text" name="sn_samcard1" class="form-control" id="sn_samcard1" placeholder="SN Samcard 1">
-                                        </div>
-                                        <div class="form-group col-md-5">
-                                            <label for="sn_samcard2">SN Samcard 2:</label>
-                                            <input type="text" name="sn_samcard2" class="form-control" id="sn_samcard2" placeholder="SN Samcard 2">
-                                        </div>
-                                        <div class="form-group col-md-5">
-                                            <label for="sn_samcard3">SN Samcard 3:</label>
-                                            <input type="text" name="sn_samcard3" class="form-control" id="sn_samcard3" placeholder="SN Samcard 3">
-                                        </div>
-                                        <div class="form-group col-md-5">
-                                            <label>Status:</label>
-                                            <select class="custom-select form-control" id="status_edc" name="status_edc">
-                                                <option value="" disabled selected>--Selected One--</option>
-                                                <option value="Not yet used">Not yet used</option>
-                                                <option value="Used">Used</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group col-md-5">
-                                            <label for="date_pickup">Date Pickup:</label>
-                                            <input type="date" name="date_pickup" class="form-control" id="date_pickup" value="<?= date('Y-m-d', strtotime('now')); ?>" placeholder="Date">
+                                            <label for="password2">Confirm Password:</label>
+                                            <input type="password" name="password2" class="form-control" id="password2" placeholder="Confirm Password">
                                         </div>
                                     </div>
                                     <!-- /.card-body -->
                                     <div class="card-footer">
-                                        <button type="submit" class="btn btn-danger"><i class="fas fa-solid fa-check"></i> Submit</button>
-                                        <button type="reset" class="btn btn-dark"> Reset</button>
+                                        <button type="submit" name="submit" class="btn btn-danger"><i class="fas fa-solid fa-check"></i> Save Changes</button>
                                     </div>
                                 </form>
                             </div>
@@ -147,27 +114,22 @@ require_once '../partials/header.php';
 
     <script>
         $(function() {
-            bsCustomFileInput.init();
-        });
-    </script>
-    <script>
-        $(function() {
             // Inisialisasi validasi jQuery
             $('#quickForm').validate({
                 rules: {
-                    status: {
+                    password: {
                         required: true
                     },
-                    date: {
+                    password2: {
                         required: true
                     }
                 },
                 messages: {
-                    status: {
-                        required: "Please enter an Status"
+                    password: {
+                        required: "Please enter an Password"
                     },
-                    date: {
-                        required: "Please enter an Date"
+                    password2: {
+                        required: "Please enter a Confirm Password"
                     }
                 },
                 errorElement: 'span',
@@ -210,7 +172,7 @@ require_once '../partials/header.php';
                                 text: res.message,
                                 icon: "success"
                             }).then(() => {
-                                window.location.href = '../listStockEdc';
+                                window.location.href = '../logout';
                             });
                         } else {
                             Swal.fire('Error', res.message, 'error');

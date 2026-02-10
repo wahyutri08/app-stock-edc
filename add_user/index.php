@@ -6,63 +6,29 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
-$user_id = $_SESSION['id'];
-$role = $_SESSION['role'];
-
-
-if (isset($_GET["id_stock"]) && is_numeric($_GET["id_stock"])) {
-    $id_stock = $_GET["id_stock"];
-} else {
+if ($_SESSION["role"] !== 'Admin') {
     header("HTTP/1.1 404 Not Found");
-    include("../error/error-404.html");
+    include("../errors/403.html");
     exit;
 }
-
-if ($role == 'Admin') {
-    $stock = query("SELECT stock.*,
-                    IF(users.name IS NULL, 'Deleted User', users.name) AS name
-                    FROM stock
-                    LEFT JOIN users
-                    ON stock.user_id = users.id
-                    WHERE stock.id_stock = $id_stock");
-} else {
-    $stock = query("SELECT * FROM stock 
-                    JOIN users
-                    ON stock.user_id = users.id 
-                    WHERE id_stock = $id_stock 
-                    AND user_id = $user_id");
-}
-
-if (empty($stock)) {
-    header("HTTP/1.1 404 Not Found");
-    include("../errors/404.html");
-    exit;
-}
-
-$stock = $stock[0];
-$users = query("SELECT * FROM users");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $result = editStock($_POST);
+    $result = addUser($_POST);
     if ($result > 0) {
-        echo json_encode(["status" => "success", "message" => "Data Successfully Changed"]);
+        echo json_encode(["status" => "success", "message" => "Data Added Successfully"]);
     } elseif ($result == -1) {
-        echo json_encode(["status" => "error", "message" => "SN EDC Already Exists"]);
+        echo json_encode(["status" => "error", "message" => "Username Already Exists"]);
     } elseif ($result == -2) {
-        echo json_encode(["status" => "error", "message" => "SN SIMCARD Already Exists"]);
+        echo json_encode(["status" => "error", "message" => "Confirm Password Invalid"]);
     } elseif ($result == -3) {
-        echo json_encode(["status" => "error", "message" => "SN SAMCARD 1 Already Exists"]);
-    } elseif ($result == -4) {
-        echo json_encode(["status" => "error", "message" => "SN SAMCARD 2 Already Exists"]);
-    } elseif ($result == -5) {
-        echo json_encode(["status" => "error", "message" => "SN SAMCARD 3 Already Exists"]);
+        echo json_encode(["status" => "error", "message" => "Your File Not Image"]);
     } else {
         echo json_encode(["status" => "error", "message" => "Data Failed to Change"]);
     }
     exit;
 }
 
-$title = "Edit Data";
+$title = "Add User";
 require_once '../partials/header.php';
 
 ?>
@@ -84,14 +50,14 @@ require_once '../partials/header.php';
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0">Edit Stock</h1>
+                            <h1 class="m-0"><?= $title; ?></h1>
                         </div><!-- /.col -->
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="../dashboard">Home</a></li>
-                                <li class="breadcrumb-item">My Assets</li>
-                                <li class="breadcrumb-item">List Stock EDC</li>
-                                <li class="breadcrumb-item"><?= $title;  ?></li>
+                                <li class="breadcrumb-item">Settings</li>
+                                <li class="breadcrumb-item">User Management</li>
+                                <li class="breadcrumb-item active"><?= $title; ?></li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -106,73 +72,76 @@ require_once '../partials/header.php';
                         <!-- left column -->
                         <div class="col-md-12">
                             <!-- jquery validation -->
-                            <div class="card card-danger">
+                            <div class="card card-warning">
                                 <div class="card-header">
-                                    <h3 class="card-title">Edit Stock EDC</h3>
+                                    <span class="nav-icon fas fa-user"></span> DATA USER
                                 </div>
                                 <!-- /.card-header -->
                                 <!-- form start -->
                                 <form method="POST" action="" enctype="multipart/form-data" id="quickForm">
-                                    <input type="hidden" name="id_stock" id="id_stock" value="<?= $stock["id_stock"]; ?>">
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="sn_edc">SN EDC:</label>
-                                                    <input type="text" name="sn_edc" class="form-control" id="sn_edc" placeholder="SN EDC" value="<?= $stock["sn_edc"]; ?>">
+                                                    <label for="username">Username:</label>
+                                                    <input type="text" name="username" class="form-control" id="username" placeholder="Username">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="sn_simcard">SN Simcard:</label>
-                                                    <input type="text" name="sn_simcard" class="form-control" id="sn_simcard" placeholder="SN Simcard" value="<?= $stock["sn_simcard"]; ?>">
+                                                    <label for="name">Name:</label>
+                                                    <input type="text" name="name" class="form-control" id="name" placeholder="name">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="sn_samcard1">SN Samcard 1:</label>
-                                                    <input type="text" name="sn_samcard1" class="form-control" id="sn_samcard1" placeholder="SN Samcard 1" value="<?= $stock["sn_samcard1"]; ?>">
+                                                    <label for="email">Email:</label>
+                                                    <input type="email" name="email" class="form-control" id="email" placeholder="Email">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="sn_samcard2">SN Samcard 2:</label>
-                                                    <input type="text" name="sn_samcard2" class="form-control" id="sn_samcard2" placeholder="SN Samcard 2" value="<?= $stock["sn_samcard2"]; ?>">
+                                                    <label for="no_telfon">Number Phone:</label>
+                                                    <input type="number" name="no_telfon" class="form-control" id="no_telfon" placeholder="Number Phone">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="sn_samcard3">SN Samcard 3:</label>
-                                                    <input type="text" name="sn_samcard3" class="form-control" id="sn_samcard3" placeholder="SN Samcard 3" value="<?= $stock["sn_samcard3"]; ?>">
+                                                    <label for="avatar">Photo Profile</label>
+                                                    <div class="input-group">
+                                                        <div class="custom-file">
+                                                            <input type="file" class="form-control" name="avatar" id="avatar">
+                                                            <label class="custom-file-label" for="avatar">Choose file</label>
+                                                        </div>
+                                                        <div class="input-group-append">
+                                                            <span class="input-group-text">Upload</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
+                                                    <label for="password">Password:</label>
+                                                    <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="password2">Confirm Password:</label>
+                                                    <input type="password" name="password2" class="form-control" id="password2" placeholder="Confirm Password">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Role:</label>
+                                                    <select class="custom-select form-control" id="role" name="role">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <option value="Admin">Admin</option>
+                                                        <option value="User">User</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
                                                     <label>Status:</label>
-                                                    <select class="custom-select form-control" id="status_edc" name="status_edc">
+                                                    <select class="custom-select form-control" id="status" name="status">
                                                         <option value="" disabled selected>--Selected One--</option>
-                                                        <option value="Not yet used" <?= ($stock['status_edc'] == 'Not yet used') ? 'selected' : '' ?>>
-                                                            Not yet used
-                                                        </option>
-                                                        <option value="Used" <?= ($stock['status_edc'] == 'Used') ? 'selected' : '' ?>>
-                                                            Used
-                                                        </option>
+                                                        <option value="Active">Active</option>
+                                                        <option value="Not Active">Not Active</option>
                                                     </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>User:</label>
-                                                    <select class="form-control select2 select2-danger" id="user_id" name="user_id" data-dropdown-css-class="select2-danger" style="width: 100%;">
-                                                        <option value="" disabled selected>--Selected One--</option>
-                                                        <?php foreach ($users as $user) : ?>
-                                                            <option value="<?= $user["id"]; ?>"
-                                                                <?= ($stock["user_id"] == $user["id"]) ? "selected" : "" ?>>
-                                                                <?= $user["name"]; ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="date_pickup">Date Pickup:</label>
-                                                    <input type="date" name="date_pickup" class="form-control" id="date_pickup" placeholder="Date" value="<?= $stock["date_pickup"]; ?>">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <!-- /.card-body -->
                                     <div class="card-footer">
-                                        <button type="submit" class="btn btn-danger"><i class="fas fa-solid fa-check"></i> Submit</button>
+                                        <button type="submit" name="submit" class="btn btn-warning"><i class="fas fa-solid fa-check"></i> Submit</button>
                                         <button type="reset" class="btn btn-dark"> Reset</button>
                                     </div>
                                 </form>
@@ -202,17 +171,6 @@ require_once '../partials/header.php';
 
     <script>
         $(function() {
-            // Initialize Select2 Elements
-            $('.select2').select2();
-
-            // Initialize Select2 Bootstrap 4
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            });
-        });
-    </script>
-    <script>
-        $(function() {
             bsCustomFileInput.init();
         });
     </script>
@@ -221,19 +179,55 @@ require_once '../partials/header.php';
             // Inisialisasi validasi jQuery
             $('#quickForm').validate({
                 rules: {
-                    status: {
+                    username: {
                         required: true
                     },
-                    date: {
+                    name: {
+                        required: true
+                    },
+                    email: {
+                        required: true
+                    },
+                    no_telfon: {
+                        required: true
+                    },
+                    password: {
+                        required: true
+                    },
+                    password2: {
+                        required: true
+                    },
+                    role: {
+                        required: true
+                    },
+                    status: {
                         required: true
                     }
                 },
                 messages: {
+                    username: {
+                        required: "Please enter an Username"
+                    },
+                    name: {
+                        required: "Please enter an Name"
+                    },
+                    email: {
+                        required: "Please enter an Email"
+                    },
+                    no_telfon: {
+                        required: "Please enter an Number Phone"
+                    },
+                    password: {
+                        required: "Please enter an Password"
+                    },
+                    password2: {
+                        required: "Please enter an Confirm Password"
+                    },
+                    role: {
+                        required: "Please enter an Role"
+                    },
                     status: {
                         required: "Please enter an Status"
-                    },
-                    date: {
-                        required: "Please enter an Date"
                     }
                 },
                 errorElement: 'span',
@@ -276,7 +270,7 @@ require_once '../partials/header.php';
                                 text: res.message,
                                 icon: "success"
                             }).then(() => {
-                                window.location.href = '../listStockEdc';
+                                window.location.href = '../user_management';
                             });
                         } else {
                             Swal.fire('Error', res.message, 'error');

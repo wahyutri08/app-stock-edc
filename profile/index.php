@@ -53,6 +53,7 @@ require_once '../partials/header.php';
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="../dashboard">Home</a></li>
                                 <li class="breadcrumb-item">Settings</li>
+                                <li class="breadcrumb-item">Account</li>
                                 <li class="breadcrumb-item">Profile</li>
                                 <li class="breadcrumb-item active"><?= $users["name"]; ?></li>
                             </ol>
@@ -74,9 +75,10 @@ require_once '../partials/header.php';
                                     <div class="text-center">
                                         <img class="profile-user-img img-fluid img-circle"
                                             src="../assets/dist/img/profile/<?= $users["avatar"]; ?>"
-                                            style="width: 150px; height: 140px;">
+                                            style="width: 160px; height: 160px;">
                                     </div>
                                     <h3 class="profile-username text-center"><?= $users["name"]; ?></h3>
+                                    <hr>
                                     <p class="text-muted text-center"><?= $users["role"]; ?></p>
                                 </div>
                             </div>
@@ -105,9 +107,9 @@ require_once '../partials/header.php';
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">
-                                                    <label for="nama" class="col-sm-2 col-form-label">Nama <span class="text-danger">*</span></label>
+                                                    <label for="name" class="col-sm-2 col-form-label">Name <span class="text-danger">*</span></label>
                                                     <div class="col-sm-10">
-                                                        <input type="text" class="form-control" id="nama" name="nama" placeholder="Name" value="<?= $users["name"]; ?>">
+                                                        <input type="text" class="form-control" id="name" name="name" placeholder="Name" value="<?= $users["name"]; ?>">
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">
@@ -117,9 +119,9 @@ require_once '../partials/header.php';
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">
-                                                    <label for="email" class="col-sm-2 col-form-label">No Telefon <span class="text-danger">*</span></label>
+                                                    <label for="no_telfon" class="col-sm-2 col-form-label">No Telefon <span class="text-danger">*</span></label>
                                                     <div class="col-sm-10">
-                                                        <input type="number" class="form-control" id="email" name="email" placeholder="Email" value="<?= $users["no_telfon"]; ?>">
+                                                        <input type="number" class="form-control" id="no_telfon" name="no_telfon" placeholder="Number Phone " value="<?= $users["no_telfon"]; ?>">
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">
@@ -164,6 +166,44 @@ require_once '../partials/header.php';
 
     <!-- REQUIRED SCRIPTS -->
     <?php require_once '../partials/scripts.php'; ?>
+
+    <script>
+        $(function() {
+            bsCustomFileInput.init();
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#myForm').on('submit', function(e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: '',
+                    type: 'POST',
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        const res = JSON.parse(response);
+                        if (res.status === 'success') {
+                            Swal.fire({
+                                title: "Success",
+                                text: res.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = '../profile';
+                            });
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Terjadi kesalahan pada server', 'error');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

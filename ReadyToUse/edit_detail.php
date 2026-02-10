@@ -17,39 +17,35 @@ if ($id_stock <= 0) {
 
 /* ================= LOAD DATA ================= */
 if ($role === 'Admin') {
-    $stock = query("
-        SELECT 
-            stock.*,
-            users.name,
-            detail_list_stock.tid,
-            detail_list_stock.mid,
-            detail_list_stock.merchant_name,
-            detail_list_stock.addres_name,
-            detail_list_stock.date,
-            detail_list_stock.note
-        FROM stock
-        JOIN users ON stock.user_id = users.id
-        LEFT JOIN detail_list_stock 
-            ON stock.id_stock = detail_list_stock.stock_id
-        WHERE stock.id_stock = $id_stock
-    ");
+    $stock = query("SELECT stock.*,
+                    IF(users.name IS NULL, 'Deleted User', users.name) AS name,
+                    detail_list_stock.tid,
+                    detail_list_stock.mid,
+                    detail_list_stock.merchant_name,
+                    detail_list_stock.addres_name,
+                    detail_list_stock.date_used,
+                    detail_list_stock.note
+                    FROM stock
+                    LEFT JOIN users 
+                    ON stock.user_id = users.id
+                    LEFT JOIN detail_list_stock 
+                    ON stock.id_stock = detail_list_stock.stock_id
+                    WHERE stock.id_stock = $id_stock");
 } else {
-    $stock = query("
-        SELECT 
-            stock.*,
-            users.name,
-            detail_list_stock.tid,
-            detail_list_stock.mid,
-            detail_list_stock.merchant_name,
-            detail_list_stock.addres_name,
-            detail_list_stock.date,
-            detail_list_stock.note
-        FROM stock
-        JOIN users ON stock.user_id = users.id
-        LEFT JOIN detail_list_stock 
-            ON stock.id_stock = detail_list_stock.stock_id
-        WHERE stock.id_stock = $id_stock AND stock.user_id = $user_id
-    ");
+    $stock = query("SELECT stock.*,
+                    users.name,
+                    detail_list_stock.tid,
+                    detail_list_stock.mid,
+                    detail_list_stock.merchant_name,
+                    detail_list_stock.addres_name,
+                    detail_list_stock.date_used,
+                    detail_list_stock.note
+                    FROM stock
+                    JOIN users 
+                    ON stock.user_id = users.id
+                    LEFT JOIN detail_list_stock 
+                    ON stock.id_stock = detail_list_stock.stock_id
+                    WHERE stock.id_stock = $id_stock AND stock.user_id = $user_id");
 }
 
 if (!$stock) {
@@ -193,30 +189,29 @@ require_once '../partials/header.php';
                                                     <label for="mid">MID:</label>
                                                     <input type="text" name="mid" class="form-control" id="mid" placeholder="MID" value="<?= $stock["mid"]; ?>">
                                                 </div>
-                                            </div>
-                                            <div class="col-md-6">
+
                                                 <div class="form-group">
                                                     <label for="merchant_name">Merchant Name:</label>
                                                     <input type="text" name="merchant_name" class="form-control" id="merchant_name" placeholder="Merchant Name" value="<?= $stock["merchant_name"]; ?>">
                                                 </div>
+                                            </div>
+                                            <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="addres_name">Address:</label>
                                                     <textarea class="form-control" id="addres_name" name="addres_name" rows="3"><?= htmlspecialchars($stock["addres_name"] ?? '') ?></textarea>
                                                 </div>
-                                                <?php if (!empty($stock['date'])) : ?>
-                                                    <div class="form-group">
-                                                        <label for="date">Date:</label>
-                                                        <input type="date" name="date" class="form-control" id="date" placeholder="Date" value="<?= date('Y-m-d', strtotime($stock['date'])); ?>">
-                                                    </div>
-                                                <?php else : ?>
-                                                    <div class="form-group">
-                                                        <label for="date">Date Used:</label>
-                                                        <input type="date" name="date" class="form-control" id="date" placeholder="Date" value="">
-                                                    </div>
-                                                <?php endif; ?>
+                                                <div class="form-group">
+                                                    <label for="date">Date Pickup:</label>
+                                                    <input type="date" class="form-control" placeholder="Date" value="<?= date('Y-m-d', strtotime($stock['date_pickup'])); ?>" readonly>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="date_used">Date Used:</label>
+                                                    <input type="date" name="date_used" class="form-control" id="date_used" placeholder="Date Used" value="<?= date('Y-m-d', strtotime($stock['date_used'])); ?>">
+                                                </div>
                                                 <div class="form-group">
                                                     <label for="status_edc">Status:</label>
                                                     <select class="custom-select form-control" id="status_edc" name="status_edc">
+                                                        <option value="" disabled selected>--Selected One--</option>
                                                         <option value="Not yet used" <?= ($stock['status_edc'] == 'Not yet used') ? 'selected' : '' ?>>
                                                             Not yet used
                                                         </option>
@@ -228,6 +223,7 @@ require_once '../partials/header.php';
                                                 <div class="form-group">
                                                     <label for="user_id">User:</label>
                                                     <select class="form-control select2 select2-danger" id="user_id" name="user_id" data-dropdown-css-class="select2-danger" style="width: 100%;">
+                                                        <option value="" disabled selected>--Selected One--</option>
                                                         <?php foreach ($users as $user) : ?>
                                                             <option value="<?= $user["id"]; ?>"
                                                                 <?= ($stock["user_id"] == $user["id"]) ? "selected" : "" ?>>
@@ -245,8 +241,8 @@ require_once '../partials/header.php';
                                     </div>
                                     <!-- /.card-body -->
                                     <div class="card-footer">
-                                        <button type="submit" name="submit" class="btn btn-sm btn-success mr-1"><i class="fas fa-solid fa-check"></i> Save Change</button>
-                                        <button type="reset" class="btn btn-sm btn-dark">Reset</button>
+                                        <button type="submit" name="submit" class="btn btn-success mr-1"><i class="fas fa-solid fa-check"></i> Save Change</button>
+                                        <button type="reset" class="btn btn-dark">Reset</button>
                                     </div>
                                 </form>
                             </div>

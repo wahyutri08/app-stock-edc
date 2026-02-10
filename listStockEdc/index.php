@@ -10,9 +10,11 @@ $user_id = $_SESSION['id'];
 $role = $_SESSION['role'];
 
 if ($role == 'Admin') {
-    $stck = query("SELECT * FROM stock
-               JOIN users
-               ON stock.user_id = users.id");
+    $stck = query("SELECT 
+                   stock.*,
+                   IF(users.name IS NULL, 'Deleted User', users.name) AS name
+                   FROM stock
+                   LEFT JOIN users ON stock.user_id = users.id");
 } elseif ($role == 'User') {
     $stck = query("SELECT * FROM stock
                JOIN users
@@ -92,10 +94,12 @@ require_once '../partials/header.php';
                                                 <th class="text-center">SN Samcard 1</th>
                                                 <th class="text-center">SN Samcard 2</th>
                                                 <th class="text-center">SN Samcard 3</th>
-                                                <!-- <th class="text-center">Status</th> -->
+                                                <?php if ($role === 'Admin') : ?>
+                                                    <th class="text-center">Status</th>
+                                                <?php endif; ?>
                                                 <th class="text-center">Date Pickup</th>
                                                 <?php if ($role == 'Admin') : ?>
-                                                    <th></th>
+                                                    <th class="text-center">Action</th>
                                                 <?php endif; ?>
                                             </tr>
                                         </thead>
@@ -119,12 +123,14 @@ require_once '../partials/header.php';
                                                     <td class="text-center"><?= $row["sn_samcard1"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_samcard2"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_samcard3"]; ?></td>
-                                                    <!-- <?php if ($row["status_edc"] == "Not yet used") : ?>
-                                                        <td class="text-center"><span class="badge bg-primary"><?= $row["status_edc"]; ?></span></td>
-                                                    <?php else : ?>
-                                                        <td class="text-center"><span class="badge bg-success"><?= $row["status_edc"]; ?></span></td>
-                                                    <?php endif; ?> -->
-                                                    <td class="text-center"><?= $row["date"]; ?></td>
+                                                    <?php if ($role === 'Admin') : ?>
+                                                        <?php if ($row["status_edc"] == "Not yet used") : ?>
+                                                            <td class="text-center"><span class="badge bg-primary"><?= $row["status_edc"]; ?></span></td>
+                                                        <?php else : ?>
+                                                            <td class="text-center"><span class="badge bg-success"><?= $row["status_edc"]; ?></span></td>
+                                                        <?php endif; ?>
+                                                    <?php endif; ?>
+                                                    <td class="text-center"><?= $row["date_pickup"]; ?></td>
                                                     <?php if ($role === 'Admin') : ?>
                                                         <td class="text-center">
                                                             <div class="dropdown">
