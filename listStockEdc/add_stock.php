@@ -155,7 +155,7 @@ require_once '../partials/header.php';
             // Inisialisasi validasi jQuery
             $('#quickForm').validate({
                 rules: {
-                    status: {
+                    status_edc: {
                         required: true
                     },
                     date: {
@@ -163,7 +163,7 @@ require_once '../partials/header.php';
                     }
                 },
                 messages: {
-                    status: {
+                    status_edc: {
                         required: "Please enter an Status"
                     },
                     date: {

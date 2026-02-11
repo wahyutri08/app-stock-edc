@@ -57,7 +57,7 @@ require_once '../partials/header.php';
                     class="brand-image img-circle me-2"
                     style="width: 60px; height: 60px;">
                 <a href="../login" class="link-dark text-decoration-none ms-2 ml-2">
-                    <h5 class="mb-0 fw-bold"><b>ASSET MANAGEMENT STOCK</b></h5>
+                    <h5 class="mb-0 fw-bold" style="color: deepskyblue;"><b>ASSET MANAGEMENT STOCK</b></h5>
                 </a>
             </div>
             <div class="card-body">
@@ -65,15 +65,15 @@ require_once '../partials/header.php';
 
                 <form action="" method="POST" id="myForm">
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="username" name="username" placeholder="Username">
-                        <div class="input-group-append">
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Username" autocomplete="off">
+                        <div class=" input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
                             </div>
                         </div>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="password" id="password" name="password" class="form-control" placeholder="Password">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Password" autocomplete="off">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
@@ -81,17 +81,17 @@ require_once '../partials/header.php';
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-8">
+                        <!-- <div class="col-8">
                             <div class="icheck-primary">
                                 <input type="checkbox" id="remember">
                                 <label for="remember">
                                     Remember Me
                                 </label>
                             </div>
-                        </div>
+                        </div> -->
                         <!-- /.col -->
                         <div class="col-4">
-                            <button type="submit" name="login" id="loginBtn" class="btn btn-sm btn-primary btn-block "><i class="fas fa-sign-in-alt"></i> Sign In</button>
+                            <button type="submit" name="login" id="loginBtn" class="btn btn-primary btn-block"><i class="fas fa-sign-in-alt"></i> Sign In</button>
                         </div>
                         <!-- /.col -->
                     </div>
@@ -110,7 +110,7 @@ require_once '../partials/header.php';
             $('#myForm').on('submit', function(e) {
                 e.preventDefault();
                 var $btn = $('#loginBtn');
-                $btn.html('<span class="spinner-border spinner-border-sm text-light me-2"></span> Loading...');
+                $btn.html('<span class="spinner-border spinner-border-sm text-light me-2"></span>');
                 $btn.prop('disabled', true);
 
                 $.ajax({
