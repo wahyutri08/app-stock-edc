@@ -121,7 +121,7 @@ require_once '../partials/header.php';
                                                     <td class="text-center"><?= $row["sn_samcard3"]; ?></td>
                                                     <td class="text-center"><?= $row["status1"]; ?></td>
                                                     <td class="text-center"><?= $row["status2"]; ?></td>
-                                                    <td class="text-center"><?= $row["date"]; ?></td>
+                                                    <td class="text-center"><?= $row["date_to_ho"]; ?></td>
                                                     <td class="text-center"><?= $row["note"]; ?></td>
                                                 </tr>
                                             <?php endforeach; ?>

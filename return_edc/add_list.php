@@ -6,12 +6,6 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
-// if ($_SESSION["role"] !== 'Admin') {
-//     header("HTTP/1.1 404 Not Found");
-//     include("../errors/404.html");
-//     exit;
-// }
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = addListReturn($_POST);
     if ($result > 0) {
@@ -123,14 +117,13 @@ require_once '../partials/header.php';
                                                     </select>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="date">Date:
-                                                        <span class="text-danger small font-italic">(*Opsional: Jika Ingin Langsung Dikembalikan Ke HO)</span>
+                                                    <label for="date_tech">Date:
                                                     </label>
-                                                    <input type="date" name="date" class="form-control" id="date" placeholder="Date" value="<?= $stock["date"]; ?>">
+                                                    <input type="date" name="date_tech" class="form-control" id="date_tech" placeholder="Date" value="<?= date('Y-m-d', strtotime('now')); ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="note">Note:</label>
-                                                    <textarea class="form-control" id="note" name="note" rows="3"><?= htmlspecialchars($stock["note"] ?? '') ?></textarea>
+                                                    <textarea class="form-control" id="note" name="note" rows="3"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -190,6 +183,9 @@ require_once '../partials/header.php';
                     status1: {
                         required: true
                     },
+                    date_tech: {
+                        required: true
+                    },
                     status2: {
                         required: true
                     }
@@ -197,6 +193,9 @@ require_once '../partials/header.php';
                 messages: {
                     status2: {
                         required: "Please enter an Status"
+                    },
+                    date_tech: {
+                        required: "Please enter an Date"
                     },
                     status2: {
                         required: "Please enter an Status"

@@ -95,6 +95,7 @@ require_once '../partials/header.php';
                                                 <th class="text-center">Samcard1</th>
                                                 <th class="text-center">Samcard2</th>
                                                 <th class="text-center">Samcard3</th>
+                                                <th class="text-center">Note</th>
                                                 <th class="text-center">Action</th>
                                             </tr>
                                         </thead>
@@ -118,6 +119,7 @@ require_once '../partials/header.php';
                                                     <td class="text-center"><?= $row["sn_samcard1"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_samcard2"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_samcard3"]; ?></td>
+                                                    <td class="text-center"><?= $row["note"]; ?></td>
                                                     <td class="text-center">
                                                         <a href="edit_detail.php?id_stock=<?= $row["id_stock"]; ?>"><button class="btn btn-sm btn-success"><i class="fas fa-edit"></i></button></a>
                                                     </td>

@@ -206,7 +206,12 @@ require_once '../partials/header.php';
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="date_used">Date Used:</label>
-                                                    <input type="date" name="date_used" class="form-control" id="date_used" placeholder="Date Used" value="<?= date('Y-m-d', strtotime($stock['date_used'])); ?>">
+                                                    <input type="date"
+                                                        name="date_used"
+                                                        class="form-control"
+                                                        id="date_used"
+                                                        placeholder="Date Used"
+                                                        value="<?= !empty($stock['date_used']) ? date('Y-m-d', strtotime($stock['date_used'])) : '' ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="status_edc">Status:</label>

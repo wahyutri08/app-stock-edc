@@ -152,20 +152,33 @@ require_once '../partials/header.php';
                                                         <option value="EDC Rusak / TIdak Lengkap" <?= ($return['status2'] == 'EDC Rusak / TIdak Lengkap') ? 'selected' : '' ?>>EDC Rusak / TIdak Lengkap</option>
                                                     </select>
                                                 </div>
+                                                <?php if ($role === 'Admin') : ?>
+                                                    <div class="form-group">
+                                                        <label>User:</label>
+                                                        <select class="form-control select2 select2-primary" id="user_id" name="user_id" data-dropdown-css-class="select2-primary" style="width: 100%;">
+                                                            <?php foreach ($users as $user) : ?>
+                                                                <option value="<?= $user["id"]; ?>"
+                                                                    <?= ($return["user_id"] == $user["id"]) ? "selected" : "" ?>>
+                                                                    <?= $user["name"]; ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <div class="form-group">
+                                                        <label>User:</label>
+                                                        <select class="custom-select form-control" id="user_id" name="user_id" readonly>
+                                                            <option value="<?= $return['user_id']; ?>"><?= $return['name']; ?></option>
+                                                        </select>
+                                                    </div>
+                                                <?php endif; ?>
                                                 <div class="form-group">
-                                                    <label>User:</label>
-                                                    <select class="form-control select2 select2-primary" id="user_id" name="user_id" data-dropdown-css-class="select2-primary" style="width: 100%;">
-                                                        <?php foreach ($users as $user) : ?>
-                                                            <option value="<?= $user["id"]; ?>"
-                                                                <?= ($return["user_id"] == $user["id"]) ? "selected" : "" ?>>
-                                                                <?= $user["name"]; ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
+                                                    <label for="date_tech">Date:</label>
+                                                    <input type="date" name="date_tech" class="form-control" id="date_tech" placeholder="Date" value="<?= $return["date_tech"]; ?>" readonly>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="date">Date To HO:</label>
-                                                    <input type="date" name="date" class="form-control" id="date" placeholder="Date" value="<?= $return["date"]; ?>">
+                                                    <label for="date_to_ho">Date To HO:</label>
+                                                    <input type="date" name="date_to_ho" class="form-control" id="date_to_ho" placeholder="Date" value="<?= !empty($return['date_to_ho']) ? date('Y-m-d', strtotime($return['date_to_ho'])) : '' ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="note">Note:</label>

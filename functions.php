@@ -133,7 +133,7 @@ function addStock($data)
     global $db;
 
     $user_id = $_SESSION["id"];
-    $date = date('Y-m-d');
+
     $created_at = date('Y-m-d');
 
     // TRIM + ESCAPE (BENAR)
@@ -143,6 +143,7 @@ function addStock($data)
     $sn_samcard2 = trim(mysqli_real_escape_string($db, $data["sn_samcard2"]));
     $sn_samcard3 = trim(mysqli_real_escape_string($db, $data["sn_samcard3"]));
     $status_edc  = trim(mysqli_real_escape_string($db, $data["status_edc"]));
+    $date  = trim(mysqli_real_escape_string($db, $data["date_pickup"]));
 
     // 1️⃣ SN EDC
     if ($sn_edc !== '') {
@@ -221,6 +222,7 @@ function editStock($data)
     $user_id  = (int)$data['user_id'];
     $status_edc   = mysqli_real_escape_string($db, $data['status_edc']);
     $updated_at = date('Y-m-d H:i:s');
+    $date = trim(mysqli_real_escape_string($db, $data['date_pickup']));
 
     $sn_edc      = trim(mysqli_real_escape_string($db, $data['sn_edc']));
     $sn_simcard  = trim(mysqli_real_escape_string($db, $data['sn_simcard']));
@@ -291,6 +293,7 @@ function editStock($data)
     $update[] = "user_id = '$user_id'";
     $update[] = "status_edc = '$status_edc'";
     $update[] = "updated_at = '$updated_at'";
+    $update[] = "date_pickup = '$date'";
 
     if ($sn_edc !== '')      $update[] = "sn_edc = '$sn_edc'";
     if ($sn_simcard !== '')  $update[] = "sn_simcard = '$sn_simcard'";
@@ -319,7 +322,6 @@ function editDetail($data)
 
     $stock_id = (int)$data['stock_id'];
     $now      = date('Y-m-d H:i:s');
-    $date = date('Y-m-d');
 
     /* ================= TABLE STOCK ================= */
     $sn_edc      = mysqli_real_escape_string($db, trim($data['sn_edc']));
@@ -430,7 +432,7 @@ function addListReturn($data)
     $sn_samcard3 = trim(mysqli_real_escape_string($db, $data["sn_samcard3"]));
     $status1  = trim(mysqli_real_escape_string($db, $data["status1"]));
     $status2  = trim(mysqli_real_escape_string($db, $data["status2"]));
-    $date       = mysqli_real_escape_string($db, $data['date']);
+    $date       = mysqli_real_escape_string($db, $data['date_tech']);
     $note  = trim(mysqli_real_escape_string($db, $data["note"]));
 
     // 1️⃣ SN EDC
@@ -479,7 +481,7 @@ function addListReturn($data)
 
     $query = "
         INSERT INTO return_edc
-        (user_id, sn_edc, sn_simcard, sn_samcard1, sn_samcard2, sn_samcard3, status1, status2, date, note, created_at)
+        (user_id, sn_edc, sn_simcard, sn_samcard1, sn_samcard2, sn_samcard3, status1, status2, date_tech, note, created_at)
         VALUES (
             '$user_id',
             " . ($sn_edc  === '' ? "NULL" : "'$sn_edc'") . ",
@@ -512,7 +514,8 @@ function editListReturn($data)
     $user_id  = (int)$data['user_id'];
     $status1   = mysqli_real_escape_string($db, $data['status1']);
     $status2   = mysqli_real_escape_string($db, $data['status2']);
-    $date       = mysqli_real_escape_string($db, $data['date']);
+    $date_tech       = mysqli_real_escape_string($db, $data['date_tech']);
+    $date_to_ho       = mysqli_real_escape_string($db, $data['date_to_ho']);
     $note  = trim(mysqli_real_escape_string($db, $data["note"]));
     $updated_at = date('Y-m-d H:i:s');
 
@@ -585,7 +588,8 @@ function editListReturn($data)
     $update[] = "user_id = '$user_id'";
     $update[] = "status1 = '$status1'";
     $update[] = "status2 = '$status2'";
-    $update[] = "date = '$date'";
+    $update[] = "date_tech = '$date_tech'";
+    $update[] = "date_to_ho = '$date_to_ho'";
     $update[] = "note = '$note'";
     $update[] = "updated_at = '$updated_at'";
 

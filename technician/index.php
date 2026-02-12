@@ -120,7 +120,7 @@ require_once '../partials/header.php';
                                                     <td class="text-center"><?= $row["sn_samcard3"]; ?></td>
                                                     <td class="text-center"><?= $row["status1"]; ?></td>
                                                     <td class="text-center"><?= $row["status2"]; ?></td>
-                                                    <td class="text-center"><?= $row["date"]; ?></td>
+                                                    <td class="text-center"><?= $row["date_tech"]; ?></td>
                                                     <td class="text-center"><?= $row["note"]; ?></td>
                                                     <td class="text-center">
                                                         <a href="edit_return.php?id_return=<?= $row["id_return"]; ?>"><button class="btn btn-sm btn-success"><i class="fas fa-edit"></i></button></a>

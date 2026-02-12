@@ -100,9 +100,13 @@ require_once '../partials/header.php';
                                                 <th class="text-center">TID</th>
                                                 <th class="text-center">MID</th>
                                                 <th class="text-center">Merchant</th>
+                                                <th class="text-center">Date Pickup</th>
                                                 <th class="text-center">Date Used</th>
                                                 <th class="text-center">Status</th>
                                                 <th class="text-center">Note</th>
+                                                <?php if ($role === 'Admin') : ?>
+                                                    <th class="text-center">Action</th>
+                                                <?php endif; ?>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -132,9 +136,19 @@ require_once '../partials/header.php';
                                                     <td class="text-center"><?= $row["merchant_name"]; ?>
                                                         <h6 style="font-size:smaller;"><?= $row["addres_name"]; ?></h6>
                                                     </td>
+                                                    <td class="text-center"><?= $row["date_pickup"]; ?></td>
                                                     <td class="text-center"><?= $row["date_used"]; ?></td>
                                                     <td class="text-center"><span class="badge bg-success"><?= $row["status_edc"]; ?></span></td>
                                                     <td class="text-center"><?= $row["note"]; ?></td>
+                                                    <?php if ($role === 'Admin') : ?>
+                                                        <?php if (is_null($row["id_detail"])) : ?>
+                                                            <td class="text-center">
+                                                                <a href="edit_detail_merchant.php?id_stock=<?= $row["id_stock"]; ?>"><button class="btn btn-sm btn-success"><i class="fas fa-edit"></i></button></a>
+                                                            </td>
+                                                        <?php else: ?>
+                                                            <td></td>
+                                                        <?php endif; ?>
+                                                    <?php endif; ?>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
