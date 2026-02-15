@@ -33,6 +33,7 @@ require_once '../partials/header.php';
 ?>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <?php include '../partials/overlay.php'; ?>
     <div class="wrapper">
 
         <!-- Navbar -->
@@ -247,6 +248,15 @@ require_once '../partials/header.php';
                             data: {
                                 idStocks: idStocks,
                                 status: status
+                            },
+                            beforeSend: function() {
+                                $('#pageLoader').show(); // 🔥 MUNCULKAN OVERLAY
+                                $('#btnNotyetused').addClass('disabled');
+                            },
+
+                            complete: function() {
+                                $('#pageLoader').hide(); // 🔥 SEMBUNYIKAN OVERLAY
+                                $('#btnNotyetused').removeClass('disabled');
                             },
                             success: function(response) {
                                 if (response.status === 'success') {

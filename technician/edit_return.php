@@ -63,6 +63,7 @@ require_once '../partials/header.php';
 ?>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <?php include '../partials/overlay.php'; ?>
     <div class="wrapper">
 
         <!-- Navbar -->
@@ -190,6 +191,7 @@ require_once '../partials/header.php';
                                     <!-- /.card-body -->
                                     <div class="card-footer">
                                         <button type="submit" class="btn btn-primary"><i class="fas fa-solid fa-check"></i> Submit</button>
+                                        <button type="reset" class="btn btn-dark">Reset</button>
                                     </div>
                                 </form>
                             </div>
@@ -269,7 +271,33 @@ require_once '../partials/header.php';
             $('#quickForm').on('submit', function(e) {
                 e.preventDefault();
 
+                // Ambil semua input text
+                let sn_edc = $('#sn_edc').val().trim();
+                let sn_simcard = $('#sn_simcard').val().trim();
+                let sn_samcard1 = $('#sn_samcard1').val().trim();
+                let sn_samcard2 = $('#sn_samcard2').val().trim();
+                let sn_samcard3 = $('#sn_samcard3').val().trim();
+
+                // 🔥 CEK JIKA SEMUA KOSONG
+                if (
+                    sn_edc === "" &&
+                    sn_simcard === "" &&
+                    sn_samcard1 === "" &&
+                    sn_samcard2 === "" &&
+                    sn_samcard3 === ""
+                ) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Warning',
+                        text: 'At least one field must be filled!'
+                    });
+                    return;
+                }
+
                 if (!$(this).valid()) return; // Stop jika form tidak valid
+                // 🔥 MUNCULKAN OVERLAY LANGSUNG
+                $('#pageLoader').show();
+                $('button[type="submit"]').prop('disabled', true);
 
                 $.ajax({
                     url: '', // Ganti dengan URL aksi jika perlu
@@ -278,6 +306,9 @@ require_once '../partials/header.php';
                     processData: false,
                     contentType: false,
                     success: function(response) {
+                        $('#pageLoader').hide();
+                        $('button[type="submit"]').prop('disabled', false);
+
                         let res;
                         try {
                             res = JSON.parse(response);
@@ -299,6 +330,8 @@ require_once '../partials/header.php';
                         }
                     },
                     error: function() {
+                        $('#pageLoader').hide();
+                        $('button[type="submit"]').prop('disabled', false);
                         Swal.fire('Error', 'An Error Occurred on the Server', 'error');
                     }
                 });

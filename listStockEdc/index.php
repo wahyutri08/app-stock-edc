@@ -28,6 +28,7 @@ require_once '../partials/header.php';
 ?>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <?php include '../partials/overlay.php'; ?>
     <div class="wrapper">
 
         <!-- Navbar -->
@@ -244,6 +245,17 @@ require_once '../partials/header.php';
                                 data: {
                                     ids: ids
                                 },
+
+                                beforeSend: function() {
+                                    $('#pageLoader').show(); // 🔥 MUNCULKAN OVERLAY
+                                    $('#btnDelete').addClass('disabled');
+                                },
+
+                                complete: function() {
+                                    $('#pageLoader').hide(); // 🔥 SEMBUNYIKAN OVERLAY
+                                    $('#btnDelete').removeClass('disabled');
+                                },
+
                                 success: function(res) {
                                     let response = JSON.parse(res);
 
@@ -254,6 +266,7 @@ require_once '../partials/header.php';
                                         Swal.fire('Error', response.message, 'error');
                                     }
                                 },
+
                                 error: function() {
                                     Swal.fire('Error', 'Server error', 'error');
                                 }
@@ -284,6 +297,15 @@ require_once '../partials/header.php';
                     $.ajax({
                         url: href,
                         type: 'GET',
+
+                        beforeSend: function() {
+                            $('#pageLoader').show(); // 🔥 OVERLAY LANGSUNG MUNCUL
+                        },
+
+                        complete: function() {
+                            $('#pageLoader').hide(); // 🔥 HILANGKAN SETELAH SELESAI
+                        },
+
                         success: function(response) {
                             let res = JSON.parse(response);
 
@@ -295,12 +317,15 @@ require_once '../partials/header.php';
                                 }).then(() => {
                                     location.reload();
                                 });
+
                             } else if (res.status === 'error') {
                                 Swal.fire('Error', 'Data Deletion Failed', 'error');
+
                             } else if (res.status === 'redirect') {
                                 window.location.href = '../login';
                             }
                         },
+
                         error: function() {
                             Swal.fire('Error', 'Server Error', 'error');
                         }

@@ -36,6 +36,7 @@ require_once '../partials/header.php';
 ?>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <?php include '../partials/overlay.php'; ?>
     <div class="wrapper">
 
         <!-- Navbar -->
@@ -158,7 +159,7 @@ require_once '../partials/header.php';
                     status_edc: {
                         required: true
                     },
-                    date: {
+                    date_pickup: {
                         required: true
                     }
                 },
@@ -166,7 +167,7 @@ require_once '../partials/header.php';
                     status_edc: {
                         required: "Please enter an Status"
                     },
-                    date: {
+                    date_pickup: {
                         required: "Please enter an Date"
                     }
                 },
@@ -187,15 +188,49 @@ require_once '../partials/header.php';
             $('#quickForm').on('submit', function(e) {
                 e.preventDefault();
 
-                if (!$(this).valid()) return; // Stop jika form tidak valid
+                // Ambil semua input dan trim spasi
+                let sn_edc = $('#sn_edc').val().trim();
+                let sn_simcard = $('#sn_simcard').val().trim();
+                let sn_samcard1 = $('#sn_samcard1').val().trim();
+                let sn_samcard2 = $('#sn_samcard2').val().trim();
+                let sn_samcard3 = $('#sn_samcard3').val().trim();
+                // let status_edc = $('#status_edc').val();
+                // let date_pickup = $('#date_pickup').val();
+
+                // 🔥 CEK JIKA SEMUA FIELD KOSONG
+                if (
+                    sn_edc === "" &&
+                    sn_simcard === "" &&
+                    sn_samcard1 === "" &&
+                    sn_samcard2 === "" &&
+                    sn_samcard3 === ""
+                ) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Warning',
+                        text: 'At least one field must be filled!'
+                    });
+                    return;
+                }
+
+                if (!$(this).valid()) return;
+
+                // 🔥 MUNCULKAN OVERLAY LANGSUNG
+                $('#pageLoader').show();
+                $('button[type="submit"]').prop('disabled', true);
 
                 $.ajax({
-                    url: '', // Ganti dengan URL aksi jika perlu
+                    url: '',
                     type: 'POST',
                     data: new FormData(this),
                     processData: false,
                     contentType: false,
+
                     success: function(response) {
+
+                        $('#pageLoader').hide();
+                        $('button[type="submit"]').prop('disabled', false);
+
                         let res;
                         try {
                             res = JSON.parse(response);
@@ -216,7 +251,11 @@ require_once '../partials/header.php';
                             Swal.fire('Error', res.message, 'error');
                         }
                     },
+
                     error: function() {
+                        $('#pageLoader').hide();
+                        $('button[type="submit"]').prop('disabled', false);
+
                         Swal.fire('Error', 'An Error Occurred on the Server', 'error');
                     }
                 });

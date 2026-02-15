@@ -26,6 +26,7 @@ require_once '../partials/header.php';
 ?>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <?php include '../partials/overlay.php'; ?>
     <div class="wrapper">
 
         <!-- Navbar -->
@@ -216,6 +217,15 @@ require_once '../partials/header.php';
                             data: {
                                 listIds: listIds
                             },
+                            beforeSend: function() {
+                                $('#pageLoader').show(); // 🔥 MUNCULKAN OVERLAY
+                                $('#btnDeleteReturn').addClass('disabled');
+                            },
+
+                            complete: function() {
+                                $('#pageLoader').hide(); // 🔥 SEMBUNYIKAN OVERLAY
+                                $('#btnDeleteReturn').removeClass('disabled');
+                            },
                             success: function(response) {
                                 if (response.status === 'success') {
                                     Swal.fire('Deleted!', response.message, 'success')
@@ -261,6 +271,15 @@ require_once '../partials/header.php';
                                 idStatus: idStatus,
                                 status: status
                             },
+                            beforeSend: function() {
+                                $('#pageLoader').show(); // 🔥 MUNCULKAN OVERLAY
+                                $('#btnDeleteReturn').addClass('disabled');
+                            },
+
+                            complete: function() {
+                                $('#pageLoader').hide(); // 🔥 SEMBUNYIKAN OVERLAY
+                                $('#btnDeleteReturn').removeClass('disabled');
+                            },
                             success: function(response) {
                                 if (response.status === 'success') {
                                     Swal.fire('Success', response.message, 'success')
@@ -298,6 +317,13 @@ require_once '../partials/header.php';
                     $.ajax({
                         url: href,
                         type: 'GET',
+                        beforeSend: function() {
+                            $('#pageLoader').show(); // 🔥 OVERLAY LANGSUNG MUNCUL
+                        },
+
+                        complete: function() {
+                            $('#pageLoader').hide(); // 🔥 HILANGKAN SETELAH SELESAI
+                        },
                         success: function(response) {
                             let res = JSON.parse(response);
 

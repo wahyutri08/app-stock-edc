@@ -27,6 +27,7 @@ require_once '../partials/header.php';
 ?>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <?php include '../partials/overlay.php'; ?>
     <div class="wrapper">
 
         <!-- Navbar -->
@@ -225,6 +226,15 @@ require_once '../partials/header.php';
                             data: {
                                 listIds: listIds
                             },
+                            beforeSend: function() {
+                                $('#pageLoader').show(); // 🔥 MUNCULKAN OVERLAY
+                                $('#btnDelete').addClass('disabled');
+                            },
+
+                            complete: function() {
+                                $('#pageLoader').hide(); // 🔥 SEMBUNYIKAN OVERLAY
+                                $('#btnDelete').removeClass('disabled');
+                            },
                             success: function(response) {
                                 if (response.status === 'success') {
                                     Swal.fire('Deleted!', response.message, 'success')
@@ -269,6 +279,15 @@ require_once '../partials/header.php';
                             data: {
                                 idStatus: idStatus,
                                 status: status
+                            },
+                            beforeSend: function() {
+                                $('#pageLoader').show(); // 🔥 MUNCULKAN OVERLAY
+                                $('#btnTechnician').addClass('disabled');
+                            },
+
+                            complete: function() {
+                                $('#pageLoader').hide(); // 🔥 SEMBUNYIKAN OVERLAY
+                                $('#btnTechnician').removeClass('disabled');
                             },
                             success: function(response) {
                                 if (response.status === 'success') {

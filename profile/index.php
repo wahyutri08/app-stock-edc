@@ -31,6 +31,7 @@ require_once '../partials/header.php';
 ?>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <?php include '../partials/overlay.php'; ?>
     <div class="wrapper">
 
         <!-- Navbar -->
@@ -177,6 +178,10 @@ require_once '../partials/header.php';
             $('#myForm').on('submit', function(e) {
                 e.preventDefault();
 
+                // 🔥 MUNCULKAN OVERLAY LANGSUNG
+                $('#pageLoader').show();
+                $('button[type="submit"]').prop('disabled', true);
+
                 $.ajax({
                     url: '',
                     type: 'POST',
@@ -184,6 +189,8 @@ require_once '../partials/header.php';
                     processData: false,
                     contentType: false,
                     success: function(response) {
+                        $('#pageLoader').hide();
+                        $('button[type="submit"]').prop('disabled', false);
                         const res = JSON.parse(response);
                         if (res.status === 'success') {
                             Swal.fire({
@@ -198,7 +205,9 @@ require_once '../partials/header.php';
                         }
                     },
                     error: function() {
-                        Swal.fire('Error', 'Terjadi kesalahan pada server', 'error');
+                        $('#pageLoader').hide();
+                        $('button[type="submit"]').prop('disabled', false);
+                        Swal.fire('Error', 'An Error Occurred on the Server', 'error');
                     }
                 });
             });

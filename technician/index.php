@@ -27,6 +27,7 @@ require_once '../partials/header.php';
 ?>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <?php include '../partials/overlay.php'; ?>
     <div class="wrapper">
 
         <!-- Navbar -->
@@ -68,10 +69,6 @@ require_once '../partials/header.php';
                                         class="btn btn-action btn-sm bg-gradient-primary disabled mr-2">
                                         <i class="fas fa-check"></i> Send To HO
                                     </a>
-                                    <!-- <a href="#" id="btnUsed" data-status="Used"
-                                        class="btn btn-action btn-sm bg-gradient-success disabled">
-                                        <i class="fas fa-check"></i> Used
-                                    </a> -->
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body table-responsive">
@@ -272,6 +269,15 @@ require_once '../partials/header.php';
                                 idStatus: idStatus,
                                 status: status
                             },
+                            beforeSend: function() {
+                                $('#pageLoader').show(); // 🔥 MUNCULKAN OVERLAY
+                                $('#btnHO').addClass('disabled');
+                            },
+
+                            complete: function() {
+                                $('#pageLoader').hide(); // 🔥 SEMBUNYIKAN OVERLAY
+                                $('#btnHO').removeClass('disabled');
+                            },
                             success: function(response) {
                                 if (response.status === 'success') {
                                     Swal.fire('Success', response.message, 'success')
@@ -309,6 +315,13 @@ require_once '../partials/header.php';
                     $.ajax({
                         url: href,
                         type: 'GET',
+                        beforeSend: function() {
+                            $('#pageLoader').show(); // 🔥 OVERLAY LANGSUNG MUNCUL
+                        },
+
+                        complete: function() {
+                            $('#pageLoader').hide(); // 🔥 HILANGKAN SETELAH SELESAI
+                        },
                         success: function(response) {
                             let res = JSON.parse(response);
 

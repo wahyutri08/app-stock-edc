@@ -62,7 +62,13 @@ $samcardFilled =
     !empty($stock['sn_samcard2']) ||
     !empty($stock['sn_samcard3']);
 
-$users = query("SELECT * FROM users");
+if ($role === 'Admin') {
+    $users = query("SELECT * FROM users");
+} else {
+
+    $users = query("SELECT * FROM users WHERE role = 'User'");
+}
+
 
 /* ================= AJAX POST ================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -82,6 +88,7 @@ require_once '../partials/header.php';
 ?>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <?php include '../partials/overlay.php'; ?>
     <div class="wrapper">
 
         <!-- Navbar -->
@@ -323,6 +330,10 @@ require_once '../partials/header.php';
 
                 if (!$(this).valid()) return; // Stop jika form tidak valid
 
+                // 🔥 MUNCULKAN OVERLAY LANGSUNG
+                $('#pageLoader').show();
+                $('button[type="submit"]').prop('disabled', true);
+
                 $.ajax({
                     url: '',
                     type: 'POST',
@@ -331,6 +342,8 @@ require_once '../partials/header.php';
                     contentType: false,
                     dataType: 'json', // 🔥 PENTING
                     success: function(res) {
+                        $('#pageLoader').hide();
+                        $('button[type="submit"]').prop('disabled', false);
 
                         if (res.status === 'success') {
                             Swal.fire('Success', res.message, 'success')
@@ -340,6 +353,8 @@ require_once '../partials/header.php';
                         }
                     },
                     error: function(xhr) {
+                        $('#pageLoader').hide();
+                        $('button[type="submit"]').prop('disabled', false);
                         console.log(xhr.responseText); // 🔥 DEBUG
                         Swal.fire('Error', 'Server Error', 'error');
                     }

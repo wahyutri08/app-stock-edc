@@ -49,5 +49,22 @@ scratch. This page gets rid of all links and provides the needed markup only.
         #example1 td {
             white-space: nowrap;
         }
+
+        .overlay {
+            position: fixed;
+            /* penting: supaya menempel di layar */
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            /* tengah secara vertikal */
+            align-items: center;
+            /* tengah secara horizontal */
+        }
     </style>
 </head>
