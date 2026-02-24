@@ -187,6 +187,37 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                     </ul>
                 </li>
                 <?php if ($role === 'Admin') : ?>
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-cog"></i>
+                            <p>
+                                Type Setting
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="../product_name" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Product Name</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../color_type" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Color Type</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../member_bank" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Member Bank</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                <?php endif; ?>
+                <?php if ($role === 'Admin') : ?>
                     <li class="nav-item">
                         <a href="../user_management" class="nav-link">
                             <i class="nav-icon fas fa-users"></i>

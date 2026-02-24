@@ -10,20 +10,44 @@ $user_id = $_SESSION['id'];
 $role = $_SESSION['role'];
 
 if ($role == 'Admin') {
-    $stck = query("SELECT stock.*, users.name, detail_list_stock.*
+    $stck = query("SELECT 
+                   stock.*,
+                   detail_list_stock.*,
+                   product_type.*,
+                   color_type.*,
+                   member_bank.name_member,
+                   IF(users.name IS NULL, 'Deleted User', users.name) AS name
                    FROM stock
-                   JOIN users 
+                   LEFT JOIN users 
                    ON stock.user_id = users.id
                    LEFT JOIN detail_list_stock 
                    ON stock.id_stock = detail_list_stock.stock_id
+                   LEFT JOIN product_type
+                   ON stock.id_product_name = product_type.id_product
+                   LEFT JOIN color_type
+                   ON stock.id_edc_color = color_type.id_color
+                   LEFT JOIN member_bank
+                   ON detail_list_stock.id_member_bank = member_bank.id_member
                    WHERE stock.status_edc = 'Used'");
 } elseif ($role == 'User') {
-    $stck = query("SELECT stock.*, users.name, detail_list_stock.*
+    $stck = query("SELECT 
+                   stock.*,
+                   detail_list_stock.*,
+                   product_type.*,
+                   color_type.*,
+                   member_bank.name_member,
+                   IF(users.name IS NULL, 'Deleted User', users.name) AS name
                    FROM stock
-                   JOIN users 
+                   LEFT JOIN users 
                    ON stock.user_id = users.id
                    LEFT JOIN detail_list_stock 
                    ON stock.id_stock = detail_list_stock.stock_id
+                   LEFT JOIN product_type
+                   ON stock.id_product_name = product_type.id_product
+                   LEFT JOIN color_type
+                   ON stock.id_edc_color = color_type.id_color
+                   LEFT JOIN member_bank
+                   ON detail_list_stock.id_member_bank = member_bank.id_member
                    WHERE stock.status_edc = 'Used' AND user_id = $user_id");
 }
 
@@ -93,6 +117,8 @@ require_once '../partials/header.php';
                                                     </th>
                                                 <?php endif; ?>
                                                 <th class="text-center">Name</th>
+                                                <th class="text-center">Product Type</th>
+                                                <th class="text-center">Color Type</th>
                                                 <th class="text-center">SN EDC</th>
                                                 <th class="text-center">Simcard</th>
                                                 <th class="text-center">Samcard1</th>
@@ -101,6 +127,8 @@ require_once '../partials/header.php';
                                                 <th class="text-center">TID</th>
                                                 <th class="text-center">MID</th>
                                                 <th class="text-center">Merchant</th>
+                                                <th class="text-center">Member Bank</th>
+                                                <th class="text-center">Work Type</th>
                                                 <th class="text-center">Date Pickup</th>
                                                 <th class="text-center">Date Used</th>
                                                 <th class="text-center">Status</th>
@@ -127,6 +155,8 @@ require_once '../partials/header.php';
                                                         </td>
                                                     <?php endif; ?>
                                                     <td class="text-center"><?= $row["name"]; ?></td>
+                                                    <td class="text-center"><?= $row["name_product"]; ?></td>
+                                                    <td class="text-center"><?= $row["name_color"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_edc"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_simcard"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_samcard1"]; ?></td>
@@ -137,6 +167,8 @@ require_once '../partials/header.php';
                                                     <td class="text-center"><?= $row["merchant_name"]; ?>
                                                         <h6 style="font-size:smaller;"><?= $row["addres_name"]; ?></h6>
                                                     </td>
+                                                    <td class="text-center"><?= $row["name_member"]; ?></td>
+                                                    <td class="text-center"><?= $row["work_type"]; ?></td>
                                                     <td class="text-center"><?= $row["date_pickup"]; ?></td>
                                                     <td class="text-center"><?= $row["date_used"]; ?></td>
                                                     <td class="text-center"><span class="badge bg-success"><?= $row["status_edc"]; ?></span></td>

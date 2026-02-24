@@ -10,6 +10,10 @@ $id = $_SESSION["id"];
 $role = $_SESSION['role'];
 $user = query("SELECT * FROM users WHERE id = $id")[0];
 
+$product_type = query("SELECT * FROM product_type WHERE status = 'Active'");
+$color_type = query("SELECT * FROM color_type WHERE status = 'Active'");
+
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = addStock($_POST);
     if ($result > 0) {
@@ -83,37 +87,65 @@ require_once '../partials/header.php';
                                 <!-- form start -->
                                 <form method="POST" action="" enctype="multipart/form-data" id="quickForm">
                                     <div class="card-body">
-                                        <div class="form-group col-md-5">
-                                            <label for="sn_edc">SN EDC:</label>
-                                            <input type="text" name="sn_edc" class="form-control" id="sn_edc" placeholder="SN EDC">
-                                        </div>
-                                        <div class="form-group col-md-5">
-                                            <label for="sn_simcard">SN Simcard:</label>
-                                            <input type="text" name="sn_simcard" class="form-control" id="sn_simcard" placeholder="SN Simcard">
-                                        </div>
-                                        <div class="form-group col-md-5">
-                                            <label for="sn_samcard1">SN Samcard 1:</label>
-                                            <input type="text" name="sn_samcard1" class="form-control" id="sn_samcard1" placeholder="SN Samcard 1">
-                                        </div>
-                                        <div class="form-group col-md-5">
-                                            <label for="sn_samcard2">SN Samcard 2:</label>
-                                            <input type="text" name="sn_samcard2" class="form-control" id="sn_samcard2" placeholder="SN Samcard 2">
-                                        </div>
-                                        <div class="form-group col-md-5">
-                                            <label for="sn_samcard3">SN Samcard 3:</label>
-                                            <input type="text" name="sn_samcard3" class="form-control" id="sn_samcard3" placeholder="SN Samcard 3">
-                                        </div>
-                                        <div class="form-group col-md-5">
-                                            <label>Status:</label>
-                                            <select class="custom-select form-control" id="status_edc" name="status_edc">
-                                                <option value="" disabled selected>--Selected One--</option>
-                                                <option value="Not yet used">Not yet used</option>
-                                                <option value="Used">Used</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group col-md-5">
-                                            <label for="date_pickup">Date Pickup:</label>
-                                            <input type="date" name="date_pickup" class="form-control" id="date_pickup" value="<?= date('Y-m-d', strtotime('now')); ?>" placeholder="Date">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="id_product_name">Product Type:</label>
+                                                    <select class="form-control select2 select2-danger" id="id_product_name" name="id_product_name" data-dropdown-css-class="select2-danger" style="width: 100%;">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <?php foreach ($product_type as $product) : ?>
+                                                            <option value="<?= $product["id_product"]; ?>">
+                                                                <?= $product["name_product"]; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="id_edc_color">Color Type:</label>
+                                                    <select class="form-control select2 select2-danger" id="id_edc_color" name="id_edc_color" data-dropdown-css-class="select2-danger" style="width: 100%;">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <?php foreach ($color_type as $color) : ?>
+                                                            <option value="<?= $color["id_color"]; ?>">
+                                                                <?= $color["name_color"]; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sn_edc">SN EDC:</label>
+                                                    <input type="text" name="sn_edc" class="form-control" id="sn_edc" placeholder="SN EDC">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sn_simcard">SN Simcard:</label>
+                                                    <input type="text" name="sn_simcard" class="form-control" id="sn_simcard" placeholder="SN Simcard">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sn_samcard1">SN Samcard 1:</label>
+                                                    <input type="text" name="sn_samcard1" class="form-control" id="sn_samcard1" placeholder="SN Samcard 1">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sn_samcard2">SN Samcard 2:</label>
+                                                    <input type="text" name="sn_samcard2" class="form-control" id="sn_samcard2" placeholder="SN Samcard 2">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sn_samcard3">SN Samcard 3:</label>
+                                                    <input type="text" name="sn_samcard3" class="form-control" id="sn_samcard3" placeholder="SN Samcard 3">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Status:</label>
+                                                    <select class="custom-select form-control" id="status_edc" name="status_edc">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <option value="Not yet used">Not yet used</option>
+                                                        <option value="Used">Used</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="date_pickup">Date Pickup:</label>
+                                                    <input type="date" name="date_pickup" class="form-control" id="date_pickup" value="<?= date('Y-m-d', strtotime('now')); ?>" placeholder="Date">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <!-- /.card-body -->
@@ -149,6 +181,17 @@ require_once '../partials/header.php';
     <script>
         $(function() {
             bsCustomFileInput.init();
+        });
+    </script>
+    <script>
+        $(function() {
+            // Initialize Select2 Elements
+            $('.select2').select2();
+
+            // Initialize Select2 Bootstrap 4
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            });
         });
     </script>
     <script>

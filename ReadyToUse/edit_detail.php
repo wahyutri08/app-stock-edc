@@ -1,6 +1,6 @@
 <?php
 session_start();
-include_once("../auth_check.php");
+require_once("../auth_check.php");
 if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     header("Location: ../login");
     exit;
@@ -8,6 +8,10 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
 
 $user_id = $_SESSION['id'];
 $role    = $_SESSION['role'];
+
+$product_type = query("SELECT * FROM product_type WHERE status = 'Active'");
+$color_type = query("SELECT * FROM color_type WHERE status = 'Active'");
+$member_bank = query("SELECT * FROM member_bank WHERE status = 'Active'");
 
 $id_stock = (int)($_GET['id_stock'] ?? 0);
 if ($id_stock <= 0) {
@@ -18,11 +22,15 @@ if ($id_stock <= 0) {
 /* ================= LOAD DATA ================= */
 if ($role === 'Admin') {
     $stock = query("SELECT stock.*,
+                    product_type.*,
+                    color_type.*,
                     IF(users.name IS NULL, 'Deleted User', users.name) AS name,
                     detail_list_stock.tid,
                     detail_list_stock.mid,
                     detail_list_stock.merchant_name,
                     detail_list_stock.addres_name,
+                    detail_list_stock.id_member_bank,
+                    detail_list_stock.work_type,
                     detail_list_stock.date_used,
                     detail_list_stock.note
                     FROM stock
@@ -30,21 +38,33 @@ if ($role === 'Admin') {
                     ON stock.user_id = users.id
                     LEFT JOIN detail_list_stock 
                     ON stock.id_stock = detail_list_stock.stock_id
+                    LEFT JOIN product_type
+                    ON stock.id_product_name = product_type.id_product
+                    LEFT JOIN color_type
+                    ON stock.id_edc_color = color_type.id_color
                     WHERE stock.id_stock = $id_stock");
 } else {
     $stock = query("SELECT stock.*,
-                    users.name,
+                    product_type.*,
+                    color_type.*,
+                    IF(users.name IS NULL, 'Deleted User', users.name) AS name,
                     detail_list_stock.tid,
                     detail_list_stock.mid,
                     detail_list_stock.merchant_name,
                     detail_list_stock.addres_name,
+                    detail_list_stock.id_member_bank,
+                    detail_list_stock.work_type,
                     detail_list_stock.date_used,
                     detail_list_stock.note
                     FROM stock
-                    JOIN users 
+                    LEFT JOIN users 
                     ON stock.user_id = users.id
                     LEFT JOIN detail_list_stock 
                     ON stock.id_stock = detail_list_stock.stock_id
+                    LEFT JOIN product_type
+                    ON stock.id_product_name = product_type.id_product
+                    LEFT JOIN color_type
+                    ON stock.id_edc_color = color_type.id_color
                     WHERE stock.id_stock = $id_stock AND stock.user_id = $user_id");
 }
 
@@ -83,8 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $isUser = ($role == 'User');
 $title = "Edit Detail";
-require_once '../partials/header.php';
-
+include '../partials/header.php';
 ?>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -139,6 +158,30 @@ require_once '../partials/header.php';
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
+                                                    <label for="id_product_name">Product Type:</label>
+                                                    <select class="form-control select2 select2-danger" id="id_product_name" name="id_product_name" data-dropdown-css-class="select2-danger" style="width: 100%;">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <?php foreach ($product_type as $product) : ?>
+                                                            <option value="<?= $product["id_product"]; ?>"
+                                                                <?= ($stock["id_product_name"] == $product["id_product"]) ? "selected" : "" ?>>
+                                                                <?= $product["name_product"]; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="id_edc_color">Color Type:</label>
+                                                    <select class="form-control select2 select2-danger" id="id_edc_color" name="id_edc_color" data-dropdown-css-class="select2-danger" style="width: 100%;">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <?php foreach ($color_type as $color) : ?>
+                                                            <option value="<?= $color["id_color"]; ?>"
+                                                                <?= ($stock["id_edc_color"] == $color["id_color"]) ? "selected" : "" ?>>
+                                                                <?= $color["name_color"]; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
                                                     <label for="sn_edc">SN EDC:</label>
                                                     <input type="text"
                                                         name="sn_edc"
@@ -189,6 +232,29 @@ require_once '../partials/header.php';
                                                         <?= ($role === 'Admin') ? '' : ($samcardFilled && !$snEdcFilled && !$snSimFilled && !empty($stock['sn_samcard3']) ? 'readonly' : '') ?>>
                                                 </div>
                                                 <div class="form-group">
+                                                    <label for="id_member_bank">Member Bank:</label>
+                                                    <select class="form-control select2 select2-danger" id="id_member_bank" name="id_member_bank" data-dropdown-css-class="select2-danger" style="width: 100%;">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <?php foreach ($member_bank as $bank) : ?>
+                                                            <option value="<?= $bank["id_member"]; ?>"
+                                                                <?= ($stock["id_member_bank"] == $bank["id_member"]) ? "selected" : "" ?>>
+                                                                <?= $bank["name_member"]; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="work_type">Work Type:</label>
+                                                    <select class="form-control select2 select2-danger" id="work_type" name="work_type" data-dropdown-css-class="select2-danger" style="width: 100%;">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <option value="INSTAL" <?= ($stock["work_type"] == "INSTAL") ? "selected" : "" ?>>INSTAL</option>
+                                                        <option value="REPLACEMENT" <?= ($stock["work_type"] == "REPLACEMENT") ? "selected" : "" ?>>REPLACEMENT</option>
+                                                        <option value="REPLACEMENT PART" <?= ($stock["work_type"] == "REPLACEMENT PART") ? "selected" : "" ?>>REPLACEMENT PART</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
                                                     <label for="tid">TID:</label>
                                                     <input type="text" name="tid" class="form-control" id="tid" placeholder="TID" value="<?= $stock["tid"]; ?>">
                                                 </div>
@@ -201,8 +267,6 @@ require_once '../partials/header.php';
                                                     <label for="merchant_name">Merchant Name:</label>
                                                     <input type="text" name="merchant_name" class="form-control" id="merchant_name" placeholder="Merchant Name" value="<?= $stock["merchant_name"]; ?>">
                                                 </div>
-                                            </div>
-                                            <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="addres_name">Address:</label>
                                                     <textarea class="form-control" id="addres_name" name="addres_name" rows="3"><?= htmlspecialchars($stock["addres_name"] ?? '') ?></textarea>

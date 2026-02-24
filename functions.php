@@ -132,12 +132,19 @@ function addStock($data)
 {
     global $db;
 
-    $user_id = $_SESSION["id"];
+    $user_id = (int) $_SESSION["id"];
 
     $created_at = date('Y-m-d');
 
     // TRIM + ESCAPE (BENAR)
     $sn_edc      = trim(mysqli_real_escape_string($db, $data["sn_edc"]));
+    $id_product_name = isset($data["id_product_name"]) && $data["id_product_name"] !== ''
+        ? (int)$data["id_product_name"]
+        : null;
+
+    $id_edc_color = isset($data["id_edc_color"]) && $data["id_edc_color"] !== ''
+        ? (int)$data["id_edc_color"]
+        : null;
     $sn_simcard  = trim(mysqli_real_escape_string($db, $data["sn_simcard"]));
     $sn_samcard1 = trim(mysqli_real_escape_string($db, $data["sn_samcard1"]));
     $sn_samcard2 = trim(mysqli_real_escape_string($db, $data["sn_samcard2"]));
@@ -191,10 +198,12 @@ function addStock($data)
 
     $query = "
         INSERT INTO stock
-        (user_id, sn_edc, sn_simcard, sn_samcard1, sn_samcard2, sn_samcard3, date_pickup, status_edc, created_at)
+        (user_id, sn_edc, id_product_name, id_edc_color, sn_simcard, sn_samcard1, sn_samcard2, sn_samcard3, date_pickup, status_edc, created_at)
         VALUES (
             '$user_id',
             " . ($sn_edc  === '' ? "NULL" : "'$sn_edc'") . ",
+            " . ($id_product_name === null ? "NULL" : $id_product_name) . ",
+            " . ($id_edc_color === null ? "NULL" : $id_edc_color) . ",
             " . ($sn_simcard  === '' ? "NULL" : "'$sn_simcard'") . ",
             " . ($sn_samcard1 === '' ? "NULL" : "'$sn_samcard1'") . ",
             " . ($sn_samcard2 === '' ? "NULL" : "'$sn_samcard2'") . ",
@@ -325,6 +334,8 @@ function editDetail($data)
 
     /* ================= TABLE STOCK ================= */
     $sn_edc      = mysqli_real_escape_string($db, trim($data['sn_edc']));
+    $id_product_name = !empty($data['id_product_name']) ? (int)$data['id_product_name'] : "NULL";
+    $id_edc_color    = !empty($data['id_edc_color']) ? (int)$data['id_edc_color'] : "NULL";
     $sn_simcard  = mysqli_real_escape_string($db, trim($data['sn_simcard']));
     $sn_samcard1 = mysqli_real_escape_string($db, trim($data['sn_samcard1']));
     $sn_samcard2 = mysqli_real_escape_string($db, trim($data['sn_samcard2']));
@@ -337,6 +348,8 @@ function editDetail($data)
     $mid           = mysqli_real_escape_string($db, trim($data['mid']));
     $merchant_name = mysqli_real_escape_string($db, trim($data['merchant_name']));
     $addres_name   = mysqli_real_escape_string($db, trim($data['addres_name']));
+    $id_member_bank = !empty($data['id_member_bank']) ? (int)$data['id_member_bank'] : "NULL";
+    $work_type = !empty($data['work_type']) ? "'" . mysqli_real_escape_string($db, $data['work_type']) . "'" : "NULL";
     $date       = mysqli_real_escape_string($db, $data['date_used']); // tanggal transaksi
     $note          = mysqli_real_escape_string($db, trim($data['note']));
 
@@ -348,6 +361,8 @@ function editDetail($data)
         $updateStock = mysqli_query($db, "
             UPDATE stock SET
                 sn_edc = '$sn_edc',
+                id_product_name = $id_product_name,
+                id_edc_color = $id_edc_color,
                 sn_simcard = '$sn_simcard',
                 sn_samcard1 = '$sn_samcard1',
                 sn_samcard2 = '$sn_samcard2',
@@ -377,6 +392,8 @@ function editDetail($data)
                     mid = '$mid',
                     merchant_name = '$merchant_name',
                     addres_name = '$addres_name',
+                    id_member_bank = $id_member_bank,
+                    work_type = $work_type,
                     date_used = '$date',
                     note = '$note',
                     updated_at = '$now'
@@ -384,16 +401,16 @@ function editDetail($data)
             ");
 
             if (!$updateDetail) {
-                throw new Exception('Update detail gagal');
+                throw new Exception('Update detail Failed');
             }
         } else {
 
             /* ===== INSERT DETAIL ===== */
             $insertDetail = mysqli_query($db, "
                 INSERT INTO detail_list_stock
-                    (stock_id, tid, mid, merchant_name, addres_name, date_used, note, updated_at)
+                    (stock_id, tid, mid, merchant_name, addres_name, id_member_bank, work_type, date_used, note, updated_at)
                 VALUES
-                    ($stock_id, '$tid', '$mid', '$merchant_name', '$addres_name', '$date', '$note', '$now')
+                    ($stock_id, '$tid', '$mid', '$merchant_name', '$addres_name', $id_member_bank, $work_type, '$date', '$note', '$now')
             ");
 
             if (!$insertDetail) {
@@ -699,6 +716,211 @@ function upload()
     move_uploaded_file($tmpName, '../assets/dist/img/profile/' . $namaFileBaru);
 
     return $namaFileBaru;
+}
+
+function addProductName($data)
+{
+    global $db;
+    $id_product = htmlspecialchars($data["id_product"]);
+    $name_product = htmlspecialchars($data["name_product"]);
+    $status = htmlspecialchars($data["status"]);
+    $created_at = date('Y-m-d H:i:s');
+
+    $query = "SELECT * FROM product_type WHERE name_product = '$name_product' AND id_product != $id_product";
+    $result = mysqli_query($db, $query);
+    if (mysqli_fetch_assoc($result)) {
+        return -1;
+    }
+
+    // Periksa apakah id_product sudah ada
+    $query_id = "SELECT * FROM product_type WHERE id_product = $id_product";
+    $result_id = mysqli_query($db, $query_id);
+
+    if (mysqli_fetch_assoc($result_id)) {
+        // id_product tidak ditemukan
+        return -2;
+    }
+
+    $query = "INSERT INTO product_type VALUES 
+    ('$id_product', '$name_product', '$status', '$created_at', NULL)";
+    mysqli_query($db, $query);
+
+    return mysqli_affected_rows($db);
+}
+
+function editProductName($data)
+{
+    global $db;
+    $id_product   = (int) $data["id_product"];
+    $name_product = mysqli_real_escape_string($db, $_POST["name_product"]);
+    $status       = mysqli_real_escape_string($db, $_POST["status"]);
+    $updated_at   = date('Y-m-d H:i:s');
+
+    // Cek duplikat nama (kecuali id yang sedang diedit)
+    $query = "SELECT id_product 
+              FROM product_type 
+              WHERE name_product = '$name_product' 
+              AND id_product != $id_product";
+    $result = mysqli_query($db, $query);
+
+    if (mysqli_fetch_assoc($result)) {
+        return -1;
+    }
+
+    // Update data
+    $query = "UPDATE product_type SET 
+                name_product = '$name_product',
+                status = '$status',
+                updated_at = '$updated_at'
+              WHERE id_product = $id_product";
+    mysqli_query($db, $query);
+
+    return mysqli_affected_rows($db);
+}
+
+function deleteProductName($id_product)
+{
+    global $db;
+    mysqli_query($db, "DELETE FROM product_type WHERE id_product = $id_product");
+    return mysqli_affected_rows($db);
+}
+
+function addColorName($data)
+{
+    global $db;
+    $id_color = htmlspecialchars($data["id_color"]);
+    $name_color = htmlspecialchars($data["name_color"]);
+    $status = htmlspecialchars($data["status"]);
+    $created_at = date('Y-m-d H:i:s');
+
+    $query = "SELECT * FROM color_type WHERE name_color = '$name_color' AND id_color != $id_color";
+    $result = mysqli_query($db, $query);
+    if (mysqli_fetch_assoc($result)) {
+        return -1;
+    }
+
+    // Periksa apakah id_color sudah ada
+    $query_id = "SELECT * FROM color_type WHERE id_color = $id_color";
+    $result_id = mysqli_query($db, $query_id);
+
+    if (mysqli_fetch_assoc($result_id)) {
+        // id_color tidak ditemukan
+        return -2;
+    }
+
+    $query = "INSERT INTO color_type VALUES 
+    ('$id_color', '$name_color', '$status', '$created_at', NULL)";
+    mysqli_query($db, $query);
+
+    return mysqli_affected_rows($db);
+}
+
+function editColorName($data)
+{
+    global $db;
+    $id_color   = (int) $data["id_color"];
+    $name_color = mysqli_real_escape_string($db, $_POST["name_color"]);
+    $status       = mysqli_real_escape_string($db, $_POST["status"]);
+    $updated_at   = date('Y-m-d H:i:s');
+
+    // Cek duplikat nama (kecuali id yang sedang diedit)
+    $query = "SELECT id_color 
+              FROM color_type 
+              WHERE name_color = '$name_color' 
+              AND id_color != $id_color";
+    $result = mysqli_query($db, $query);
+
+    if (mysqli_fetch_assoc($result)) {
+        return -1;
+    }
+
+    // Update data
+    $query = "UPDATE color_type SET 
+                name_color = '$name_color',
+                status = '$status',
+                updated_at = '$updated_at'
+              WHERE id_color = $id_color";
+    mysqli_query($db, $query);
+
+    return mysqli_affected_rows($db);
+}
+
+function deleteColorName($id_color)
+{
+    global $db;
+    mysqli_query($db, "DELETE FROM color_type WHERE id_color = $id_color");
+    return mysqli_affected_rows($db);
+}
+
+function addMemberBank($data)
+{
+    global $db;
+    $id_member = htmlspecialchars($data["id_member"]);
+    $name_member = htmlspecialchars($data["name_member"]);
+    $status = htmlspecialchars($data["status"]);
+    $created_at = date('Y-m-d H:i:s');
+
+    $query = "SELECT * FROM member_bank WHERE name_member = '$name_member' AND id_member != $id_member";
+    $result = mysqli_query($db, $query);
+    if (mysqli_fetch_assoc($result)) {
+        return -1;
+    }
+
+    // Periksa apakah id_member sudah ada
+    $query_id = "SELECT * FROM member_bank WHERE id_member = $id_member";
+    $result_id = mysqli_query($db, $query_id);
+
+    if (mysqli_fetch_assoc($result_id)) {
+        // id_member tidak ditemukan
+        return -2;
+    }
+
+    $query = "INSERT INTO member_bank VALUES 
+    ('$id_member', '$name_member', '$status', '$created_at', NULL)";
+    mysqli_query($db, $query);
+
+    return mysqli_affected_rows($db);
+}
+
+function editMemberBank($data)
+{
+    global $db;
+    $id_member   = (int) $data["id_member"];
+    $name_member = mysqli_real_escape_string($db, trim($data["name_member"]));
+    $status = mysqli_real_escape_string($db, trim($data["status"]));
+    $updated_at   = date('Y-m-d H:i:s');
+
+    // Cek duplikat nama (kecuali id yang sedang diedit)
+    $query = "SELECT id_member 
+              FROM member_bank 
+              WHERE name_member = '$name_member' 
+              AND id_member != $id_member";
+    $result = mysqli_query($db, $query);
+
+    if (mysqli_fetch_assoc($result)) {
+        return -1;
+    }
+    // Validasi kosong
+    if (empty($name_member)) {
+        return -3; // Nama tidak boleh kosong
+    }
+
+    // Update data
+    $query = "UPDATE member_bank SET 
+                name_member = '$name_member',
+                status = '$status',
+                updated_at = '$updated_at'
+              WHERE id_member = $id_member";
+    mysqli_query($db, $query);
+
+    return mysqli_affected_rows($db);
+}
+
+function deleteMemberBank($id_member)
+{
+    global $db;
+    mysqli_query($db, "DELETE FROM member_bank WHERE id_member = $id_member");
+    return mysqli_affected_rows($db);
 }
 
 function is_user_active($id)

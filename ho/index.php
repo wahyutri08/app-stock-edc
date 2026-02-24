@@ -101,8 +101,8 @@ require_once '../partials/header.php';
                                         <tbody>
                                             <?php foreach ($return as $i => $row) : ?>
                                                 <tr>
-                                                    <td class="text-center" style="width: 8px;">
-                                                        <?php if ($role === 'Admin') : ?>
+                                                    <?php if ($role === 'Admin') : ?>
+                                                        <td class="text-center" style="width: 8px;">
                                                             <div class="custom-control custom-checkbox">
                                                                 <input
                                                                     type="checkbox"
@@ -112,8 +112,8 @@ require_once '../partials/header.php';
                                                                     data-idstatus="<?= $row['id_return']; ?>">
                                                                 <label for="check<?= $row['id_return']; ?>" class="custom-control-label"></label>
                                                             </div>
-                                                        <?php endif; ?>
-                                                    </td>
+                                                        </td>
+                                                    <?php endif; ?>
                                                     <td class="text-center"><?= $row["name"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_edc"]; ?></td>
                                                     <td class="text-center"><?= $row["sn_simcard"]; ?></td>
