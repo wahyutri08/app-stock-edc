@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
         { selector: 'a[href*="../color_type"]', path: '/color_type' },
         { selector: 'a[href*="../member_bank"]', path: '/member_bank' },
         { selector: 'a[href*="../profile"]', path: '/profile' },
+        { selector: 'a[href*="../all_data_stock"]', path: '/all_data_stock' },
+         { selector: 'a[href*="../all_data_return"]', path: '/all_data_return' },
         { selector: 'a[href*="../change_password"]', path: '/change_password' },
         { selector: 'a[href*="../user_management"]', path: '/user_management' },
         { selector: 'a[href*="../user_management"]', path: '/add_user' },
