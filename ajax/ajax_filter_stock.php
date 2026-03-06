@@ -92,6 +92,7 @@ $whereSQL = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 $query = "SELECT
           stock.*,
           users.name,
+          users.role,
           product_type.name_product,
           color_type.name_color,
           member_bank.name_member,
@@ -131,6 +132,7 @@ if (!$data) {
     exit;
 }
 
+
 /* =============================
    BUILD HTML OUTPUT
 ============================= */
@@ -164,6 +166,7 @@ ob_start();
                                 <th>Date Pickup</th>
                                 <th>Date Used</th>
                                 <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -195,6 +198,36 @@ ob_start();
                                             <span class="badge bg-warning">
                                                 <?= htmlspecialchars((string)$row["status_edc"]) ?>
                                             </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <?php if ($_SESSION['role'] === 'Admin'): ?>
+                                            <div class="dropdown">
+                                                <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
+                                                    Action
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="../all_data/edit_detail.php?id_stock=<?= $row["id_stock"]; ?>">
+                                                            <i class="fas fa-edit"></i> Edit
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a class="dropdown-item tombol-hapus"
+                                                            href="delete_stock.php?id_stock=<?= $row["id_stock"]; ?>">
+                                                            <i class="far fa-trash-alt"></i> Delete
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        <?php elseif ($_SESSION['role'] === 'User' && $row["status_edc"] === 'Not yet used'): ?>
+                                            <!-- USER : hanya edit jika belum digunakan -->
+                                            <a class="btn btn-success btn-sm"
+                                                href="../all_data/edit_detail.php?id_stock=<?= $row["id_stock"]; ?>">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
                                         <?php endif; ?>
                                     </td>
                                 </tr>

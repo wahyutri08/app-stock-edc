@@ -1,0 +1,310 @@
+<?php
+session_start();
+include_once("../auth_check.php");
+if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
+    header("Location: ../login");
+    exit;
+}
+
+$id = $_SESSION["id"];
+$role = $_SESSION['role'];
+$user = query("SELECT * FROM users WHERE id = $id")[0];
+
+$product_type = query("SELECT * FROM product_type WHERE status = 'Active'");
+$color_type = query("SELECT * FROM color_type WHERE status = 'Active'");
+
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $result = addStock($_POST);
+    if ($result > 0) {
+        echo json_encode(["status" => "success", "message" => "Data Added Successfully"]);
+    } elseif ($result == -1) {
+        echo json_encode(["status" => "error", "message" => "SN EDC Already Exists"]);
+    } elseif ($result == -2) {
+        echo json_encode(["status" => "error", "message" => "SN SIMCARD Already Exists"]);
+    } elseif ($result == -3) {
+        echo json_encode(["status" => "error", "message" => "SN SAMCARD 1 Already Exists"]);
+    } elseif ($result == -4) {
+        echo json_encode(["status" => "error", "message" => "SN SAMCARD 2 Already Exists"]);
+    } elseif ($result == -5) {
+        echo json_encode(["status" => "error", "message" => "SN SAMCARD 3 Already Exists"]);
+    } else {
+        echo json_encode(["status" => "error", "message" => "Data Failed to Change"]);
+    }
+    exit;
+}
+
+$title = "Add Stock";
+require_once '../partials/header.php';
+
+?>
+
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <?php include '../partials/overlay.php'; ?>
+    <div class="wrapper">
+
+        <!-- Navbar -->
+        <?php include '../partials/navbar.php'; ?>
+        <!-- /.navbar -->
+
+        <!-- Main Sidebar Container -->
+        <?php include '../partials/sidebar.php'; ?>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1 class="m-0">Add Stock</h1>
+                        </div><!-- /.col -->
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="../dashboard">Home</a></li>
+                                <li class="breadcrumb-item">My Assets</li>
+                                <li class="breadcrumb-item">List Stock EDC</li>
+                                <li class="breadcrumb-item"><?= $title;  ?></li>
+                            </ol>
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.container-fluid -->
+            </div>
+            <!-- /.content-header -->
+
+            <!-- Main content -->
+            <section class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- left column -->
+                        <div class="col-md-12">
+                            <!-- jquery validation -->
+                            <div class="card card-danger">
+                                <div class="card-header">
+                                    <h3 class="card-title">Add Stock EDC</h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <!-- form start -->
+                                <form method="POST" action="" enctype="multipart/form-data" id="quickForm">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="id_product_name">Product Type:</label>
+                                                    <select class="form-control select2 select2-danger" id="id_product_name" name="id_product_name" data-dropdown-css-class="select2-danger" style="width: 100%;">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <?php foreach ($product_type as $product) : ?>
+                                                            <option value="<?= $product["id_product"]; ?>">
+                                                                <?= $product["name_product"]; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="id_edc_color">Color Type:</label>
+                                                    <select class="form-control select2 select2-danger" id="id_edc_color" name="id_edc_color" data-dropdown-css-class="select2-danger" style="width: 100%;">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <?php foreach ($color_type as $color) : ?>
+                                                            <option value="<?= $color["id_color"]; ?>">
+                                                                <?= $color["name_color"]; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sn_edc">SN EDC:</label>
+                                                    <input type="text" name="sn_edc" class="form-control" id="sn_edc" placeholder="SN EDC">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sn_simcard">SN Simcard:</label>
+                                                    <input type="text" name="sn_simcard" class="form-control" id="sn_simcard" placeholder="SN Simcard">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sn_samcard1">SN Samcard 1:</label>
+                                                    <input type="text" name="sn_samcard1" class="form-control" id="sn_samcard1" placeholder="SN Samcard 1">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sn_samcard2">SN Samcard 2:</label>
+                                                    <input type="text" name="sn_samcard2" class="form-control" id="sn_samcard2" placeholder="SN Samcard 2">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sn_samcard3">SN Samcard 3:</label>
+                                                    <input type="text" name="sn_samcard3" class="form-control" id="sn_samcard3" placeholder="SN Samcard 3">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Status:</label>
+                                                    <select class="custom-select form-control" id="status_edc" name="status_edc">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <option value="Not yet used">Not yet used</option>
+                                                        <option value="Used">Used</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="date_pickup">Date Pickup:</label>
+                                                    <input type="date" name="date_pickup" class="form-control" id="date_pickup" value="<?= date('Y-m-d', strtotime('now')); ?>" placeholder="Date">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /.card-body -->
+                                    <div class="card-footer">
+                                        <button type="submit" class="btn btn-danger"><i class="fas fa-solid fa-check"></i> Submit</button>
+                                        <button type="reset" class="btn btn-dark"> Reset</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- /.card -->
+                        </div>
+                        <!--/.col (left) -->
+                        <!-- right column -->
+                        <div class="col-md-6">
+
+                        </div>
+                        <!--/.col (right) -->
+                    </div>
+                </div><!-- /.container-fluid -->
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+
+        <!-- Main Footer -->
+        <?php include '../partials/footer.php'; ?>
+    </div>
+    <!-- ./wrapper -->
+
+    <!-- REQUIRED SCRIPTS -->
+    <?php require_once '../partials/scripts.php'; ?>
+
+    <script>
+        $(function() {
+            bsCustomFileInput.init();
+        });
+    </script>
+    <script>
+        $(function() {
+            // Initialize Select2 Elements
+            $('.select2').select2();
+
+            // Initialize Select2 Bootstrap 4
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            });
+        });
+    </script>
+    <script>
+        $(function() {
+            // Inisialisasi validasi jQuery
+            $('#quickForm').validate({
+                rules: {
+                    status_edc: {
+                        required: true
+                    },
+                    date_pickup: {
+                        required: true
+                    }
+                },
+                messages: {
+                    status_edc: {
+                        required: "Please enter an Status"
+                    },
+                    date_pickup: {
+                        required: "Please enter an Date"
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function(error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function(element) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+
+            // Submit dengan AJAX hanya jika valid
+            $('#quickForm').on('submit', function(e) {
+                e.preventDefault();
+
+                // Ambil semua input dan trim spasi
+                let sn_edc = $('#sn_edc').val().trim();
+                let sn_simcard = $('#sn_simcard').val().trim();
+                let sn_samcard1 = $('#sn_samcard1').val().trim();
+                let sn_samcard2 = $('#sn_samcard2').val().trim();
+                let sn_samcard3 = $('#sn_samcard3').val().trim();
+                // let status_edc = $('#status_edc').val();
+                // let date_pickup = $('#date_pickup').val();
+
+                // 🔥 CEK JIKA SEMUA FIELD KOSONG
+                if (
+                    sn_edc === "" &&
+                    sn_simcard === "" &&
+                    sn_samcard1 === "" &&
+                    sn_samcard2 === "" &&
+                    sn_samcard3 === ""
+                ) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Warning',
+                        text: 'At least one field must be filled!'
+                    });
+                    return;
+                }
+
+                if (!$(this).valid()) return;
+
+                // 🔥 MUNCULKAN OVERLAY LANGSUNG
+                $('#pageLoader').show();
+                $('button[type="submit"]').prop('disabled', true);
+
+                $.ajax({
+                    url: '',
+                    type: 'POST',
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+
+                    success: function(response) {
+
+                        $('#pageLoader').hide();
+                        $('button[type="submit"]').prop('disabled', false);
+
+                        let res;
+                        try {
+                            res = JSON.parse(response);
+                        } catch (e) {
+                            Swal.fire('Error', 'Invalid Server Response', 'error');
+                            return;
+                        }
+
+                        if (res.status === 'success') {
+                            Swal.fire({
+                                title: "Success",
+                                text: res.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = '../listStockEdc';
+                            });
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    },
+
+                    error: function() {
+                        $('#pageLoader').hide();
+                        $('button[type="submit"]').prop('disabled', false);
+
+                        Swal.fire('Error', 'An Error Occurred on the Server', 'error');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

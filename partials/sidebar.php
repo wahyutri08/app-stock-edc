@@ -104,36 +104,44 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="../listStockEdc" class="nav-link">
+                            <a href="../add_data_stock" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>List Stock EDC <span class="right badge badge-danger"><?= $totalStock; ?></span></p>
+                                <p>Add Data Stock</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../all_data" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>All Data</p>
                             </a>
                         </li>
                     </ul>
                 </li>
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-vote-yea"></i>
-                        <p>
-                            Status EDC
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="../ReadyToUse" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Ready To Use <span class="right badge badge-danger"><?= $totalNotUsed; ?></span></p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="../AlreadyToUse" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Already Used <span class="right badge badge-danger"><?= $totalUsed; ?></span></p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                <?php if ($role === 'Admin') : ?>
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-vote-yea"></i>
+                            <p>
+                                Status EDC
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="../ReadyToUse" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Ready To Use <span class="right badge badge-danger"><?= $totalNotUsed; ?></span></p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../AlreadyToUse" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Already Used <span class="right badge badge-danger"><?= $totalUsed; ?></span></p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                <?php endif; ?>
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-sign-out-alt"></i>
@@ -159,30 +167,6 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                             <a href="../ho" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>HO <span class="right badge badge-danger"><?= $totalReturnHo; ?></span></p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-header">REPORT</li>
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-table"></i>
-                        <p>
-                            All Data
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="../all_data_stock" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Data Stock</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="../all_data_return" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Data Return</p>
                             </a>
                         </li>
                     </ul>

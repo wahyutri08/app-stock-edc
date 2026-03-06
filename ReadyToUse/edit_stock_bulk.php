@@ -2,6 +2,12 @@
 session_start();
 include_once("../auth_check.php");
 
+if ($_SESSION['role'] !== 'Admin') {
+    header("HTTP/1.1 403 Not Found");
+    include("../errors/403.html");
+    exit;
+}
+
 header('Content-Type: application/json');
 
 if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {

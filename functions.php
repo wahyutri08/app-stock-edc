@@ -133,78 +133,116 @@ function addStock($data)
     global $db;
 
     $user_id = (int) $_SESSION["id"];
-
     $created_at = date('Y-m-d');
 
-    // TRIM + ESCAPE (BENAR)
-    $sn_edc      = trim(mysqli_real_escape_string($db, $data["sn_edc"]));
-    $id_product_name = isset($data["id_product_name"]) && $data["id_product_name"] !== ''
-        ? (int)$data["id_product_name"]
-        : null;
+    $totalInsert = 0;
 
-    $id_edc_color = isset($data["id_edc_color"]) && $data["id_edc_color"] !== ''
-        ? (int)$data["id_edc_color"]
-        : null;
-    $sn_simcard  = trim(mysqli_real_escape_string($db, $data["sn_simcard"]));
-    $sn_samcard1 = trim(mysqli_real_escape_string($db, $data["sn_samcard1"]));
-    $sn_samcard2 = trim(mysqli_real_escape_string($db, $data["sn_samcard2"]));
-    $sn_samcard3 = trim(mysqli_real_escape_string($db, $data["sn_samcard3"]));
-    $status_edc  = trim(mysqli_real_escape_string($db, $data["status_edc"]));
-    $date  = trim(mysqli_real_escape_string($db, $data["date_pickup"]));
-
-    // 1️⃣ SN EDC
-    if ($sn_edc !== '') {
-        $cek = mysqli_query($db, "SELECT id_stock FROM stock WHERE sn_edc = '$sn_edc' LIMIT 1");
-        if (mysqli_fetch_assoc($cek)) {
-            return -1;
-        }
+    if (!isset($data['sn_edc'])) {
+        return 0;
     }
 
-    // 2️⃣ SN SIMCARD (OPSIONAL)
-    if ($sn_simcard !== '') {
-        $cek = mysqli_query($db, "SELECT id_stock FROM stock WHERE sn_simcard = '$sn_simcard' LIMIT 1");
-        if (mysqli_fetch_assoc($cek)) {
-            return -2;
+    foreach ($data['sn_edc'] as $i => $value) {
+
+        /* ===============================
+           AMBIL DATA DENGAN SAFE INDEX
+        =============================== */
+
+        $sn_edc      = trim(mysqli_real_escape_string($db, $data['sn_edc'][$i] ?? ''));
+        $sn_simcard  = trim(mysqli_real_escape_string($db, $data['sn_simcard'][$i] ?? ''));
+        $sn_samcard1 = trim(mysqli_real_escape_string($db, $data['sn_samcard1'][$i] ?? ''));
+        $sn_samcard2 = trim(mysqli_real_escape_string($db, $data['sn_samcard2'][$i] ?? ''));
+        $sn_samcard3 = trim(mysqli_real_escape_string($db, $data['sn_samcard3'][$i] ?? ''));
+
+        $id_product_name = !empty($data['id_product_name'][$i] ?? '')
+            ? (int)$data['id_product_name'][$i]
+            : "NULL";
+
+        $id_edc_color = !empty($data['id_edc_color'][$i] ?? '')
+            ? (int)$data['id_edc_color'][$i]
+            : "NULL";
+
+        $status_edc = trim(mysqli_real_escape_string($db, $data['status_edc'][$i] ?? ''));
+        $date       = trim(mysqli_real_escape_string($db, $data['date_pickup'][$i] ?? ''));
+
+        /* ===============================
+           SKIP FORM JIKA SEMUA KOSONG
+        =============================== */
+
+        if (
+            $sn_edc === '' &&
+            $sn_simcard === '' &&
+            $sn_samcard1 === '' &&
+            $sn_samcard2 === '' &&
+            $sn_samcard3 === ''
+        ) {
+            continue;
         }
-    }
 
-    // 3️⃣ SN SAMCARD 1
-    if ($sn_samcard1 !== '') {
-        $cek = mysqli_query($db, "SELECT id_stock FROM stock WHERE sn_samcard1 = '$sn_samcard1' LIMIT 1");
-        if (mysqli_fetch_assoc($cek)) {
-            return -3;
+        /* ===============================
+           VALIDASI DUPLICATE
+        =============================== */
+
+        if ($sn_edc !== '') {
+            $cek = mysqli_query($db, "SELECT id_stock FROM stock WHERE sn_edc = '$sn_edc' LIMIT 1");
+            if (mysqli_fetch_assoc($cek)) {
+                return -1;
+            }
         }
-    }
 
-    // 4️⃣ SN SAMCARD 2
-    if ($sn_samcard2 !== '') {
-        $cek = mysqli_query($db, "SELECT id_stock FROM stock WHERE sn_samcard2 = '$sn_samcard2' LIMIT 1");
-        if (mysqli_fetch_assoc($cek)) {
-            return -4;
+        if ($sn_simcard !== '') {
+            $cek = mysqli_query($db, "SELECT id_stock FROM stock WHERE sn_simcard = '$sn_simcard' LIMIT 1");
+            if (mysqli_fetch_assoc($cek)) {
+                return -2;
+            }
         }
-    }
 
-    // 5️⃣ SN SAMCARD 3
-    if ($sn_samcard3 !== '') {
-        $cek = mysqli_query($db, "SELECT id_stock FROM stock WHERE sn_samcard3 = '$sn_samcard3' LIMIT 1");
-        if (mysqli_fetch_assoc($cek)) {
-            return -5;
+        if ($sn_samcard1 !== '') {
+            $cek = mysqli_query($db, "SELECT id_stock FROM stock WHERE sn_samcard1 = '$sn_samcard1' LIMIT 1");
+            if (mysqli_fetch_assoc($cek)) {
+                return -3;
+            }
         }
-    }
 
-    /* =======================
-       INSERT DATA
-       ======================= */
+        if ($sn_samcard2 !== '') {
+            $cek = mysqli_query($db, "SELECT id_stock FROM stock WHERE sn_samcard2 = '$sn_samcard2' LIMIT 1");
+            if (mysqli_fetch_assoc($cek)) {
+                return -4;
+            }
+        }
 
-    $query = "
+        if ($sn_samcard3 !== '') {
+            $cek = mysqli_query($db, "SELECT id_stock FROM stock WHERE sn_samcard3 = '$sn_samcard3' LIMIT 1");
+            if (mysqli_fetch_assoc($cek)) {
+                return -5;
+            }
+        }
+
+        /* ===============================
+           INSERT DATA
+        =============================== */
+
+        $query = "
         INSERT INTO stock
-        (user_id, sn_edc, id_product_name, id_edc_color, sn_simcard, sn_samcard1, sn_samcard2, sn_samcard3, date_pickup, status_edc, created_at)
-        VALUES (
+        (
+            user_id,
+            sn_edc,
+            id_product_name,
+            id_edc_color,
+            sn_simcard,
+            sn_samcard1,
+            sn_samcard2,
+            sn_samcard3,
+            date_pickup,
+            status_edc,
+            created_at
+        )
+        VALUES
+        (
             '$user_id',
-            " . ($sn_edc  === '' ? "NULL" : "'$sn_edc'") . ",
-            " . ($id_product_name === null ? "NULL" : $id_product_name) . ",
-            " . ($id_edc_color === null ? "NULL" : $id_edc_color) . ",
-            " . ($sn_simcard  === '' ? "NULL" : "'$sn_simcard'") . ",
+            " . ($sn_edc === '' ? "NULL" : "'$sn_edc'") . ",
+            $id_product_name,
+            $id_edc_color,
+            " . ($sn_simcard === '' ? "NULL" : "'$sn_simcard'") . ",
             " . ($sn_samcard1 === '' ? "NULL" : "'$sn_samcard1'") . ",
             " . ($sn_samcard2 === '' ? "NULL" : "'$sn_samcard2'") . ",
             " . ($sn_samcard3 === '' ? "NULL" : "'$sn_samcard3'") . ",
@@ -212,15 +250,16 @@ function addStock($data)
             '$status_edc',
             '$created_at'
         )
-    ";
+        ";
 
-    $insert = mysqli_query($db, $query);
+        $insert = mysqli_query($db, $query);
 
-    if (!$insert) {
-        return 0; // insert gagal
+        if ($insert) {
+            $totalInsert++;
+        }
     }
 
-    return mysqli_affected_rows($db);
+    return $totalInsert;
 }
 
 function editStock($data)

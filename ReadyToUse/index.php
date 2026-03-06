@@ -6,6 +6,13 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
+if ($_SESSION['role'] !== 'Admin') {
+    header("HTTP/1.1 403 Not Found");
+    include("../errors/403.html");
+    exit;
+}
+
+
 $user_id = $_SESSION['id'];
 $role = $_SESSION['role'];
 

@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Biar gampang, mapping menu: href, folder
     const menuGroups = [
-        { selector: 'a[href*="../listStockEdc"]', path: '/listStockEdc' },
+        { selector: 'a[href*="../add_data_stock"]', path: '/add_data_stock' },
         { selector: 'a[href*="../ReadyToUse"]', path: '/ReadyToUse' },
         { selector: 'a[href*="../AlreadyToUse"]', path: '/AlreadyToUse' },
         { selector: 'a[href*="../return_edc"]', path: '/return_edc' },
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { selector: 'a[href*="../color_type"]', path: '/color_type' },
         { selector: 'a[href*="../member_bank"]', path: '/member_bank' },
         { selector: 'a[href*="../profile"]', path: '/profile' },
-        { selector: 'a[href*="../all_data_stock"]', path: '/all_data_stock' },
+        { selector: 'a[href*="../all_data"]', path: '/all_data' },
          { selector: 'a[href*="../all_data_return"]', path: '/all_data_return' },
         { selector: 'a[href*="../change_password"]', path: '/change_password' },
         { selector: 'a[href*="../user_management"]', path: '/user_management' },

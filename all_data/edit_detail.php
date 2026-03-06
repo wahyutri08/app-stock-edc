@@ -6,11 +6,6 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
-if ($_SESSION['role'] !== 'Admin') {
-    header("HTTP/1.1 403 Not Found");
-    include("../errors/403.html");
-    exit;
-}
 
 
 $user_id = $_SESSION['id'];
@@ -96,6 +91,10 @@ if ($role === 'Admin') {
     $users = query("SELECT * FROM users WHERE role = 'User'");
 }
 
+if ($_SESSION['role'] !== 'Admin' && $stock['status_edc'] === 'Used') {
+    http_response_code(404);
+    exit;
+}
 
 /* ================= AJAX POST ================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -418,7 +417,7 @@ include '../partials/header.php';
 
                         if (res.status === 'success') {
                             Swal.fire('Success', res.message, 'success')
-                                .then(() => window.location.href = '../ReadyToUse');
+                                .then(() => window.location.href = '../all_data');
                         } else {
                             Swal.fire('Error', res.message, 'error');
                         }
