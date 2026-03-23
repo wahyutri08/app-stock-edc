@@ -209,23 +209,22 @@ ob_start();
                                                 <ul class="dropdown-menu">
                                                     <li>
                                                         <a class="dropdown-item"
-                                                            href="../all_data/edit_detail.php?id_stock=<?= $row["id_stock"]; ?>">
+                                                            href="<?= base_url('all_data/edit/' . $row['id_stock']) ?>">
                                                             <i class="fas fa-edit"></i> Edit
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <a class="dropdown-item tombol-hapus"
-                                                            href="delete_stock.php?id_stock=<?= $row["id_stock"]; ?>">
+                                                        <button class="dropdown-item tombol-hapus" data-id="<?= $row['id_stock']; ?>">
                                                             <i class="far fa-trash-alt"></i> Delete
-                                                        </a>
+                                                        </button>
                                                     </li>
                                                 </ul>
                                             </div>
                                         <?php elseif ($_SESSION['role'] === 'User' && $row["status_edc"] === 'Not yet used'): ?>
                                             <!-- USER : hanya edit jika belum digunakan -->
                                             <a class="btn btn-success btn-sm"
-                                                href="../all_data/edit_detail.php?id_stock=<?= $row["id_stock"]; ?>">
+                                                href="<?= base_url('all_data/edit/' . $row['id_stock']) ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                         <?php endif; ?>

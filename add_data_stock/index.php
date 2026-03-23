@@ -334,7 +334,7 @@ require_once '../partials/header.php';
                                 text: res.message,
                                 icon: "success"
                             }).then(() => {
-                                window.location.href = '../all_data';
+                                window.location.href = '<?= base_url('all_data') ?>';
                             });
                         } else {
                             Swal.fire('Error', res.message, 'error');

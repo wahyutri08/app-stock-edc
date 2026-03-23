@@ -59,7 +59,7 @@ require_once '../partials/header.php';
                         <div class="col">
                             <div class="card card-outline card-danger">
                                 <div class="card-header text-left">
-                                    <a href="add_product_name.php" class="btn btn-sm bg-gradient-danger mr-2">
+                                    <a href="<?= base_url('product_name/add_product_name') ?>" class="btn btn-sm bg-gradient-danger mr-2">
                                         <i class="fas fa-plus"></i> Add Product Name
                                     </a>
                                     <a href="#" id="btnDelete" class="btn btn-sm bg-gradient-warning disabled">
@@ -111,8 +111,8 @@ require_once '../partials/header.php';
                                                                 Action
                                                             </button>
                                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                                <li><a class="dropdown-item" href="edit_product.php?id_product=<?= $row["id_product"]; ?>"><i class="fas fa-edit"></i> Edit</a></li>
-                                                                <li><a class="dropdown-item tombol-hapus" href="delete_product.php?id_product=<?= $row["id_product"]; ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
+                                                                <li><a class="dropdown-item" href="<?= base_url('product_name/edit/' . $row['id_product']) ?>"><i class="fas fa-edit"></i> Edit</a></li>
+                                                                <li><a class="dropdown-item tombol-hapus" href="<?= base_url('product_name/delete/' . $row['id_product']) ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
                                                             </ul>
                                                         </div>
                                                     </td>
@@ -209,7 +209,7 @@ require_once '../partials/header.php';
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: 'delete_product_bulk.php',
+                            url: '<?= base_url('product_name/delete_product_bulk') ?>',
                             type: 'POST',
                             data: {
                                 ids: ids

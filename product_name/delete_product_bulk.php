@@ -6,6 +6,12 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
+// Hanya boleh method POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    exit;
+}
+
 
 if (!isset($_POST['ids'])) {
     echo json_encode(['status' => 'error', 'message' => 'No data selected']);

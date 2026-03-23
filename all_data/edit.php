@@ -417,7 +417,7 @@ include '../partials/header.php';
 
                         if (res.status === 'success') {
                             Swal.fire('Success', res.message, 'success')
-                                .then(() => window.location.href = '../all_data');
+                                .then(() => window.location.href = '<?= base_url('all_data') ?>');
                         } else {
                             Swal.fire('Error', res.message, 'error');
                         }

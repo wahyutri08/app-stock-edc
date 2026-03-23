@@ -7,6 +7,16 @@ if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {
 $db = mysqli_connect("localhost", "root", "", "dev-stock-edc");
 date_default_timezone_set('Asia/Jakarta');
 
+
+// Base URL aplikasi
+define("BASEURL", "http://localhost/app-stock-edc/");
+
+// Fungsi helper base_url
+function base_url($path = "")
+{
+    return BASEURL . $path;
+}
+
 function query($query)
 {
     global $db;

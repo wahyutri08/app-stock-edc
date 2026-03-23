@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 $_SESSION['id'] = $row['id'];
                 $_SESSION['avatar'] = $row['avatar'];
                 $_SESSION['role'] = $row['role'];
-                echo json_encode(['status' => 'success', 'redirect' => '../dashboard']);
+                echo json_encode(['status' => 'success', 'redirect' => base_url('dashboard/')]);
                 exit;
             } else {
                 $error = 'Wrong Password.';
@@ -38,10 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
 
 // Cegah akses ke halaman ini jika sudah login
 if (isset($_SESSION["login"]) && $_SESSION["login"] === true) {
-    header("Location: ../dashboard");
+    header("Location: " . base_url("dashboard/"));
     exit;
 }
-
 $title = "Login";
 require_once '../partials/header.php';
 
@@ -52,11 +51,11 @@ require_once '../partials/header.php';
         <!-- /.login-logo -->
         <div class="card card-outline card-primary">
             <div class="card-header d-flex align-items-center justify-content-center text-center">
-                <img src="../assets/dist/img/Yokke.png"
+                <img src="<?= base_url('assets/dist/img/Yokke.png') ?>"
                     alt="Logo"
                     class="brand-image img-circle me-2"
                     style="width: 60px; height: 60px;">
-                <a href="../login" class="link-dark text-decoration-none ms-2 ml-2">
+                <a href="<?= base_url('login') ?>" class="link-dark text-decoration-none ms-2 ml-2">
                     <h5 class="mb-0 fw-bold" style="color: deepskyblue;"><b>ASSET MANAGEMENT STOCK</b></h5>
                 </a>
             </div>

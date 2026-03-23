@@ -69,18 +69,17 @@ require_once '../partials/header.php';
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-3">
-
                             <!-- Profile Image -->
                             <div class="card card-success card-outline">
                                 <div class="card-body box-profile">
                                     <div class="text-center">
                                         <img class="profile-user-img img-fluid img-circle"
-                                            src="../assets/dist/img/profile/<?= $users["avatar"]; ?>"
+                                            src="../assets/dist/img/profile/<?= htmlspecialchars($users["avatar"]); ?>"
                                             style="width: 160px; height: 160px;">
                                     </div>
-                                    <h3 class="profile-username text-center"><?= $users["name"]; ?></h3>
+                                    <h3 class="profile-username text-center"><?= htmlspecialchars($users["name"]); ?></h3>
                                     <hr>
-                                    <p class="text-muted text-center"><?= $users["role"]; ?></p>
+                                    <p class="text-muted text-center"><?= htmlspecialchars($users["role"]); ?></p>
                                 </div>
                             </div>
                             <!-- /.card -->
@@ -99,30 +98,30 @@ require_once '../partials/header.php';
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="settings">
                                             <form class="form-horizontal" action="" method="POST" enctype="multipart/form-data" id="myForm">
-                                                <input type="hidden" name="id" value="<?= $users["id"]; ?>">
-                                                <input type="hidden" name="avatarLama" value="<?= $users["avatar"]; ?>">
+                                                <input type="hidden" name="id" value="<?= htmlspecialchars($users["id"]); ?>">
+                                                <input type="hidden" name="avatarLama" value="<?= htmlspecialchars($users["avatar"]); ?>">
                                                 <div class="form-group row">
                                                     <label for="username" class="col-sm-2 col-form-label">Username <span class="text-danger">*</span></label>
                                                     <div class="col-sm-10">
-                                                        <input type="text" class="form-control" placeholder="Username" value="<?= $users["username"]; ?>" disabled>
+                                                        <input type="text" class="form-control" placeholder="Username" value="<?= htmlspecialchars($users["username"]); ?>" disabled>
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">
                                                     <label for="name" class="col-sm-2 col-form-label">Name <span class="text-danger">*</span></label>
                                                     <div class="col-sm-10">
-                                                        <input type="text" class="form-control" id="name" name="name" placeholder="Name" value="<?= $users["name"]; ?>">
+                                                        <input type="text" class="form-control" id="name" name="name" placeholder="Name" value="<?= htmlspecialchars($users["name"]); ?>">
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">
                                                     <label for="email" class="col-sm-2 col-form-label">Email <span class="text-danger">*</span></label>
                                                     <div class="col-sm-10">
-                                                        <input type="email" class="form-control" id="email" name="email" placeholder="Email" value="<?= $users["email"]; ?>">
+                                                        <input type="email" class="form-control" id="email" name="email" placeholder="Email" value="<?= htmlspecialchars($users["email"]); ?>">
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">
                                                     <label for="no_telfon" class="col-sm-2 col-form-label">No Telefon <span class="text-danger">*</span></label>
                                                     <div class="col-sm-10">
-                                                        <input type="number" class="form-control" id="no_telfon" name="no_telfon" placeholder="Number Phone " value="<?= $users["no_telfon"]; ?>">
+                                                        <input type="number" class="form-control" id="no_telfon" name="no_telfon" placeholder="Number Phone " value="<?= htmlspecialchars($users["no_telfon"]); ?>">
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">

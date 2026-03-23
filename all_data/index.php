@@ -184,7 +184,7 @@ require_once '../partials/header.php';
             $('form').on('submit', function(e) {
                 e.preventDefault();
                 $.ajax({
-                    url: '../ajax/ajax_filter_stock.php',
+                    url: '<?= base_url('ajax/ajax_filter_stock') ?>',
                     type: 'POST',
                     data: $(this).serialize(),
                     dataType: 'json',
@@ -260,9 +260,7 @@ require_once '../partials/header.php';
     <script>
         $(document).on('click', '.tombol-hapus', function(e) {
             e.preventDefault();
-
-            const href = $(this).attr('href');
-
+            const id_stock = $(this).data('id');
             Swal.fire({
                 title: 'Are you sure?',
                 text: "Data will be deleted",
@@ -274,34 +272,39 @@ require_once '../partials/header.php';
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: href,
-                        type: 'GET',
+                        url: "<?= base_url('all_data/delete') ?>",
+                        type: "POST",
+                        data: {
+                            id_stock: id_stock
+                        },
+                        dataType: "json", // 🔥 penting
                         beforeSend: function() {
-                            $('#pageLoader').show(); // 🔥 OVERLAY LANGSUNG MUNCUL
+                            $('#pageLoader').show();
                         },
-
-                        complete: function() {
-                            $('#pageLoader').hide(); // 🔥 HILANGKAN SETELAH SELESAI
-                        },
-                        success: function(response) {
-                            let res = JSON.parse(response);
-
+                        success: function(res) {
                             if (res.status === 'success') {
-                                Swal.fire({
-                                    title: 'Deleted!',
-                                    text: 'Data Successfully Deleted',
-                                    icon: 'success'
-                                }).then(() => {
+
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Data Successfully Deleted',
+                                    'success'
+                                ).then(() => {
                                     location.reload();
                                 });
-                            } else if (res.status === 'error') {
-                                Swal.fire('Error', 'Data Deletion Failed', 'error');
-                            } else if (res.status === 'redirect') {
-                                window.location.href = '../login';
+                            } else {
+                                Swal.fire('Error', res.message, 'error');
                             }
                         },
-                        error: function() {
-                            Swal.fire('Error', 'Server Error', 'error');
+                        complete: function() {
+                            $('#pageLoader').hide(); // 🔥 pasti hilang
+                        },
+                        error: function(xhr) {
+                            console.log(xhr.responseText);
+                            Swal.fire(
+                                'Server Error',
+                                'Check console for error',
+                                'error'
+                            );
                         }
                     });
                 }

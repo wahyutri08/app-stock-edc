@@ -60,8 +60,8 @@ $totalReturnHo    = $query[0]['total_return_ho'];
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="../dashboard" class="brand-link">
-        <img src="../assets/dist/img/Yokke.png" alt="Yokke" sty class="brand-image" style="opacity: .9">
+    <a href="<?= base_url('dashboard') ?>" class="brand-link">
+        <img src="<?= base_url('assets/dist/img/Yokke.png') ?>" alt="Yokke" sty class="brand-image" style="opacity: .9">
         <span class="brand-text font-weight-bold ml-2"> PT. MTI (Yokke)</span>
     </a>
 
@@ -70,11 +70,11 @@ $totalReturnHo    = $query[0]['total_return_ho'];
         <!-- Sidebar user panel (optional) -->
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image mt-2">
-                <img src="../assets/dist/img/profile/<?= $user['avatar']; ?>" class="brand-image img-circle elevation-2" alt="User Image" style="width: 40px; height: 40px;">
+                <img src="<?= base_url('assets/dist/img/profile/' . htmlspecialchars($user['avatar'])) ?>" class="brand-image img-circle elevation-2" alt="User Image" style="width: 40px; height: 40px;">
             </div>
             <div class="info">
-                <a href="../dashboard" class="d-block ">
-                    <span style="font-size: 14px;"><?= $user["name"]; ?></span>
+                <a href="<?= base_url('dashboard') ?>" class="d-block ">
+                    <span style="font-size: 14px;"><?= htmlspecialchars($user["name"]); ?></span>
                     <h6><span style="font-size: 14px;"><?= $role; ?></span></h6>
                 </a>
             </div>
@@ -87,7 +87,7 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                with font-awesome or any other icon font library -->
                 <li class="nav-header">MENU</li>
                 <li class="nav-item">
-                    <a href="../dashboard" class="nav-link">
+                    <a href="<?= base_url('dashboard') ?>" class="nav-link">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
                             Dashboard
@@ -104,13 +104,13 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="../add_data_stock" class="nav-link">
+                            <a href="<?= base_url('add_data_stock') ?>" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Add Data Stock</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="../all_data" class="nav-link">
+                            <a href="<?= base_url('all_data') ?>" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>All Data</p>
                             </a>
@@ -128,13 +128,13 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="../ReadyToUse" class="nav-link">
+                                <a href="<?= base_url('ReadyToUse') ?>" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Ready To Use <span class="right badge badge-danger"><?= $totalNotUsed; ?></span></p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="../AlreadyToUse" class="nav-link">
+                                <a href="<?= base_url('AlreadyToUse') ?>" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Already Used <span class="right badge badge-danger"><?= $totalUsed; ?></span></p>
                                 </a>
@@ -152,19 +152,19 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="../return_edc" class="nav-link">
+                            <a href="<?= base_url('return_edc') ?>" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>List Return EDC <span class="right badge badge-danger"><?= $totalReturn; ?></span></p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="../technician" class="nav-link">
+                            <a href="<?= base_url('technician') ?>" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Technician <span class="right badge badge-danger"><?= $totalReturnTechnician; ?></span></p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="../ho" class="nav-link">
+                            <a href="<?= base_url('ho') ?>" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>HO <span class="right badge badge-danger"><?= $totalReturnHo; ?></span></p>
                             </a>
@@ -182,13 +182,13 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="../profile" class="nav-link">
+                            <a href="<?= base_url('profile') ?>" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Profile</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="../change_password" class="nav-link">
+                            <a href="<?= base_url('change_password') ?>" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Change Password</p>
                             </a>
@@ -206,19 +206,19 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="../product_name" class="nav-link">
+                                <a href="<?= base_url('product_name') ?>" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Product Name</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="../color_type" class="nav-link">
+                                <a href="<?= base_url('color_type') ?>" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Color Type</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="../member_bank" class="nav-link">
+                                <a href="<?= base_url('member_bank') ?>" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Member Bank</p>
                                 </a>
@@ -228,14 +228,14 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                 <?php endif; ?>
                 <?php if ($role === 'Admin') : ?>
                     <li class="nav-item">
-                        <a href="../user_management" class="nav-link">
+                        <a href="<?= base_url('user_management') ?>" class="nav-link">
                             <i class="nav-icon fas fa-users"></i>
                             <p>User Management</p>
                         </a>
                     </li>
                 <?php endif; ?>
                 <li class="nav-item">
-                    <a href="../logout" class="nav-link" id="btnLogout">
+                    <a href="<?= base_url('logout') ?>" class="nav-link" id="btnLogout">
                         <i class="nav-icon fas fa-power-off"></i>
                         <p>Logout</p>
                     </a>
