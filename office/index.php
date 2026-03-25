@@ -6,6 +6,11 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
+// if ($_SESSION['role'] !== 'Admin') {
+//     http_response_code(404);
+//     exit;
+// }
+
 $user_id = $_SESSION['id'];
 $role = $_SESSION['role'];
 
@@ -21,7 +26,7 @@ if ($role == 'Admin') {
                WHERE status1 = 'HO' AND user_id = $user_id");
 }
 
-$title = "HO";
+$title = "Office";
 require_once '../partials/header.php';
 
 ?>

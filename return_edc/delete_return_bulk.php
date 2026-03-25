@@ -2,6 +2,11 @@
 session_start();
 include_once("../auth_check.php");
 
+if ($_SESSION['role'] !== 'Admin') {
+    http_response_code(404);
+    exit;
+}
+
 header('Content-Type: application/json');
 
 if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {

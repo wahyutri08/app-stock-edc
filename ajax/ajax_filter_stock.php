@@ -36,10 +36,12 @@ $keyword     = mysqli_real_escape_string($db, $_POST['search'] ?? '');
 $date_pickup = $_POST['date_pickup'] ?? '';
 $date_used   = $_POST['date_used'] ?? '';
 $user_id     = $_POST['user_id'] ?? 'all';
+$requirements  = $_POST['requirements'] ?? 'all';
 $id_product  = $_POST['id_product_name'] ?? 'all';
 $id_member   = $_POST['id_member_bank'] ?? 'all';
 $work_type   = $_POST['work_type'] ?? 'all';
 $status_edc  = $_POST['status_edc'] ?? 'all';
+$status_condition  = $_POST['status_condition'] ?? 'all';
 
 /* =============================
    FILTER
@@ -56,6 +58,12 @@ if ($user_id != 'all')
 
 if ($id_product != 'all')
     $where[] = "stock.id_product_name = '$id_product'";
+
+if ($requirements != 'all')
+    $where[] = "stock.requirements = '$requirements'";
+
+if ($status_condition != 'all')
+    $where[] = "stock.status_condition = '$status_condition'";
 
 if ($id_member != 'all')
     $where[] = "detail_list_stock.id_member_bank = '$id_member'";
@@ -152,6 +160,7 @@ ob_start();
                         <thead>
                             <tr class="text-center">
                                 <th>Name</th>
+                                <th>Requirements</th>
                                 <th>Product Type</th>
                                 <th>SN EDC</th>
                                 <th>Simcard</th>
@@ -166,6 +175,8 @@ ob_start();
                                 <th>Date Pickup</th>
                                 <th>Date Used</th>
                                 <th>Status</th>
+                                <th>Status Condition</th>
+                                <th>Note</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -173,6 +184,7 @@ ob_start();
                             <?php foreach ($data as $row): ?>
                                 <tr class="text-center">
                                     <td><?= htmlspecialchars((string)($row["name"] ?? '')) ?></td>
+                                    <td><?= htmlspecialchars((string)($row["requirements"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["name_product"] ?? '')) ?> <?= htmlspecialchars((string)($row["name_color"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["sn_edc"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["sn_simcard"] ?? '')) ?></td>
@@ -194,12 +206,22 @@ ob_start();
                                             <span class="badge bg-success">
                                                 <?= htmlspecialchars((string)$row["status_edc"]) ?>
                                             </span>
-                                        <?php else: ?>
+                                        <?php elseif (($row["status_edc"] ?? '') === 'None'): ?>
+                                            <span class="badge bg-danger">
+                                                <?= htmlspecialchars((string)$row["status_edc"]) ?>
+                                            </span>
+                                        <?php elseif (($row["status_edc"] ?? '') === 'Not yet used'): ?>
                                             <span class="badge bg-warning">
+                                                <?= htmlspecialchars((string)$row["status_edc"]) ?>
+                                            </span>
+                                        <?php elseif (($row["status_edc"] ?? '') === 'Terlink'): ?>
+                                            <span class="badge bg-primary">
                                                 <?= htmlspecialchars((string)$row["status_edc"]) ?>
                                             </span>
                                         <?php endif; ?>
                                     </td>
+                                    <td><?= htmlspecialchars((string)($row["status_condition"] ?? '')) ?></td>
+                                    <td><?= htmlspecialchars((string)($row["note"] ?? '')) ?></td>
                                     <td class="text-center">
                                         <?php if ($_SESSION['role'] === 'Admin'): ?>
                                             <div class="dropdown">
@@ -221,7 +243,10 @@ ob_start();
                                                     </li>
                                                 </ul>
                                             </div>
-                                        <?php elseif ($_SESSION['role'] === 'User' && $row["status_edc"] === 'Not yet used'): ?>
+                                        <?php elseif (
+                                            $_SESSION['role'] === 'User' &&
+                                            in_array($row["status_edc"], ['Not yet used', 'None'])
+                                        ): ?>
                                             <!-- USER : hanya edit jika belum digunakan -->
                                             <a class="btn btn-success btn-sm"
                                                 href="<?= base_url('all_data/edit/' . $row['id_stock']) ?>">

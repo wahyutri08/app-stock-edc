@@ -4,6 +4,11 @@ include_once("../auth_check.php");
 
 header('Content-Type: application/json');
 
+if ($_SESSION['role'] !== 'Admin') {
+    http_response_code(404);
+    exit;
+}
+
 if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;

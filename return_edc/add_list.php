@@ -6,6 +6,11 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
+if ($_SESSION['role'] !== 'Admin') {
+    http_response_code(404);
+    exit;
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = addListReturn($_POST);
     if ($result > 0) {

@@ -6,7 +6,10 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
-
+function e($string)
+{
+    return htmlspecialchars($string ?? '', ENT_QUOTES, 'UTF-8');
+}
 
 $user_id = $_SESSION['id'];
 $role    = $_SESSION['role'];
@@ -135,8 +138,8 @@ include '../partials/header.php';
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="../dashboard">Home</a></li>
-                                <li class="breadcrumb-item">Status EDC</li>
-                                <li class="breadcrumb-item">Ready To Use</li>
+                                <li class="breadcrumb-item">My Assets</li>
+                                <li class="breadcrumb-item">All Data</li>
                                 <li class="breadcrumb-item"><?= $title;  ?></li>
                             </ol>
                         </div><!-- /.col -->
@@ -154,7 +157,7 @@ include '../partials/header.php';
                             <!-- jquery validation -->
                             <div class="card card-success">
                                 <div class="card-header">
-                                    <h3 class="card-title"><?= $title; ?></h3>
+                                    <h3 class="card-title"><i class="fas fa-edit"></i> <?= $title; ?></h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <!-- form start -->
@@ -163,6 +166,14 @@ include '../partials/header.php';
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="requirements">Requirements:</label>
+                                                    <select class="custom-select form-control" name="requirements" id="requirements">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <option value="STOCK" <?= ($stock["requirements"] == "STOCK") ? "selected" : "" ?>>STOCK</option>
+                                                        <option value="RETURN" <?= ($stock["requirements"] == "RETURN") ? "selected" : "" ?>>RETURN</option>
+                                                    </select>
+                                                </div>
                                                 <div class="form-group">
                                                     <label for="id_product_name">Product Type:</label>
                                                     <select class="form-control select2 select2-danger" id="id_product_name" name="id_product_name" data-dropdown-css-class="select2-danger" style="width: 100%;">
@@ -193,7 +204,7 @@ include '../partials/header.php';
                                                         name="sn_edc"
                                                         class="form-control"
                                                         id="sn_edc"
-                                                        value="<?= $stock['sn_edc']; ?>"
+                                                        value="<?= e($stock['sn_edc']); ?>"
                                                         placeholder="SN EDC"
                                                         <?= ($role === 'Admin') ? '' : ($snEdcFilled && !$samcardFilled ? 'readonly' : '') ?>>
                                                 </div>
@@ -204,7 +215,7 @@ include '../partials/header.php';
                                                         class="form-control"
                                                         id="sn_simcard"
                                                         placeholder="SN Simcard"
-                                                        value="<?= $stock['sn_simcard']; ?>"
+                                                        value="<?= e($stock['sn_simcard']); ?>"
                                                         <?= ($role === 'Admin') ? '' : ($snSimFilled && !$samcardFilled ? 'readonly' : '') ?>>
                                                 </div>
                                                 <div class="form-group">
@@ -214,7 +225,7 @@ include '../partials/header.php';
                                                         class="form-control"
                                                         id="sn_samcard1"
                                                         placeholder="SN Samcard 1"
-                                                        value="<?= $stock['sn_samcard1']; ?>"
+                                                        value="<?= e($stock['sn_samcard1']); ?>"
                                                         <?= ($role === 'Admin') ? '' : ($samcardFilled && !$snEdcFilled && !$snSimFilled && !empty($stock['sn_samcard1']) ? 'readonly' : '') ?>>
                                                 </div>
                                                 <div class="form-group">
@@ -224,7 +235,7 @@ include '../partials/header.php';
                                                         class="form-control"
                                                         id="sn_samcard2"
                                                         placeholder="Samcard 2"
-                                                        value="<?= $stock['sn_samcard2']; ?>"
+                                                        value="<?= e($stock['sn_samcard2']); ?>"
                                                         <?= ($role === 'Admin') ? '' : ($samcardFilled && !$snEdcFilled && !$snSimFilled && !empty($stock['sn_samcard2']) ? 'readonly' : '') ?>>
                                                 </div>
                                                 <div class="form-group">
@@ -234,8 +245,18 @@ include '../partials/header.php';
                                                         class="form-control"
                                                         id="sn_samcard3"
                                                         placeholder="Samcard 3"
-                                                        value="<?= $stock['sn_samcard3']; ?>"
+                                                        value="<?= e($stock['sn_samcard3']); ?>"
                                                         <?= ($role === 'Admin') ? '' : ($samcardFilled && !$snEdcFilled && !$snSimFilled && !empty($stock['sn_samcard3']) ? 'readonly' : '') ?>>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="status_condition">Status Condition:</label>
+                                                    <select class="custom-select form-control" name="status_condition" id="status_condition">
+                                                        <option value="" disabled selected>--Selected One--</option>
+                                                        <option value="GOOD COMPLETE (EDC baik & lengkap)" <?= ($stock["status_condition"] == "GOOD COMPLETE (EDC baik & lengkap)") ? "selected" : "" ?>>GOOD COMPLETE (EDC baik & lengkap)</option>
+                                                        <option value="GOOD INCOMPLETE (EDC baik tapi tidak lengkap)" <?= ($stock["status_condition"] == "GOOD INCOMPLETE (EDC baik tapi tidak lengkap)") ? "selected" : "" ?>>GOOD INCOMPLETE (EDC baik tapi tidak lengkap)</option>
+                                                        <option value="DAMAGE COMPLETE (EDC rusak tapi lengkap)" <?= ($stock["status_condition"] == "DAMAGE COMPLETE (EDC rusak tapi lengkap)") ? "selected" : "" ?>>DAMAGE COMPLETE (EDC rusak tapi lengkap)</option>
+                                                        <option value="DAMAGE INCOMPLETE (EDC rusak & tidak lengkap)" <?= ($stock["status_condition"] == "DAMAGE INCOMPLETE (EDC rusak & tidak lengkap)") ? "selected" : "" ?>>DAMAGE INCOMPLETE (EDC rusak & tidak lengkap)</option>
+                                                    </select>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="id_member_bank">Member Bank:</label>
@@ -254,7 +275,7 @@ include '../partials/header.php';
                                                     <select class="form-control select2 select2-danger" id="work_type" name="work_type" data-dropdown-css-class="select2-danger" style="width: 100%;">
                                                         <option value="" disabled selected>--Selected One--</option>
                                                         <option value="INSTAL" <?= ($stock["work_type"] == "INSTAL") ? "selected" : "" ?>>INSTAL</option>
-                                                        <option value="REPLACEMENT" <?= ($stock["work_type"] == "REPLACEMENT") ? "selected" : "" ?>>REPLACEMENT</option>
+                                                        <option value="REPLACEMENT EDC" <?= ($stock["work_type"] == "REPLACEMENT EDC") ? "selected" : "" ?>>REPLACEMENT EDC</option>
                                                         <option value="REPLACEMENT PART" <?= ($stock["work_type"] == "REPLACEMENT PART") ? "selected" : "" ?>>REPLACEMENT PART</option>
                                                     </select>
                                                 </div>
@@ -262,33 +283,34 @@ include '../partials/header.php';
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="tid">TID:</label>
-                                                    <input type="text" name="tid" class="form-control" id="tid" placeholder="TID" value="<?= $stock["tid"]; ?>">
+                                                    <input type="text" name="tid" class="form-control" id="tid" placeholder="TID" value="<?= e($stock["tid"]); ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="mid">MID:</label>
-                                                    <input type="text" name="mid" class="form-control" id="mid" placeholder="MID" value="<?= $stock["mid"]; ?>">
+                                                    <input type="text" name="mid" class="form-control" id="mid" placeholder="MID" value="<?= e($stock["mid"]); ?>">
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label for="merchant_name">Merchant Name:</label>
-                                                    <input type="text" name="merchant_name" class="form-control" id="merchant_name" placeholder="Merchant Name" value="<?= $stock["merchant_name"]; ?>">
+                                                    <input type="text" name="merchant_name" class="form-control" id="merchant_name" placeholder="Merchant Name" value="<?= e($stock["merchant_name"]); ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="addres_name">Address:</label>
                                                     <textarea class="form-control" id="addres_name" name="addres_name" rows="3"><?= htmlspecialchars($stock["addres_name"] ?? '') ?></textarea>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="date">Date Pickup:</label>
-                                                    <input type="date" class="form-control" placeholder="Date" value="<?= date('Y-m-d', strtotime($stock['date_pickup'])); ?>" readonly>
+                                                    <label for="date_pickup">Date Pickup:</label>
+                                                    <input type="date" class="form-control"
+                                                        value="<?= !empty($stock['date_pickup']) ? e(date('Y-m-d', strtotime($stock['date_pickup']))) : '' ?>"
+                                                        readonly>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="date_used">Date Used:</label>
                                                     <input type="date"
                                                         name="date_used"
-                                                        class="form-control"
                                                         id="date_used"
-                                                        placeholder="Date Used"
-                                                        value="<?= !empty($stock['date_used']) ? date('Y-m-d', strtotime($stock['date_used'])) : '' ?>">
+                                                        class="form-control"
+                                                        value="<?= !empty($stock['date_used']) ? e(date('Y-m-d', strtotime($stock['date_used']))) : '' ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="status_edc">Status:</label>
@@ -299,6 +321,12 @@ include '../partials/header.php';
                                                         </option>
                                                         <option value="Used" <?= ($stock['status_edc'] == 'Used') ? 'selected' : '' ?>>
                                                             Used
+                                                        </option>
+                                                        <option value="None" <?= ($stock['status_edc'] == 'None') ? 'selected' : '' ?>>
+                                                            None
+                                                        </option>
+                                                        <option value="Terlink" <?= ($stock['status_edc'] == 'Terlink') ? 'selected' : '' ?>>
+                                                            Terlink
                                                         </option>
                                                     </select>
                                                 </div>

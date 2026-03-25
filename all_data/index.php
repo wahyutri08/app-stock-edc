@@ -94,6 +94,14 @@ require_once '../partials/header.php';
                                                 <?php endforeach; ?>
                                             <?php endif; ?>
                                             <div class="form-group col-md-3">
+                                                <label>Requirements:</label>
+                                                <select class="custom-select form-control" name="requirements" id="requirements">
+                                                    <option value="all">-All Requirements-</option>
+                                                    <option value="STOCK">STOCK</option>
+                                                    <option value="RETURN">RETURN</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-3">
                                                 <label for="id_product_name">Product Type:</label>
                                                 <select class="select2" name="id_product_name" id="id_product_name" style="width: 100%;">
                                                     <option value="all">-All Product Type-</option>
@@ -124,8 +132,20 @@ require_once '../partials/header.php';
                                                 <label for="status_edc">Status:</label>
                                                 <select class="form-control" name="status_edc" id="status_edc">
                                                     <option value="all" selected>-All Status-</option>
+                                                    <option value="None">None</option>
                                                     <option value="Not yet used">Not yet used</option>
                                                     <option value="Used">Used</option>
+                                                    <option value="Terlink">Terlink</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <label for="status_condition">Status Condition:</label>
+                                                <select class="select2" name="status_condition" id="status_condition" style="width: 100%;">
+                                                    <option value="all">-All Status Condition-</option>
+                                                    <option value="GOOD COMPLETE (EDC baik & lengkap)">GOOD COMPLETE (EDC baik & lengkap)</option>
+                                                    <option value="GOOD INCOMPLETE (EDC baik tapi tidak lengkap)">GOOD INCOMPLETE (EDC baik tapi tidak lengkap)</option>
+                                                    <option value="DAMAGE COMPLETE (EDC rusak tapi lengkap)">DAMAGE COMPLETE (EDC rusak tapi lengkap)</option>
+                                                    <option value="DAMAGE INCOMPLETE (EDC rusak & tidak lengkap)">DAMAGE INCOMPLETE (EDC rusak & tidak lengkap)</option>
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-3">
@@ -224,7 +244,7 @@ require_once '../partials/header.php';
                             $("#example1").DataTable({
                                 paging: true,
                                 lengthChange: true,
-                                pageLength: 10,
+                                pageLength: 25,
                                 lengthMenu: [
                                     [10, 25, 50, 100, -1],
                                     [10, 25, 50, 100, "All"]

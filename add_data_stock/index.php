@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
 }
 
-$title = "Add Data Stock";
+$title = "Add Data";
 require_once '../partials/header.php';
 
 ?>
@@ -80,7 +80,7 @@ require_once '../partials/header.php';
                             <!-- jquery validation -->
                             <div class="card card-danger">
                                 <div class="card-header">
-                                    <h3 class="card-title"> <i class="nav-icon fas fa-edit"></i> Add Data Stock</h3>
+                                    <h3 class="card-title"> <i class="nav-icon fas fa-edit"></i> <?= $title;  ?></h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <!-- form start -->
@@ -90,6 +90,14 @@ require_once '../partials/header.php';
                                             <div class="form-item border rounded p-3 mb-3">
                                                 <div class="row">
                                                     <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Requirements:</label>
+                                                            <select class="custom-select form-control" name="requirements[]">
+                                                                <option value="" disabled selected>--Selected One--</option>
+                                                                <option value="STOCK">STOCK</option>
+                                                                <option value="RETURN">RETURN</option>
+                                                            </select>
+                                                        </div>
                                                         <div class="form-group">
                                                             <label>Product Type:</label>
                                                             <select class="form-control select2" name="id_product_name[]" style="width:100%">
@@ -141,9 +149,19 @@ require_once '../partials/header.php';
                                                         <div class="form-group">
                                                             <label>Status:</label>
                                                             <select class="custom-select form-control" name="status_edc[]">
-                                                                <option value="" disabled selected>--Selected One--</option>
+                                                                <option value="None" selected>None</option>
                                                                 <option value="Not yet used">Not yet used</option>
                                                                 <option value="Used">Used</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Status Condition:</label>
+                                                            <select class="custom-select form-control" name="status_condition[]">
+                                                                <option value="" disabled selected>--Selected One--</option>
+                                                                <option value="GOOD COMPLETE (EDC baik & lengkap)">GOOD COMPLETE (EDC baik & lengkap)</option>
+                                                                <option value="GOOD INCOMPLETE (EDC baik tapi tidak lengkap)">GOOD INCOMPLETE (EDC baik tapi tidak lengkap)</option>
+                                                                <option value="DAMAGE COMPLETE (EDC rusak tapi lengkap)">DAMAGE COMPLETE (EDC rusak tapi lengkap)</option>
+                                                                <option value="DAMAGE INCOMPLETE (EDC rusak & tidak lengkap)">DAMAGE INCOMPLETE (EDC rusak & tidak lengkap)</option>
                                                             </select>
                                                         </div>
                                                         <div class="form-group">
@@ -272,6 +290,8 @@ require_once '../partials/header.php';
                     let sn_samcard3 = $(this).find('input[name="sn_samcard3[]"]').val().trim();
 
                     let status = $(this).find('select[name="status_edc[]"]').val();
+                    let requirements = $(this).find('select[name="requirements[]"]').val();
+                    let status_condition = $(this).find('select[name="status_condition[]"]').val();
                     let date = $(this).find('input[name="date_pickup[]"]').val();
 
                     // cek apakah ada SN yang diisi
@@ -284,14 +304,14 @@ require_once '../partials/header.php';
                     ) {
 
                         // jika SN diisi tapi status atau date kosong
-                        if (!status || !date) {
+                        if (!status || !date || !requirements || !status_condition) {
 
                             valid = false;
 
                             Swal.fire({
                                 icon: 'warning',
                                 title: 'Warning',
-                                text: 'Status and Date Pickup must be filled if SN is entered!'
+                                text: 'Requirements, Status, Status Condition And Date Pickup Must Be Filled if SN Entered!'
                             });
 
                             return false;

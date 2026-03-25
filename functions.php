@@ -143,7 +143,7 @@ function addStock($data)
     global $db;
 
     $user_id = (int) $_SESSION["id"];
-    $created_at = date('Y-m-d');
+    $created_at = date('Y-m-d H:i:s');
 
     $totalInsert = 0;
 
@@ -158,6 +158,7 @@ function addStock($data)
         =============================== */
 
         $sn_edc      = trim(mysqli_real_escape_string($db, $data['sn_edc'][$i] ?? ''));
+        $requirements = trim(mysqli_real_escape_string($db, $data['requirements'][$i] ?? ''));
         $sn_simcard  = trim(mysqli_real_escape_string($db, $data['sn_simcard'][$i] ?? ''));
         $sn_samcard1 = trim(mysqli_real_escape_string($db, $data['sn_samcard1'][$i] ?? ''));
         $sn_samcard2 = trim(mysqli_real_escape_string($db, $data['sn_samcard2'][$i] ?? ''));
@@ -172,6 +173,7 @@ function addStock($data)
             : "NULL";
 
         $status_edc = trim(mysqli_real_escape_string($db, $data['status_edc'][$i] ?? ''));
+        $status_condition = trim(mysqli_real_escape_string($db, $data['status_condition'][$i] ?? ''));
         $date       = trim(mysqli_real_escape_string($db, $data['date_pickup'][$i] ?? ''));
 
         /* ===============================
@@ -236,6 +238,7 @@ function addStock($data)
         (
             user_id,
             sn_edc,
+            requirements,
             id_product_name,
             id_edc_color,
             sn_simcard,
@@ -244,12 +247,14 @@ function addStock($data)
             sn_samcard3,
             date_pickup,
             status_edc,
+            status_condition,
             created_at
         )
         VALUES
         (
             '$user_id',
             " . ($sn_edc === '' ? "NULL" : "'$sn_edc'") . ",
+            '$requirements',
             $id_product_name,
             $id_edc_color,
             " . ($sn_simcard === '' ? "NULL" : "'$sn_simcard'") . ",
@@ -258,6 +263,7 @@ function addStock($data)
             " . ($sn_samcard3 === '' ? "NULL" : "'$sn_samcard3'") . ",
             '$date',
             '$status_edc',
+            '$status_condition',
             '$created_at'
         )
         ";
@@ -382,25 +388,36 @@ function editDetail($data)
     $now      = date('Y-m-d H:i:s');
 
     /* ================= TABLE STOCK ================= */
-    $sn_edc      = mysqli_real_escape_string($db, trim($data['sn_edc']));
+    $requirements = mysqli_real_escape_string($db, $data['requirements']);
+    $sn_edc = mysqli_real_escape_string($db, trim($data['sn_edc']));
     $id_product_name = !empty($data['id_product_name']) ? (int)$data['id_product_name'] : "NULL";
     $id_edc_color    = !empty($data['id_edc_color']) ? (int)$data['id_edc_color'] : "NULL";
     $sn_simcard  = mysqli_real_escape_string($db, trim($data['sn_simcard']));
     $sn_samcard1 = mysqli_real_escape_string($db, trim($data['sn_samcard1']));
     $sn_samcard2 = mysqli_real_escape_string($db, trim($data['sn_samcard2']));
     $sn_samcard3 = mysqli_real_escape_string($db, trim($data['sn_samcard3']));
-    $status_edc  = mysqli_real_escape_string($db, $data['status_edc']);
-    $user_id     = (int)$data['user_id'];
+    $status_edc = mysqli_real_escape_string($db, $data['status_edc']);
+    $status_condition = mysqli_real_escape_string($db, $data['status_condition']);
+    $user_id    = (int)$data['user_id'];
 
     /* ================= DETAIL TABLE ================= */
     $tid           = mysqli_real_escape_string($db, trim($data['tid']));
     $mid           = mysqli_real_escape_string($db, trim($data['mid']));
     $merchant_name = mysqli_real_escape_string($db, trim($data['merchant_name']));
     $addres_name   = mysqli_real_escape_string($db, trim($data['addres_name']));
-    $id_member_bank = !empty($data['id_member_bank']) ? (int)$data['id_member_bank'] : "NULL";
-    $work_type = !empty($data['work_type']) ? "'" . mysqli_real_escape_string($db, $data['work_type']) . "'" : "NULL";
-    $date       = mysqli_real_escape_string($db, $data['date_used']); // tanggal transaksi
     $note          = mysqli_real_escape_string($db, trim($data['note']));
+
+    $id_member_bank = !empty($data['id_member_bank']) ? (int)$data['id_member_bank'] : "NULL";
+
+    // work_type bisa NULL / string
+    $work_type = !empty($data['work_type'])
+        ? "'" . mysqli_real_escape_string($db, $data['work_type']) . "'"
+        : "NULL";
+
+    // date_used bisa NULL
+    $date = !empty($data['date_used'])
+        ? "'" . mysqli_real_escape_string($db, $data['date_used']) . "'"
+        : "NULL";
 
     mysqli_begin_transaction($db);
 
@@ -410,6 +427,7 @@ function editDetail($data)
         $updateStock = mysqli_query($db, "
             UPDATE stock SET
                 sn_edc = '$sn_edc',
+                requirements = '$requirements',
                 id_product_name = $id_product_name,
                 id_edc_color = $id_edc_color,
                 sn_simcard = '$sn_simcard',
@@ -417,20 +435,27 @@ function editDetail($data)
                 sn_samcard2 = '$sn_samcard2',
                 sn_samcard3 = '$sn_samcard3',
                 status_edc = '$status_edc',
+                status_condition = '$status_condition',
                 user_id = $user_id,
                 updated_at = '$now'
             WHERE id_stock = $stock_id
         ");
 
         if (!$updateStock) {
-            throw new Exception('Update Stock Failed');
+            throw new Exception(mysqli_error($db));
         }
 
         /* ========= CEK DETAIL ========= */
         $cek = mysqli_query($db, "
-            SELECT id_detail FROM detail_list_stock
+            SELECT id_detail 
+            FROM detail_list_stock
             WHERE stock_id = $stock_id
+            LIMIT 1
         ");
+
+        if (!$cek) {
+            throw new Exception(mysqli_error($db));
+        }
 
         if (mysqli_num_rows($cek) > 0) {
 
@@ -443,14 +468,14 @@ function editDetail($data)
                     addres_name = '$addres_name',
                     id_member_bank = $id_member_bank,
                     work_type = $work_type,
-                    date_used = '$date',
+                    date_used = $date,
                     note = '$note',
                     updated_at = '$now'
                 WHERE stock_id = $stock_id
             ");
 
             if (!$updateDetail) {
-                throw new Exception('Update detail Failed');
+                throw new Exception(mysqli_error($db));
             }
         } else {
 
@@ -459,18 +484,23 @@ function editDetail($data)
                 INSERT INTO detail_list_stock
                     (stock_id, tid, mid, merchant_name, addres_name, id_member_bank, work_type, date_used, note, updated_at)
                 VALUES
-                    ($stock_id, '$tid', '$mid', '$merchant_name', '$addres_name', $id_member_bank, $work_type, '$date', '$note', '$now')
+                    ($stock_id, '$tid', '$mid', '$merchant_name', '$addres_name', $id_member_bank, $work_type, $date, '$note', '$now')
             ");
 
             if (!$insertDetail) {
-                throw new Exception('Insert detail gagal');
+                throw new Exception(mysqli_error($db));
             }
         }
 
         mysqli_commit($db);
         return 1;
     } catch (Exception $e) {
+
         mysqli_rollback($db);
+
+        // optional debug
+        // echo $e->getMessage();
+
         return 0;
     }
 }

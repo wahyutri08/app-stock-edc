@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { selector: 'a[href*="AlreadyToUse"]', path: 'AlreadyToUse' },
         { selector: 'a[href*="return_edc"]', path: 'return_edc' },
         { selector: 'a[href*="technician"]', path: 'technician' },
-        { selector: 'a[href*="ho"]', path: 'ho' },
+        { selector: 'a[href*="office"]', path: 'office' },
         { selector: 'a[href*="product_name"]', path: 'product_name' },
         { selector: 'a[href*="color_type"]', path: 'color_type' },
         { selector: 'a[href*="member_bank"]', path: 'member_bank' },

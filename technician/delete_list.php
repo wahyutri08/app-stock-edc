@@ -6,6 +6,11 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
+if ($_SESSION['role'] !== 'Admin') {
+    http_response_code(404);
+    exit;
+}
+
 if (isset($_GET["id_return"]) && is_numeric($_GET["id_return"])) {
     $id_return = $_GET["id_return"];
 } else {

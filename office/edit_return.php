@@ -6,6 +6,11 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
+if ($_SESSION['role'] !== 'Admin') {
+    http_response_code(404);
+    exit;
+}
+
 $user_id = $_SESSION['id'];
 $role = $_SESSION['role'];
 
@@ -285,7 +290,7 @@ require_once '../partials/header.php';
                                 text: res.message,
                                 icon: "success"
                             }).then(() => {
-                                window.location.href = '../ho';
+                                window.location.href = '../office';
                             });
                         } else {
                             Swal.fire('Error', res.message, 'error');

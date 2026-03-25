@@ -106,7 +106,7 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                         <li class="nav-item">
                             <a href="<?= base_url('add_data_stock') ?>" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Add Data Stock</p>
+                                <p>Add Data</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -142,35 +142,37 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                         </ul>
                     </li>
                 <?php endif; ?>
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-sign-out-alt"></i>
-                        <p>
-                            Return EDC
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="<?= base_url('return_edc') ?>" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>List Return EDC <span class="right badge badge-danger"><?= $totalReturn; ?></span></p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('technician') ?>" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Technician <span class="right badge badge-danger"><?= $totalReturnTechnician; ?></span></p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('ho') ?>" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>HO <span class="right badge badge-danger"><?= $totalReturnHo; ?></span></p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                <?php if ($role === 'Admin') : ?>
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-sign-out-alt"></i>
+                            <p>
+                                Return EDC
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="<?= base_url('return_edc') ?>" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>List Return EDC <span class="right badge badge-danger"><?= $totalReturn; ?></span></p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('technician') ?>" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Technician <span class="right badge badge-danger"><?= $totalReturnTechnician; ?></span></p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('office') ?>" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Office <span class="right badge badge-danger"><?= $totalReturnHo; ?></span></p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                <?php endif; ?>
                 <li class="nav-header">SETTINGS</li>
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
