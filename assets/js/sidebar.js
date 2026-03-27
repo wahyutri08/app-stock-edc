@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { selector: 'a[href*="return_edc"]', path: 'return_edc' },
         { selector: 'a[href*="technician"]', path: 'technician' },
         { selector: 'a[href*="office"]', path: 'office' },
+         { selector: 'a[href*="import_data"]', path: 'import_data' },
         { selector: 'a[href*="product_name"]', path: 'product_name' },
         { selector: 'a[href*="color_type"]', path: 'color_type' },
         { selector: 'a[href*="member_bank"]', path: 'member_bank' },

@@ -4,7 +4,7 @@ if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {
     include("errors/404.html");
     exit();
 }
-$db = mysqli_connect("localhost", "root", "", "dev-stock-edc");
+$db = mysqli_connect("localhost", "root", "", "final-stock-edc");
 date_default_timezone_set('Asia/Jakarta');
 
 

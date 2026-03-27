@@ -115,6 +115,14 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                                 <p>All Data</p>
                             </a>
                         </li>
+                        <?php if ($role === 'Admin') : ?>
+                            <li class="nav-item">
+                                <a href="<?= base_url('import_data') ?>" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Import Data Excel</p>
+                                </a>
+                            </li>
+                        <?php endif; ?>
                     </ul>
                 </li>
                 <?php if ($role === 'Admin') : ?>

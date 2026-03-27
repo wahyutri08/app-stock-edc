@@ -28,6 +28,8 @@
 <script src="<?= base_url('assets/plugins/datatables-buttons/js/buttons.colVis.min.js') ?>"></script>
 <!-- AdminLTE App -->
 <script src="<?= base_url('assets/dist/js/adminlte.min.js') ?>"></script>
+<!-- dropzonejs -->
+<script src="<?= base_url('assets/plugins/dropzone/min/dropzone.min.js') ?>"></script>
 <script src="<?= base_url('assets/plugins/sweetalert/sweetalert2.all.min.js') ?>"></script>
 <script src="<?= base_url('assets/js/logoutsweetalert.js') ?>"></script>
 <!-- Overlay -->

@@ -222,7 +222,7 @@ require_once '../partials/header.php';
                                 text: res.message,
                                 icon: "success"
                             }).then(() => {
-                                window.location.href = '../product_name';
+                                window.location.href = '<?= base_url('product_name') ?>';
                             });
                         } else {
                             Swal.fire('Error', res.message, 'error');
