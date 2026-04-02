@@ -313,6 +313,14 @@ include '../partials/header.php';
                                                         value="<?= !empty($stock['date_used']) ? e(date('Y-m-d', strtotime($stock['date_used']))) : '' ?>">
                                                 </div>
                                                 <div class="form-group">
+                                                    <label for="date_sendto_ho">Date Send To HO:</label>
+                                                    <input type="date"
+                                                        name="date_sendto_ho"
+                                                        id="date_sendto_ho"
+                                                        class="form-control"
+                                                        value="<?= !empty($stock['date_sendto_ho']) ? e(date('Y-m-d', strtotime($stock['date_sendto_ho']))) : '' ?>">
+                                                </div>
+                                                <div class="form-group">
                                                     <label for="status_edc">Status:</label>
                                                     <select class="custom-select form-control" id="status_edc" name="status_edc">
                                                         <option value="" disabled selected>--Selected One--</option>
@@ -327,6 +335,9 @@ include '../partials/header.php';
                                                         </option>
                                                         <option value="Terlink" <?= ($stock['status_edc'] == 'Terlink') ? 'selected' : '' ?>>
                                                             Terlink
+                                                        </option>
+                                                        <option value="HO Santana" <?= ($stock['status_edc'] == 'HO Santana') ? 'selected' : '' ?>>
+                                                            HO Santana
                                                         </option>
                                                     </select>
                                                 </div>

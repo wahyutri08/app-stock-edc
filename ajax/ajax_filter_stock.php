@@ -35,6 +35,7 @@ $where = [];
 $keyword     = mysqli_real_escape_string($db, $_POST['search'] ?? '');
 $date_pickup = $_POST['date_pickup'] ?? '';
 $date_used   = $_POST['date_used'] ?? '';
+$date_sendto_ho   = $_POST['date_sendto_ho'] ?? '';
 $user_id     = $_POST['user_id'] ?? 'all';
 $requirements  = $_POST['requirements'] ?? 'all';
 $id_product  = $_POST['id_product_name'] ?? 'all';
@@ -49,6 +50,9 @@ $status_condition  = $_POST['status_condition'] ?? 'all';
 
 if ($date_pickup != '')
     $where[] = "stock.date_pickup = '$date_pickup'";
+
+if ($date_sendto_ho != '')
+    $where[] = "stock.date_sendto_ho = '$date_sendto_ho'";
 
 if ($date_used != '')
     $where[] = "detail_list_stock.date_used = '$date_used'";
@@ -159,6 +163,7 @@ ob_start();
                     <table id="example1" class="table table-bordered table-hover">
                         <thead>
                             <tr class="text-center">
+                                <th><input type="checkbox" id="checkAll"></th>
                                 <th>Name</th>
                                 <th>Requirements</th>
                                 <th>Product Type</th>
@@ -166,7 +171,7 @@ ob_start();
                                 <th>Simcard</th>
                                 <th>Samcard1</th>
                                 <th>Samcard2</th>
-                                <th>Samcard2</th>
+                                <th>Samcard3</th>
                                 <th>TID</th>
                                 <th>MID</th>
                                 <th>Merchant</th>
@@ -174,6 +179,7 @@ ob_start();
                                 <th>Work Type</th>
                                 <th>Date Pickup</th>
                                 <th>Date Used</th>
+                                <th>Date Send To HO</th>
                                 <th>Status</th>
                                 <th>Status Condition</th>
                                 <th>Note</th>
@@ -183,6 +189,9 @@ ob_start();
                         <tbody>
                             <?php foreach ($data as $row): ?>
                                 <tr class="text-center">
+                                    <td>
+                                        <input type="checkbox" class="check-item" value="<?= $row['id_stock']; ?>">
+                                    </td>
                                     <td><?= htmlspecialchars((string)($row["name"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["requirements"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["name_product"] ?? '')) ?> <?= htmlspecialchars((string)($row["name_color"] ?? '')) ?></td>
@@ -201,6 +210,7 @@ ob_start();
                                     <td><?= htmlspecialchars((string)($row["work_type"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["date_pickup"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["date_used"] ?? '')) ?></td>
+                                    <td><?= htmlspecialchars((string)($row["date_sendto_ho"] ?? '')) ?></td>
                                     <td>
                                         <?php if (($row["status_edc"] ?? '') === 'Used'): ?>
                                             <span class="badge bg-success">
@@ -216,6 +226,10 @@ ob_start();
                                             </span>
                                         <?php elseif (($row["status_edc"] ?? '') === 'Terlink'): ?>
                                             <span class="badge bg-primary">
+                                                <?= htmlspecialchars((string)$row["status_edc"]) ?>
+                                            </span>
+                                        <?php elseif (($row["status_edc"] ?? '') === 'HO Santana'): ?>
+                                            <span class="badge bg-info">
                                                 <?= htmlspecialchars((string)$row["status_edc"]) ?>
                                             </span>
                                         <?php endif; ?>

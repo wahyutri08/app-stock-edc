@@ -75,6 +75,10 @@ require_once '../partials/header.php';
                                                 <label for="date_used">Date Used:</label>
                                                 <input type="date" class="form-control" name="date_used" id="date_used">
                                             </div>
+                                            <div class=" form-group col-md-3">
+                                                <label for="date_sendto_ho">Date Send To HO:</label>
+                                                <input type="date" class="form-control" name="date_sendto_ho" id="date_sendto_ho">
+                                            </div>
                                             <?php if ($role === 'Admin') : ?>
                                                 <div class="form-group col-md-3">
                                                     <label for="user_id">User:</label>
@@ -136,6 +140,7 @@ require_once '../partials/header.php';
                                                     <option value="Not yet used">Not yet used</option>
                                                     <option value="Used">Used</option>
                                                     <option value="Terlink">Terlink</option>
+                                                    <option value="HO Santana">HO Santana</option>
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-3">
@@ -158,6 +163,9 @@ require_once '../partials/header.php';
                                                 <button type="submit" class="btn btn-sm btn-primary">
                                                     <i class="fa fa-search"></i> Search
                                                 </button>
+                                                <button type="button" id="btn-cetak-terpilih" class="btn btn-danger btn-sm">
+                                                    <i class="fa fa-file-pdf"></i> Cetak PDF Terpilih
+                                                </button>
                                                 <button type="reset" class="btn btn-sm btn-dark">
                                                     Reset
                                                 </button>
@@ -165,6 +173,7 @@ require_once '../partials/header.php';
                                         </div>
                                     </div>
                                 </form>
+
                                 <!-- /.card-body -->
                             </div>
                             <!-- /.card -->
@@ -195,6 +204,61 @@ require_once '../partials/header.php';
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             });
+        });
+    </script>
+    <script>
+        // CHECK ALL
+        $(document).on('click', '#checkAll', function() {
+            $('.check-item').prop('checked', this.checked);
+        });
+
+        // CETAK PDF
+        $(document).on('click', '#btn-cetak-terpilih', function(e) {
+            e.preventDefault();
+
+            let selected = [];
+
+            $('.check-item:checked').each(function() {
+                selected.push($(this).val());
+            });
+
+            if (selected.length === 0) {
+                Swal.fire('Warning', 'Pilih minimal 1 data', 'warning');
+                return;
+            }
+
+            // 🔥 LOADING DISINI
+            Swal.fire({
+                title: 'Generating PDF...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+
+            let form = $('<form>', {
+                action: "<?= base_url('all_data/cetak') ?>",
+                method: 'POST'
+            });
+
+            selected.forEach(function(id) {
+                form.append($('<input>', {
+                    type: 'hidden',
+                    name: 'ids[]',
+                    value: id
+                }));
+            });
+
+            $('body').append(form);
+            form.hide();
+            form.submit();
+
+            // 🔥 TUTUP LOADING SETELAH KIRIM
+            setTimeout(() => {
+                Swal.close();
+            }, 1000);
+
+            form.remove();
         });
     </script>
     <script>

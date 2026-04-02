@@ -419,6 +419,11 @@ function editDetail($data)
         ? "'" . mysqli_real_escape_string($db, $data['date_used']) . "'"
         : "NULL";
 
+    // date_sendto_ho bisa NULL
+    $date_sendto_ho = !empty($data['date_sendto_ho'])
+        ? "'" . mysqli_real_escape_string($db, $data['date_sendto_ho']) . "'"
+        : "NULL";
+
     mysqli_begin_transaction($db);
 
     try {
@@ -434,6 +439,7 @@ function editDetail($data)
                 sn_samcard1 = '$sn_samcard1',
                 sn_samcard2 = '$sn_samcard2',
                 sn_samcard3 = '$sn_samcard3',
+                date_sendto_ho = $date_sendto_ho,
                 status_edc = '$status_edc',
                 status_condition = '$status_condition',
                 user_id = $user_id,
