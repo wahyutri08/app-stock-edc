@@ -29,7 +29,7 @@
                  <span><?php echo $_SESSION['username'] ?></span>
              </a>
              <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                 <li class="user-footer"><a class="btn btn-default btn-flat float-right  btn-block" id="btnLogout" href="../logout"><i class="fa fa-fw fa-power-off"></i> Logout</a></li>
+                 <li class="user-footer"><a class="btn btn-default btn-flat float-right  btn-block" id="btnLogout" href="<?= base_url('logout') ?>"><i class="fa fa-fw fa-power-off"></i> Logout</a></li>
              </ul>
          </li>
      </ul>

@@ -164,7 +164,7 @@ require_once '../partials/header.php';
                                                     <i class="fa fa-search"></i> Search
                                                 </button>
                                                 <button type="button" id="btn-cetak-terpilih" class="btn btn-danger btn-sm">
-                                                    <i class="fa fa-file-pdf"></i> Cetak PDF Terpilih
+                                                    <i class="fa fa-file-pdf"></i> Export PDF
                                                 </button>
                                                 <button type="reset" class="btn btn-sm btn-dark">
                                                     Reset
@@ -223,7 +223,7 @@ require_once '../partials/header.php';
             });
 
             if (selected.length === 0) {
-                Swal.fire('Warning', 'Pilih minimal 1 data', 'warning');
+                Swal.fire('Warning', 'Select At Least 1 Data', 'warning');
                 return;
             }
 

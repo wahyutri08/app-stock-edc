@@ -46,7 +46,7 @@ if (empty($data)) {
 $first = $data[0];
 $hub = "SANTANA";
 $no_telfon = $first['no_telfon'] ?? '-';
-$tanggal = date('d-m-Y');
+$tanggal = date('d F Y');
 $teknisi = $first['name'] ?? '-';
 $jenis_transaksi = $first['requirements'] == 'RETURN' ? 'Pengembalian' : 'Pengambilan';
 
@@ -63,7 +63,19 @@ foreach ($data as $row) {
     }
 
     if (!empty($row['sn_simcard'])) {
-        $rows[] = ["SIM", "TELKOMSEL", $row['sn_simcard'], "1", ""];
+
+        $sn = $row['sn_simcard'];
+        $provider = "-";
+
+        if (strpos($sn, '896201') === 0) {
+            $provider = "INDOSAT";
+        } elseif (strpos($sn, '896') === 0) {
+            $provider = "XL";
+        } elseif (strpos($sn, '621') === 0) {
+            $provider = "TELKOMSEL";
+        }
+
+        $rows[] = ["SIM", $provider, $sn, "1", ""];
     }
 
     // ================= SAM FIX =================
@@ -100,7 +112,6 @@ ob_start();
 
 foreach ($chunks as $index => $chunk) :
 ?>
-
     <style>
         body {
             font-family: sans-serif;
@@ -135,7 +146,7 @@ foreach ($chunks as $index => $chunk) :
     </style>
 
     <div class="title">
-        BAST PENGAMBILAN/PENGEMBALIAN BARANG MTI IV<br>
+        BAST PENGAMBILAN/PENGEMBALIAN BARANG MTI TY<br>
         (NO BAST: BAST / SNT / OUT / IN / 2026)
     </div>
 
@@ -210,7 +221,7 @@ foreach ($chunks as $index => $chunk) :
 
     </table>
 
-    <br><br>
+    <br>
 
     <table width="100%" class="no-border">
         <tr>
@@ -225,7 +236,7 @@ foreach ($chunks as $index => $chunk) :
             <td style="text-align:right;">Nama : <?= $teknisi ?></td>
         </tr>
         <tr>
-            <td style="height:60px;"></td>
+            <td style="height:45px;"></td>
             <td></td>
         </tr>
         <tr>
@@ -248,5 +259,7 @@ $html = ob_get_clean();
 
 // ================= MPDF =================
 $mpdf = new \Mpdf\Mpdf(['format' => 'A4']);
+$mpdf->SetTitle('PT. MTI (Yokke) | BAST');
 $mpdf->WriteHTML($html);
-$mpdf->Output("BAST.pdf", "I");
+$nama_file = preg_replace('/[^A-Za-z0-9\- ]/', '', $teknisi);
+$mpdf->Output($nama_file . "_BAST_" . date('Ymd') . ".pdf", "I");

@@ -408,7 +408,8 @@ include '../partials/header.php';
     </script>
     <script>
         $(function() {
-            // Inisialisasi validasi jQuery
+
+            // ================= VALIDATION =================
             $('#quickForm').validate({
                 rules: {
                     date: {
@@ -433,43 +434,94 @@ include '../partials/header.php';
                 }
             });
 
-            // Submit dengan AJAX hanya jika valid
+            // ================= SUBMIT =================
             $('#quickForm').on('submit', function(e) {
                 e.preventDefault();
 
-                if (!$(this).valid()) return; // Stop jika form tidak valid
+                if (!$(this).valid()) return;
 
-                // 🔥 MUNCULKAN OVERLAY LANGSUNG
-                $('#pageLoader').show();
-                $('button[type="submit"]').prop('disabled', true);
+                let formData = new FormData(this);
 
+                // 🔥 CEK DUPLICATE SN DULU
                 $.ajax({
-                    url: '',
+                    url: '<?= base_url('all_data/check_sn') ?>', // pastikan file ini ada
                     type: 'POST',
-                    data: new FormData(this),
+                    data: formData,
                     processData: false,
                     contentType: false,
-                    dataType: 'json', // 🔥 PENTING
+                    dataType: 'json',
                     success: function(res) {
-                        $('#pageLoader').hide();
-                        $('button[type="submit"]').prop('disabled', false);
 
-                        if (res.status === 'success') {
-                            Swal.fire('Success', res.message, 'success')
-                                .then(() => window.location.href = '<?= base_url('all_data') ?>');
+                        if (res.duplicates && res.duplicates.length > 0) {
+
+                            let text = "The Following SN Will Be Moved:\n\n";
+
+                            res.duplicates.forEach(d => {
+                                text += `- ${d.sn} (From Stock ${d.stock_id})\n`;
+                            });
+
+                            Swal.fire({
+                                title: 'SN Already Used!',
+                                text: text,
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Continue',
+                                cancelButtonText: 'Cancelled'
+                            }).then((result) => {
+
+                                if (result.isConfirmed) {
+                                    submitForm(formData);
+                                }
+
+                            });
+
                         } else {
-                            Swal.fire('Error', res.message, 'error');
+                            // 🔥 TIDAK ADA DUPLICATE → LANGSUNG SUBMIT
+                            submitForm(formData);
                         }
                     },
-                    error: function(xhr) {
-                        $('#pageLoader').hide();
-                        $('button[type="submit"]').prop('disabled', false);
-                        console.log(xhr.responseText); // 🔥 DEBUG
-                        Swal.fire('Error', 'Server Error', 'error');
+                    error: function() {
+                        Swal.fire('Error', 'Failed To Check SN', 'error');
                     }
                 });
             });
+
         });
+
+        // ================= FUNCTION SUBMIT =================
+        function submitForm(formData) {
+
+            $('#pageLoader').show();
+            $('button[type="submit"]').prop('disabled', true);
+
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(res) {
+                    $('#pageLoader').hide();
+                    $('button[type="submit"]').prop('disabled', false);
+
+                    if (res.status === 'success') {
+                        Swal.fire('Success', res.message, 'success')
+                            .then(() => window.location.href = '<?= base_url('all_data') ?>');
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                },
+                error: function(xhr) {
+                    $('#pageLoader').hide();
+                    $('button[type="submit"]').prop('disabled', false);
+                    console.log(xhr.responseText);
+                    Swal.fire('Error', 'Server Error', 'error');
+                }
+            });
+        }
     </script>
 </body>
 
