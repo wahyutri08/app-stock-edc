@@ -115,16 +115,33 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                                 <p>All Data</p>
                             </a>
                         </li>
-                        <?php if ($role === 'Admin') : ?>
+                    </ul>
+                </li>
+                <?php if ($role === 'Admin') : ?>
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-copy"></i>
+                            <p>
+                                Export & Import Data
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <a href="<?= base_url('import_data') ?>" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Import Data Excel</p>
                                 </a>
                             </li>
-                        <?php endif; ?>
-                    </ul>
-                </li>
+                            <li class="nav-item">
+                                <a href="<?= base_url('export_data') ?>" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Export Data Excel</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                <?php endif; ?>
                 <?php if ($role === 'Admin') : ?>
                     <li class="nav-item has-treeview">
                         <a href="#" class="nav-link">

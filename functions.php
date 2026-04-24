@@ -443,19 +443,54 @@ function editDetail($data)
 
     $stock_id = (int)$data['stock_id'];
     $now      = date('Y-m-d H:i:s');
+    $role     = $_SESSION['role'];
+
+    /* ================= AMBIL DATA LAMA ================= */
+    $old = mysqli_fetch_assoc(mysqli_query($db, "
+        SELECT * FROM stock WHERE id_stock = $stock_id LIMIT 1
+    "));
+
+    if (!$old) return 0;
 
     /* ================= TABLE STOCK ================= */
     $requirements = mysqli_real_escape_string($db, $data['requirements']);
+
     $sn_edc = mysqli_real_escape_string($db, trim($data['sn_edc']));
-    $id_product_name = !empty($data['id_product_name']) ? (int)$data['id_product_name'] : "NULL";
-    $id_edc_color    = !empty($data['id_edc_color']) ? (int)$data['id_edc_color'] : "NULL";
     $sn_simcard  = mysqli_real_escape_string($db, trim($data['sn_simcard']));
     $sn_samcard1 = mysqli_real_escape_string($db, trim($data['sn_samcard1']));
     $sn_samcard2 = mysqli_real_escape_string($db, trim($data['sn_samcard2']));
     $sn_samcard3 = mysqli_real_escape_string($db, trim($data['sn_samcard3']));
+
+    $id_product_name = !empty($data['id_product_name']) ? (int)$data['id_product_name'] : "NULL";
+    $id_edc_color    = !empty($data['id_edc_color']) ? (int)$data['id_edc_color'] : "NULL";
+
     $status_edc = mysqli_real_escape_string($db, $data['status_edc']);
     $status_condition = mysqli_real_escape_string($db, $data['status_condition']);
     $user_id    = (int)$data['user_id'];
+
+    /* ================= 🔥 PROTEK SN ================= */
+    if ($role !== 'Admin') {
+
+        if (!empty($old['sn_edc'])) {
+            $sn_edc = $old['sn_edc'];
+        }
+
+        if (!empty($old['sn_simcard'])) {
+            $sn_simcard = $old['sn_simcard'];
+        }
+
+        if (!empty($old['sn_samcard1'])) {
+            $sn_samcard1 = $old['sn_samcard1'];
+        }
+
+        if (!empty($old['sn_samcard2'])) {
+            $sn_samcard2 = $old['sn_samcard2'];
+        }
+
+        if (!empty($old['sn_samcard3'])) {
+            $sn_samcard3 = $old['sn_samcard3'];
+        }
+    }
 
     /* ================= DETAIL TABLE ================= */
     $tid           = mysqli_real_escape_string($db, trim($data['tid']));
@@ -482,13 +517,12 @@ function editDetail($data)
 
     try {
 
-        /* ================= 🔥 TAMBAHAN DI SINI ================= */
-        clearDuplicateSN($db, 'sn_edc', $sn_edc, $stock_id);
-        clearDuplicateSN($db, 'sn_simcard', $sn_simcard, $stock_id);
-        clearDuplicateSN($db, 'sn_samcard1', $sn_samcard1, $stock_id);
-        clearDuplicateSN($db, 'sn_samcard2', $sn_samcard2, $stock_id);
-        clearDuplicateSN($db, 'sn_samcard3', $sn_samcard3, $stock_id);
-        /* ===================================================== */
+        /* ================= 🔥 CLEAR DUPLICATE (JIKA ADA ISI) ================= */
+        if (!empty($sn_edc)) clearDuplicateSN($db, 'sn_edc', $sn_edc, $stock_id);
+        if (!empty($sn_simcard)) clearDuplicateSN($db, 'sn_simcard', $sn_simcard, $stock_id);
+        if (!empty($sn_samcard1)) clearDuplicateSN($db, 'sn_samcard1', $sn_samcard1, $stock_id);
+        if (!empty($sn_samcard2)) clearDuplicateSN($db, 'sn_samcard2', $sn_samcard2, $stock_id);
+        if (!empty($sn_samcard3)) clearDuplicateSN($db, 'sn_samcard3', $sn_samcard3, $stock_id);
 
         /* ========= UPDATE STOCK ========= */
         $updateStock = mysqli_query($db, "
@@ -566,7 +600,6 @@ function editDetail($data)
         return 0;
     }
 }
-
 
 // back up jika ada yang error
 // function editDetail($data)

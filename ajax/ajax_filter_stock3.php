@@ -35,15 +35,13 @@ $where = [];
 $keyword     = mysqli_real_escape_string($db, $_POST['search'] ?? '');
 $date_pickup = $_POST['date_pickup'] ?? '';
 $date_used   = $_POST['date_used'] ?? '';
-$date_sendto_ho = $_POST['date_sendto_ho'] ?? '';
+$date_sendto_ho   = $_POST['date_sendto_ho'] ?? '';
 $user_id     = $_POST['user_id'] ?? 'all';
 $requirements  = $_POST['requirements'] ?? 'all';
-// 🔥 MULTIPLE SELECT (ARRAY)
-$id_product  = $_POST['id_product_name'] ?? [];
+$id_product  = $_POST['id_product_name'] ?? 'all';
 $id_member   = $_POST['id_member_bank'] ?? 'all';
 $work_type   = $_POST['work_type'] ?? 'all';
-// 🔥 MULTIPLE SELECT (ARRAY)
-$status_edc  = $_POST['status_edc'] ?? [];
+$status_edc  = $_POST['status_edc'] ?? 'all';
 $status_condition  = $_POST['status_condition'] ?? 'all';
 
 /* =============================
@@ -62,11 +60,8 @@ if ($date_used != '')
 if ($user_id != 'all')
     $where[] = "stock.user_id = '$user_id'";
 
-// ✅ MULTIPLE PRODUCT FILTER
-if (!empty($id_product) && !in_array('all', $id_product)) {
-    $ids = array_map('intval', $id_product); // amankan
-    $where[] = "stock.id_product_name IN (" . implode(',', $ids) . ")";
-}
+if ($id_product != 'all')
+    $where[] = "stock.id_product_name = '$id_product'";
 
 if ($requirements != 'all')
     $where[] = "stock.requirements = '$requirements'";
@@ -80,15 +75,8 @@ if ($id_member != 'all')
 if ($work_type != 'all')
     $where[] = "detail_list_stock.work_type = '$work_type'";
 
-// ✅ MULTIPLE Status EDC FILTER
-if (!empty($status_edc) && !in_array('all', $status_edc)) {
-
-    $statuses = array_map(function ($val) use ($db) {
-        return "'" . mysqli_real_escape_string($db, $val) . "'";
-    }, $status_edc);
-
-    $where[] = "stock.status_edc IN (" . implode(',', $statuses) . ")";
-}
+if ($status_edc != 'all')
+    $where[] = "stock.status_edc = '$status_edc'";
 
 /* =============================
    KEYWORD SEARCH
@@ -123,15 +111,15 @@ $query = "SELECT
           detail_list_stock.*
           FROM stock
           LEFT JOIN users 
-            ON stock.user_id = users.id
+          ON stock.user_id = users.id
           LEFT JOIN product_type 
-            ON stock.id_product_name = product_type.id_product
+          ON stock.id_product_name = product_type.id_product
           LEFT JOIN color_type 
-            ON stock.id_edc_color = color_type.id_color
+          ON stock.id_edc_color = color_type.id_color
           LEFT JOIN detail_list_stock 
-            ON stock.id_stock = detail_list_stock.stock_id
+          ON stock.id_stock = detail_list_stock.stock_id
           LEFT JOIN member_bank 
-            ON detail_list_stock.id_member_bank = member_bank.id_member
+          ON detail_list_stock.id_member_bank = member_bank.id_member
           $whereSQL
           ORDER BY stock.id_stock DESC";
 
@@ -155,6 +143,7 @@ if (!$data) {
     echo json_encode(['status' => 'empty']);
     exit;
 }
+
 
 /* =============================
    BUILD HTML OUTPUT
@@ -180,9 +169,9 @@ ob_start();
                                 <th>Product Type</th>
                                 <th>SN EDC</th>
                                 <th>Simcard</th>
-                                <th>Samcard (MANDIRI)</th>
-                                <th>Samcard (BRI)</th>
-                                <th>Samcard (BNI)</th>
+                                <th>Samcard1</th>
+                                <th>Samcard2</th>
+                                <th>Samcard3</th>
                                 <th>TID</th>
                                 <th>MID</th>
                                 <th>Merchant</th>

@@ -6,6 +6,12 @@ if ($_SESSION['role'] !== 'Admin') {
     exit;
 }
 
+if ($_SESSION["role"] !== 'Admin') {
+    http_response_code(404);
+    exit;
+}
+
+
 if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     header("Location: ../login");
     exit;
@@ -70,8 +76,7 @@ require_once '../partials/header.php';
                                             class="custom-file-input"
                                             name="file"
                                             id="file"
-                                            accept=".xls,.xlsx"
-                                            required>
+                                            accept=".xls,.xlsx">
 
                                         <label class="custom-file-label" for="file">
                                             Choose file

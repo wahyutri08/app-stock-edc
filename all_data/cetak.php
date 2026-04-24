@@ -262,4 +262,4 @@ $mpdf = new \Mpdf\Mpdf(['format' => 'A4']);
 $mpdf->SetTitle('PT. MTI (Yokke) | BAST');
 $mpdf->WriteHTML($html);
 $nama_file = preg_replace('/[^A-Za-z0-9\- ]/', '', $teknisi);
-$mpdf->Output($nama_file . "_BAST_" . date('Ymd') . ".pdf", "I");
+$mpdf->Output($nama_file . "_BAST_" . date('Ymd') . ".pdf", "D");

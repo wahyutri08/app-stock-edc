@@ -131,17 +131,17 @@ require_once '../partials/header.php';
                                                         </div>
 
                                                         <div class="form-group">
-                                                            <label>SN Samcard 1:</label>
+                                                            <label>SN Samcard (MANDIRI):</label>
                                                             <input type="text" name="sn_samcard1[]" class="form-control" placeholder="SN Samcard 1">
                                                         </div>
 
                                                         <div class="form-group">
-                                                            <label>SN Samcard 2:</label>
+                                                            <label>SN Samcard (BRI):</label>
                                                             <input type="text" name="sn_samcard2[]" class="form-control" placeholder="SN Samcard 2">
                                                         </div>
 
                                                         <div class="form-group">
-                                                            <label>SN Samcard 3:</label>
+                                                            <label>SN Samcard (BNI):</label>
                                                             <input type="text" name="sn_samcard3[]" class="form-control" placeholder="SN Samcard 3">
                                                         </div>
                                                     </div>

@@ -6,18 +6,21 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
     exit;
 }
 
+if ($_SESSION["role"] !== 'Admin') {
+    http_response_code(404);
+    exit;
+}
+
+
 $role     = $_SESSION['role'];
 $user_id  = (int) $_SESSION['id'];
 
-if ($role === 'Admin') {
-    $users = query("SELECT id, name, role FROM users ORDER BY name ASC");
-} else {
-    $users = query("SELECT id, name, role FROM users WHERE id = $user_id");
-}
+$users = query("SELECT id, name, role FROM users ORDER BY name ASC");
+
 $product_type = query("SELECT * FROM product_type WHERE status = 'Active'");
 $member_bank = query("SELECT * FROM member_bank WHERE status = 'Active'");
 
-$title = "All Data";
+$title = "Export Data";
 require_once '../partials/header.php';
 
 ?>
@@ -45,7 +48,7 @@ require_once '../partials/header.php';
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="../dashboard">Home</a></li>
-                                <li class="breadcrumb-item">My Assets</li>
+                                <li class="breadcrumb-item">Export & Import Data</li>
                                 <li class="breadcrumb-item"><?= $title;  ?></li>
                             </ol>
                         </div><!-- /.col -->
@@ -79,24 +82,18 @@ require_once '../partials/header.php';
                                                 <label for="date_sendto_ho">Date Send To HO:</label>
                                                 <input type="date" class="form-control" name="date_sendto_ho" id="date_sendto_ho">
                                             </div>
-                                            <?php if ($role === 'Admin') : ?>
-                                                <div class="form-group col-md-3">
-                                                    <label for="user_id">User:</label>
-                                                    <select class="select2 form-control" name="user_id" id="user_id" style="width:100%;">
-                                                        <option value="all">- All Users -</option>
-                                                        <?php foreach ($users as $user) : ?>
-                                                            <option value="<?= $user["id"]; ?>">
-                                                                <?= htmlspecialchars($user["name"]); ?>
-                                                                (<?= htmlspecialchars($user["role"]); ?>)
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-                                            <?php else: ?>
-                                                <?php foreach ($users as $user): ?>
-                                                    <input type="hidden" name="user_id" id="user_id" value="<?= $user["id"]; ?>">
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
+                                            <div class="form-group col-md-3">
+                                                <label for="user_id">User:</label>
+                                                <select class="select2 form-control" name="user_id" id="user_id" style="width:100%;">
+                                                    <option value="all">- All Users -</option>
+                                                    <?php foreach ($users as $user) : ?>
+                                                        <option value="<?= $user["id"]; ?>">
+                                                            <?= htmlspecialchars($user["name"]); ?>
+                                                            (<?= htmlspecialchars($user["role"]); ?>)
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
                                             <div class="form-group col-md-3">
                                                 <label>Requirements:</label>
                                                 <select class="custom-select form-control" name="requirements" id="requirements">
@@ -159,11 +156,8 @@ require_once '../partials/header.php';
                                         </div>
                                         <div class="form-row">
                                             <div class="form-group col-md-3">
-                                                <button type="submit" class="btn btn-sm btn-primary">
-                                                    <i class="fa fa-search"></i> Search
-                                                </button>
-                                                <button type="button" id="btn-cetak-terpilih" class="btn btn-danger btn-sm">
-                                                    <i class="fa fa-file-pdf"></i> Export BAST PDF
+                                                <button type="button" id="btn-export-excel" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-file-excel"></i> Export Excel
                                                 </button>
                                                 <button type="reset" class="btn btn-sm btn-dark">
                                                     Reset
@@ -180,8 +174,7 @@ require_once '../partials/header.php';
                     </div>
                 </div><!-- /.container-fluid -->
             </div>
-            <div class="content" id="result-table">
-            </div>
+
             <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
@@ -205,193 +198,38 @@ require_once '../partials/header.php';
             });
         });
     </script>
+
     <script>
-        // CHECK ALL
-        $(document).on('click', '#checkAll', function() {
-            $('.check-item').prop('checked', this.checked);
-        });
+        $('#btn-export-excel').on('click', function() {
 
-        // CETAK PDF
-        $(document).on('click', '#btn-cetak-terpilih', function(e) {
-            e.preventDefault();
+            let form = $('form');
 
-            let selected = [];
+            let data = form.serialize();
 
-            $('.check-item:checked').each(function() {
-                selected.push($(this).val());
-            });
+            let url = "<?= base_url('export_data/export_excel') ?>";
 
-            if (selected.length === 0) {
-                Swal.fire('Warning', 'Select At Least 1 Data', 'warning');
-                return;
-            }
-
-            // 🔥 LOADING DISINI
             Swal.fire({
-                title: 'Generating PDF...',
+                title: 'Exporting...',
                 allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading()
-                }
+                didOpen: () => Swal.showLoading()
             });
 
-            let form = $('<form>', {
-                action: "<?= base_url('all_data/cetak') ?>",
-                method: 'POST'
+            let exportForm = $('<form>', {
+                method: 'POST',
+                action: url
             });
 
-            selected.forEach(function(id) {
-                form.append($('<input>', {
-                    type: 'hidden',
-                    name: 'ids[]',
-                    value: id
-                }));
+            data.split('&').forEach(function(item) {
+                let pair = item.split('=');
+                exportForm.append(`<input type="hidden" name="${pair[0]}" value="${pair[1]}">`);
             });
 
-            $('body').append(form);
-            form.hide();
-            form.submit();
+            $('body').append(exportForm);
+            exportForm.submit();
 
-            // 🔥 TUTUP LOADING SETELAH KIRIM
             setTimeout(() => {
                 Swal.close();
             }, 1000);
-
-            form.remove();
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-
-            $('.select2').select2();
-            $('form').on('submit', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: '<?= base_url('ajax/ajax_filter_stock') ?>',
-                    type: 'POST',
-                    data: $(this).serialize(),
-                    dataType: 'json',
-
-                    beforeSend: function() {
-                        Swal.fire({
-                            title: 'Loading...',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading()
-                            }
-                        });
-                    },
-                    success: function(res) {
-                        Swal.close();
-
-                        if (res.status === 'empty') {
-
-                            $('#result-table').hide().html("");
-
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Data Not Found',
-                                text: 'Please Change The Search Filter Or Keyword.'
-                            });
-
-                        } else {
-
-                            $('#result-table').html(res.html).fadeIn();
-
-                            // Destroy dulu kalau sudah pernah di-init
-                            if ($.fn.DataTable.isDataTable('#example1')) {
-                                $('#example1').DataTable().destroy();
-                            }
-
-                            // Init ulang setelah html masuk
-                            $("#example1").DataTable({
-                                paging: true,
-                                lengthChange: true,
-                                pageLength: 25,
-                                lengthMenu: [
-                                    [10, 25, 50, 100, -1],
-                                    [10, 25, 50, 100, "All"]
-                                ],
-                                searching: true,
-                                ordering: true,
-                                info: true,
-                                autoWidth: true,
-                                responsive: false,
-                                buttons: ["excel", "print", "colvis"]
-                            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-
-                        }
-                    },
-                    error: function() {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Server Error',
-                            text: 'An error occurred on the server'
-                        });
-                    }
-                });
-            });
-            // RESET SELECT2
-            $('form').on('reset', function() {
-                setTimeout(function() {
-                    $('.select2').val('all').trigger('change');
-                    $('#result-table').html('').hide(); // optional
-                }, 0);
-            });
-        });
-    </script>
-    <script>
-        $(document).on('click', '.tombol-hapus', function(e) {
-            e.preventDefault();
-            const id_stock = $(this).data('id');
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "Data will be deleted",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "<?= base_url('all_data/delete') ?>",
-                        type: "POST",
-                        data: {
-                            id_stock: id_stock
-                        },
-                        dataType: "json", // 🔥 penting
-                        beforeSend: function() {
-                            $('#pageLoader').show();
-                        },
-                        success: function(res) {
-                            if (res.status === 'success') {
-
-                                Swal.fire(
-                                    'Deleted!',
-                                    'Data Successfully Deleted',
-                                    'success'
-                                ).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire('Error', res.message, 'error');
-                            }
-                        },
-                        complete: function() {
-                            $('#pageLoader').hide(); // 🔥 pasti hilang
-                        },
-                        error: function(xhr) {
-                            console.log(xhr.responseText);
-                            Swal.fire(
-                                'Server Error',
-                                'Check console for error',
-                                'error'
-                            );
-                        }
-                    });
-                }
-            });
         });
     </script>
 </body>

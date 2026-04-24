@@ -18,6 +18,11 @@ $product_type = query("SELECT * FROM product_type WHERE status = 'Active'");
 $color_type = query("SELECT * FROM color_type WHERE status = 'Active'");
 $member_bank = query("SELECT * FROM member_bank WHERE status = 'Active'");
 
+/* 🔥 FIX: USERS */
+$users = ($role === 'Admin')
+    ? query("SELECT * FROM users")
+    : query("SELECT * FROM users WHERE id = $user_id");
+
 $id_stock = (int)($_GET['id_stock'] ?? 0);
 if ($id_stock <= 0) {
     http_response_code(404);
@@ -25,53 +30,21 @@ if ($id_stock <= 0) {
 }
 
 /* ================= LOAD DATA ================= */
-if ($role === 'Admin') {
-    $stock = query("SELECT stock.*,
-                    product_type.*,
-                    color_type.*,
-                    IF(users.name IS NULL, 'Deleted User', users.name) AS name,
-                    detail_list_stock.tid,
-                    detail_list_stock.mid,
-                    detail_list_stock.merchant_name,
-                    detail_list_stock.addres_name,
-                    detail_list_stock.id_member_bank,
-                    detail_list_stock.work_type,
-                    detail_list_stock.date_used,
-                    detail_list_stock.note
-                    FROM stock
-                    LEFT JOIN users 
-                    ON stock.user_id = users.id
-                    LEFT JOIN detail_list_stock 
-                    ON stock.id_stock = detail_list_stock.stock_id
-                    LEFT JOIN product_type
-                    ON stock.id_product_name = product_type.id_product
-                    LEFT JOIN color_type
-                    ON stock.id_edc_color = color_type.id_color
-                    WHERE stock.id_stock = $id_stock");
-} else {
-    $stock = query("SELECT stock.*,
-                    product_type.*,
-                    color_type.*,
-                    IF(users.name IS NULL, 'Deleted User', users.name) AS name,
-                    detail_list_stock.tid,
-                    detail_list_stock.mid,
-                    detail_list_stock.merchant_name,
-                    detail_list_stock.addres_name,
-                    detail_list_stock.id_member_bank,
-                    detail_list_stock.work_type,
-                    detail_list_stock.date_used,
-                    detail_list_stock.note
-                    FROM stock
-                    LEFT JOIN users 
-                    ON stock.user_id = users.id
-                    LEFT JOIN detail_list_stock 
-                    ON stock.id_stock = detail_list_stock.stock_id
-                    LEFT JOIN product_type
-                    ON stock.id_product_name = product_type.id_product
-                    LEFT JOIN color_type
-                    ON stock.id_edc_color = color_type.id_color
-                    WHERE stock.id_stock = $id_stock AND stock.user_id = $user_id");
-}
+$whereUser = ($role === 'Admin') ? "" : "AND stock.user_id = $user_id";
+
+$stock = query("
+    SELECT stock.*,
+           product_type.name_product,
+           color_type.name_color,
+           IF(users.name IS NULL, 'Deleted User', users.name) AS name,
+           detail_list_stock.*
+    FROM stock
+    LEFT JOIN users ON stock.user_id = users.id
+    LEFT JOIN detail_list_stock ON stock.id_stock = detail_list_stock.stock_id
+    LEFT JOIN product_type ON stock.id_product_name = product_type.id_product
+    LEFT JOIN color_type ON stock.id_edc_color = color_type.id_color
+    WHERE stock.id_stock = $id_stock $whereUser
+");
 
 if (!$stock) {
     http_response_code(404);
@@ -79,25 +52,23 @@ if (!$stock) {
 }
 
 $stock = $stock[0];
+
+/* ================= SN STATUS ================= */
 $snEdcFilled = !empty($stock['sn_edc']);
 $snSimFilled = !empty($stock['sn_simcard']);
-
 $samcardFilled =
     !empty($stock['sn_samcard1']) ||
     !empty($stock['sn_samcard2']) ||
     !empty($stock['sn_samcard3']);
 
-if ($role === 'Admin') {
-    $users = query("SELECT * FROM users");
-} else {
+$isAdmin = ($role === 'Admin');
 
-    $users = query("SELECT * FROM users WHERE role = 'User'");
-}
-
-if ($_SESSION['role'] !== 'Admin' && $stock['status_edc'] === 'Used') {
-    http_response_code(404);
-    exit;
-}
+/* 🔥 FLEXIBLE RULE */
+$readonlyEdc  = !$isAdmin && $snEdcFilled;
+$readonlySim  = !$isAdmin && $snSimFilled;
+$readonlySam1 = !$isAdmin && !empty($stock['sn_samcard1']);
+$readonlySam2 = !$isAdmin && !empty($stock['sn_samcard2']);
+$readonlySam3 = !$isAdmin && !empty($stock['sn_samcard3']);
 
 /* ================= AJAX POST ================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -110,7 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-$isUser = ($role == 'User');
 $title = "Edit Detail";
 include '../partials/header.php';
 ?>
@@ -166,6 +136,35 @@ include '../partials/header.php';
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6">
+                                                <?php if ($role === 'Admin') : ?>
+                                                    <div class="form-group">
+                                                        <label for="user_id">Name User:</label>
+                                                        <select class="form-control select2 select2-danger" id="user_id" name="user_id" style="width: 100%;">
+                                                            <option value="" disabled>--Selected One--</option>
+                                                            <?php foreach ($users as $user) : ?>
+                                                                <option value="<?= $user["id"]; ?>"
+                                                                    <?= ($stock["user_id"] == $user["id"]) ? "selected" : "" ?>>
+                                                                    <?= $user["name"]; ?> (<?= $user["role"]; ?>)
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
+                                                <?php else : ?>
+                                                    <div class="form-group">
+                                                        <label for="user_id">Name User:</label>
+                                                        <!-- SELECT (DISPLAY ONLY) -->
+                                                        <select class="form-control custom-select" disabled>
+                                                            <?php foreach ($users as $user) : ?>
+                                                                <option value="<?= $user["id"]; ?>"
+                                                                    <?= ($stock["user_id"] == $user["id"]) ? "selected" : "" ?>>
+                                                                    <?= $user["name"]; ?> (<?= $user["role"]; ?>)
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                        <!-- HIDDEN (DIKIRIM KE SERVER) -->
+                                                        <input type="hidden" name="user_id" value="<?= $stock["user_id"]; ?>">
+                                                    </div>
+                                                <?php endif; ?>
                                                 <div class="form-group">
                                                     <label for="requirements">Requirements:</label>
                                                     <select class="custom-select form-control" name="requirements" id="requirements">
@@ -202,51 +201,51 @@ include '../partials/header.php';
                                                     <label for="sn_edc">SN EDC:</label>
                                                     <input type="text"
                                                         name="sn_edc"
-                                                        class="form-control"
                                                         id="sn_edc"
-                                                        value="<?= e($stock['sn_edc']); ?>"
+                                                        class="form-control"
                                                         placeholder="SN EDC"
-                                                        <?= ($role === 'Admin') ? '' : ($snEdcFilled && !$samcardFilled ? 'readonly' : '') ?>>
+                                                        value="<?= e($stock['sn_edc']); ?>"
+                                                        <?= $readonlyEdc ? 'readonly' : '' ?>>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="sn_simcard">SN Simcard:</label>
                                                     <input type="text"
                                                         name="sn_simcard"
-                                                        class="form-control"
                                                         id="sn_simcard"
                                                         placeholder="SN Simcard"
+                                                        class="form-control"
                                                         value="<?= e($stock['sn_simcard']); ?>"
-                                                        <?= ($role === 'Admin') ? '' : ($snSimFilled && !$samcardFilled ? 'readonly' : '') ?>>
+                                                        <?= $readonlySim ? 'readonly' : '' ?>>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="sn_samcard1">SN Samcard 1:</label>
+                                                    <label for="sn_samcard1">SN Samcard (MANDIRI):</label>
                                                     <input type="text"
                                                         name="sn_samcard1"
-                                                        class="form-control"
                                                         id="sn_samcard1"
-                                                        placeholder="SN Samcard 1"
+                                                        class="form-control"
+                                                        placeholder="SN Samcard (MANDIRI)"
                                                         value="<?= e($stock['sn_samcard1']); ?>"
-                                                        <?= ($role === 'Admin') ? '' : ($samcardFilled && !$snEdcFilled && !$snSimFilled && !empty($stock['sn_samcard1']) ? 'readonly' : '') ?>>
+                                                        <?= $readonlySam1 ? 'readonly' : '' ?>>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="sn_samcard2">SN Samcard 2:</label>
+                                                    <label for="sn_samcard2">SN Samcard (BRI):</label>
                                                     <input type="text"
                                                         name="sn_samcard2"
-                                                        class="form-control"
                                                         id="sn_samcard2"
-                                                        placeholder="Samcard 2"
+                                                        placeholder="SN Samcard (BRI)"
+                                                        class="form-control"
                                                         value="<?= e($stock['sn_samcard2']); ?>"
-                                                        <?= ($role === 'Admin') ? '' : ($samcardFilled && !$snEdcFilled && !$snSimFilled && !empty($stock['sn_samcard2']) ? 'readonly' : '') ?>>
+                                                        <?= $readonlySam2 ? 'readonly' : '' ?>>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="sn_samcard3">SN Samcard 3:</label>
+                                                    <label for="sn_samcard3">SN Samcard (BNI):</label>
                                                     <input type="text"
                                                         name="sn_samcard3"
-                                                        class="form-control"
                                                         id="sn_samcard3"
-                                                        placeholder="Samcard 3"
+                                                        placeholder="SN Samcard (BNI)"
+                                                        class="form-control"
                                                         value="<?= e($stock['sn_samcard3']); ?>"
-                                                        <?= ($role === 'Admin') ? '' : ($samcardFilled && !$snEdcFilled && !$snSimFilled && !empty($stock['sn_samcard3']) ? 'readonly' : '') ?>>
+                                                        <?= $readonlySam3 ? 'readonly' : '' ?>>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="status_condition">Status Condition:</label>
@@ -339,18 +338,6 @@ include '../partials/header.php';
                                                         <option value="HO Santana" <?= ($stock['status_edc'] == 'HO Santana') ? 'selected' : '' ?>>
                                                             HO Santana
                                                         </option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="user_id">User:</label>
-                                                    <select class="form-control select2 select2-danger" id="user_id" name="user_id" data-dropdown-css-class="select2-danger" style="width: 100%;">
-                                                        <option value="" disabled selected>--Selected One--</option>
-                                                        <?php foreach ($users as $user) : ?>
-                                                            <option value="<?= $user["id"]; ?>"
-                                                                <?= ($stock["user_id"] == $user["id"]) ? "selected" : "" ?>>
-                                                                <?= $user["name"]; ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
                                                     </select>
                                                 </div>
                                                 <div class="form-group">
