@@ -1,3 +1,11 @@
+<?php
+if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {
+    header('HTTP/1.1 403 Forbidden');
+    include("../errors/403.html");
+    exit();
+}
+?>
+
 <!-- jQuery -->
 <script src="<?= base_url('assets/plugins/jquery/jquery.min.js') ?>"></script>
 <!-- Bootstrap 4 -->

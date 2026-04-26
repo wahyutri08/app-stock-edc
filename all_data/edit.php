@@ -13,6 +13,7 @@ function e($string)
 
 $user_id = $_SESSION['id'];
 $role    = $_SESSION['role'];
+$lockedStatus = ['Used', 'Terlink', 'HO Santana'];
 
 $product_type = query("SELECT * FROM product_type WHERE status = 'Active'");
 $color_type = query("SELECT * FROM color_type WHERE status = 'Active'");
@@ -52,6 +53,10 @@ if (!$stock) {
 }
 
 $stock = $stock[0];
+if (in_array($stock['status_edc'], $lockedStatus) && $role !== 'Admin') {
+    http_response_code(403);
+    exit;
+}
 
 /* ================= SN STATUS ================= */
 $snEdcFilled = !empty($stock['sn_edc']);
@@ -72,6 +77,19 @@ $readonlySam3 = !$isAdmin && !empty($stock['sn_samcard3']);
 
 /* ================= AJAX POST ================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $lockedStatus = ['Used', 'Terlink', 'HO Santana'];
+
+    $checkStock = query("SELECT status_edc FROM stock WHERE id_stock = $id_stock")[0];
+
+    if (in_array($checkStock['status_edc'], $lockedStatus) && $role !== 'Admin') {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Data with this status cannot be edited'
+        ]);
+        exit;
+    }
+
     header('Content-Type: application/json');
     echo json_encode(
         editDetail($_POST)

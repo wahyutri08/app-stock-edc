@@ -149,10 +149,6 @@ require_once '../partials/header.php';
                                                     <option value="DAMAGE INCOMPLETE (EDC rusak & tidak lengkap)">DAMAGE INCOMPLETE (EDC rusak & tidak lengkap)</option>
                                                 </select>
                                             </div>
-                                            <div class="form-group col-md-3">
-                                                <label for="search">Search:</label>
-                                                <input type="text" name="search" class="form-control" id="search" placeholder="TID, MID, Merchant, SN">
-                                            </div>
                                         </div>
                                         <div class="form-row">
                                             <div class="form-group col-md-3">

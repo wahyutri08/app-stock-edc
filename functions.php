@@ -1230,6 +1230,64 @@ function deleteMemberBank($id_member)
     return mysqli_affected_rows($db);
 }
 
+function addListFkm($data)
+{
+    global $db;
+
+    $user_id  = (int)$_SESSION['id'];
+    $tid             = $data['tid'];
+    $mid             = $data['mid'];
+    $nama_merchant   = $data['nama_merchant'];
+    $alamat          = $data['alamat'];
+    $status_merchant = $data['status_merchant'];
+
+    $total = count($tid);
+    $success = 0;
+
+    for ($i = 0; $i < $total; $i++) {
+
+        // ambil & sanitasi
+        $tid_val    = mysqli_real_escape_string($db, trim($tid[$i]));
+        $mid_val    = mysqli_real_escape_string($db, trim($mid[$i]));
+        $nama_val   = mysqli_real_escape_string($db, trim($nama_merchant[$i]));
+        $alamat_val = mysqli_real_escape_string($db, trim($alamat[$i]));
+        $status_val = mysqli_real_escape_string($db, trim($status_merchant[$i]));
+
+        // ✅ VALIDASI WAJIB (backend)
+        if (
+            empty($tid_val) ||
+            empty($mid_val) ||
+            empty($alamat_val) ||
+            empty($status_val)
+        ) {
+            return 0; // gagal karena ada field wajib kosong
+        }
+
+        // ✅ CEK DUPLIKAT TID
+        $cek = mysqli_query($db, "SELECT id_fkm FROM fkm WHERE tid = '$tid_val'");
+        if (mysqli_num_rows($cek) > 0) {
+            return -1; // TID sudah ada
+        }
+
+        // insert
+        $query = "INSERT INTO fkm 
+                    (user_id, tid, mid, nama_merchant, alamat, status_merchant) 
+                  VALUES 
+                    ('$user_id', '$tid_val', '$mid_val', '$nama_val', '$alamat_val', '$status_val')";
+
+        $insert = mysqli_query($db, $query);
+
+        if ($insert) {
+            $success++;
+        } else {
+            return 0; // kalau 1 gagal, anggap gagal semua
+        }
+    }
+
+    return $success;
+}
+
+
 function is_user_active($id)
 {
     global $db;

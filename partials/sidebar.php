@@ -1,7 +1,7 @@
 <?php
 if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {
     header('HTTP/1.1 403 Forbidden');
-    include("../errors/404.html");
+    include("../errors/403.html");
     exit();
 }
 // sidebar.php (partial) — tidak perlu logic aktif di PHP, aktif handle by JS!
@@ -142,62 +142,37 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                         </ul>
                     </li>
                 <?php endif; ?>
-                <?php if ($role === 'Admin') : ?>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-vote-yea"></i>
-                            <p>
-                                Status EDC
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
+                <li class="nav-item has-treeview">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-book"></i>
+                        <p>
+                            FKM Thermal
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="<?= base_url('fkm_thermal/tambah_data') ?>" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Add Data</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('fkm_thermal/list') ?>" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>List</p>
+                            </a>
+                        </li>
+                        <?php if ($role === 'Admin') : ?>
                             <li class="nav-item">
-                                <a href="<?= base_url('ReadyToUse') ?>" class="nav-link">
+                                <a href="<?= base_url('fkm_thermal/importData') ?>" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Ready To Use <span class="right badge badge-danger"><?= $totalNotUsed; ?></span></p>
+                                    <p>Import Data</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="<?= base_url('AlreadyToUse') ?>" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Already Used <span class="right badge badge-danger"><?= $totalUsed; ?></span></p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                <?php endif; ?>
-                <?php if ($role === 'Admin') : ?>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-sign-out-alt"></i>
-                            <p>
-                                Return EDC
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="<?= base_url('return_edc') ?>" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>List Return EDC <span class="right badge badge-danger"><?= $totalReturn; ?></span></p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="<?= base_url('technician') ?>" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Technician <span class="right badge badge-danger"><?= $totalReturnTechnician; ?></span></p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="<?= base_url('office') ?>" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Office <span class="right badge badge-danger"><?= $totalReturnHo; ?></span></p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                <?php endif; ?>
+                        <?php endif; ?>
+                    </ul>
+                </li>
                 <li class="nav-header">SETTINGS</li>
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">

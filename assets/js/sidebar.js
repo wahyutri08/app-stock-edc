@@ -7,10 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const menuGroups = [
         { selector: 'a[href*="add_data_stock"]', path: 'add_data_stock' },
         { selector: 'a[href*="ReadyToUse"]', path: 'ReadyToUse' },
-        { selector: 'a[href*="AlreadyToUse"]', path: 'AlreadyToUse' },
-        { selector: 'a[href*="return_edc"]', path: 'return_edc' },
-        { selector: 'a[href*="technician"]', path: 'technician' },
-        { selector: 'a[href*="office"]', path: 'office' },
+        { selector: 'a[href*="list"]', path: 'list' },
+        { selector: 'a[href*="tambah_data"]', path: 'tambah_data' },
+        { selector: 'a[href*="importData"]', path: 'importData' },
         { selector: 'a[href*="import_data"]', path: 'import_data' },
           { selector: 'a[href*="export_data"]', path: 'export_data' },
         { selector: 'a[href*="product_name"]', path: 'product_name' },
