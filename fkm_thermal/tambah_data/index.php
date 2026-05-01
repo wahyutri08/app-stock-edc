@@ -261,7 +261,7 @@ require_once '../../partials/header.php';
                                 text: res.message,
                                 icon: "success"
                             }).then(() => {
-                                window.location.href = '<?= base_url('fkm_thermal') ?>';
+                                window.location.href = '<?= base_url('fkm_thermal/list') ?>';
                             });
                         } else {
                             Swal.fire('Error', res.message, 'error');

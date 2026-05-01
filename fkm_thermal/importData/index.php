@@ -12,9 +12,6 @@ if ($_SESSION['role'] !== 'Admin') {
     exit;
 }
 
-$role     = $_SESSION['role'];
-$user_id  = (int) $_SESSION['id'];
-
 $title = "Import Data FKM";
 require_once '../../partials/header.php';
 ?>
@@ -63,17 +60,6 @@ require_once '../../partials/header.php';
 
                             <div class="card-body">
 
-                                <!-- INFO FORMAT -->
-                                <!-- <div class="alert alert-info">
-                                    <b>Format Excel:</b><br>
-                                    user_id | tid | mid | nama_merchant | alamat | status_merchant<br><br>
-
-                                    <b>Contoh:</b><br>
-                                    1 | 77779559 | 70411259683 | DRESSUP LAUNDRY | Jakarta | Active<br><br>
-
-                                    <b>Status Merchant:</b> Active / Not Active
-                                </div> -->
-
                                 <!-- FILE INPUT -->
                                 <div class="form-group">
                                     <label>Pilih File Excel</label>
@@ -88,14 +74,6 @@ require_once '../../partials/header.php';
                                         <label class="custom-file-label" for="file">
                                             Choose file
                                         </label>
-                                    </div>
-                                </div>
-
-                                <!-- PROGRESS -->
-                                <div id="progressBox" class="progress mt-3">
-                                    <div id="progressBar"
-                                        class="progress-bar progress-bar-striped progress-bar-animated"
-                                        style="width: 100%">
                                     </div>
                                 </div>
 
@@ -136,7 +114,6 @@ require_once '../../partials/header.php';
     <script>
         $(function() {
             bsCustomFileInput.init();
-            document.getElementById('progressBox').style.display = 'none';
         });
     </script>
 
@@ -154,13 +131,11 @@ require_once '../../partials/header.php';
 
             let file = fileInput.files[0];
 
-            // VALIDASI EXTENSION
             if (!file.name.match(/\.(xls|xlsx)$/)) {
                 Swal.fire('Error', 'Files Must Be Excel (.xls / .xlsx)', 'error');
                 return;
             }
 
-            // reset table
             document.getElementById('result-table').innerHTML = '';
 
             let formData = new FormData();
@@ -168,7 +143,7 @@ require_once '../../partials/header.php';
             formData.append('preview', true);
 
             Swal.fire({
-                title: 'Processing...',
+                title: 'Processing Preview...',
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading()
             });
@@ -188,7 +163,6 @@ require_once '../../partials/header.php';
 
                         document.getElementById('result-table').innerHTML = res.html;
 
-                        // aktifkan tombol import
                         document.getElementById('btnImport').disabled = false;
 
                     } else {
@@ -197,6 +171,7 @@ require_once '../../partials/header.php';
 
                 })
                 .catch(() => {
+                    Swal.close();
                     Swal.fire('Error', 'Gagal upload file', 'error');
                 });
         });
@@ -217,45 +192,23 @@ require_once '../../partials/header.php';
             formData.append('file', fileInput.files[0]);
             formData.append('import', true);
 
-            let progressBox = document.getElementById('progressBox');
-            let progressBar = document.getElementById('progressBar');
-
-            progressBox.style.display = 'block';
-            progressBar.style.width = '0%';
-            progressBar.innerHTML = '0%';
-
-            let xhr = new XMLHttpRequest();
-            xhr.open('POST', '<?= base_url('fkm_thermal/importData/import') ?>', true);
-
-            // 🔥 FAKE PROGRESS (biar keliatan jalan)
-            let fake = 0;
-            let fakeInterval = setInterval(() => {
-                if (fake < 90) {
-                    fake += 5;
-                    progressBar.style.width = fake + '%';
-                    progressBar.innerHTML = fake + '%';
+            Swal.fire({
+                title: 'Importing Data...',
+                text: 'Please wait, do not close this page',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
                 }
-            }, 100);
+            });
 
-            // 🔥 REAL (kalau sempat ke-trigger)
-            xhr.upload.onprogress = function(e) {
-                if (e.lengthComputable) {
-                    let percent = Math.round((e.loaded / e.total) * 100);
-                    progressBar.style.width = percent + '%';
-                    progressBar.innerHTML = percent + '%';
-                }
-            };
+            fetch('<?= base_url('fkm_thermal/importData/import') ?>', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(res => {
 
-            xhr.onload = function() {
-
-                clearInterval(fakeInterval);
-
-                progressBar.style.width = '100%';
-                progressBar.innerHTML = '100%';
-
-                let res = JSON.parse(xhr.responseText);
-
-                setTimeout(() => {
+                    Swal.close();
 
                     if (res.status === 'failed') {
                         Swal.fire('Error', res.message || 'There Is Still Error Data', 'error');
@@ -276,15 +229,11 @@ require_once '../../partials/header.php';
                         Swal.fire('Error', res.message, 'error');
                     }
 
-                }, 800);
-            };
-
-            xhr.onerror = function() {
-                clearInterval(fakeInterval);
-                Swal.fire('Error', 'Upload Failed', 'error');
-            };
-
-            xhr.send(formData);
+                })
+                .catch(() => {
+                    Swal.close();
+                    Swal.fire('Error', 'Upload Failed', 'error');
+                });
         }
     </script>
 

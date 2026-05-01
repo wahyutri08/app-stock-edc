@@ -54,6 +54,7 @@ if (isset($_POST['preview'])) {
             'nama_merchant' => $get('nama_merchant'),
             'alamat' => $get('alamat'),
             'status_merchant' => $get('status_merchant'),
+            'date_periode' => $get('date_periode'),
         ];
 
         /* ===== VALIDASI ===== */
@@ -62,8 +63,8 @@ if (isset($_POST['preview'])) {
         if (!is_numeric($data['user_id'])) {
             $error[] = "User ID tidak valid";
         } else {
-            $cek = mysqli_query($db, "SELECT id FROM users WHERE id='{$data['user_id']}'");
-            if (mysqli_num_rows($cek) == 0) {
+            $cek = query("SELECT id FROM users WHERE id='{$data['user_id']}'");
+            if (count($cek) == 0) {
                 $error[] = "User tidak ditemukan";
             }
         }
@@ -77,6 +78,15 @@ if (isset($_POST['preview'])) {
         // status merchant
         if (!in_array($data['status_merchant'], ['Active', 'Not Active'])) {
             $error[] = "Merchant status must be Active / Not Active";
+        }
+
+        // date_periode
+        if (empty($data['date_periode'])) {
+            $error[] = "Periode is required";
+        } else {
+            if (!preg_match('/^\d{4}-\d{2}$/', $data['date_periode'])) {
+                $error[] = "Format periode harus YYYY-MM";
+            }
         }
 
         $result[] = [
@@ -142,8 +152,6 @@ if (isset($_POST['import'])) {
         exit;
     }
 
-    mysqli_begin_transaction($db);
-
     try {
 
         $inserted = 0;
@@ -155,49 +163,47 @@ if (isset($_POST['import'])) {
 
             $d = $row['data'];
 
-            // ✅ ESCAPE
-            $user_id = mysqli_real_escape_string($db, $d['user_id']);
-            $tid     = mysqli_real_escape_string($db, $d['tid']);
-            $mid     = mysqli_real_escape_string($db, $d['mid']);
-            $nama    = mysqli_real_escape_string($db, $d['nama_merchant']);
-            $alamat  = mysqli_real_escape_string($db, $d['alamat']);
-            $status  = mysqli_real_escape_string($db, $d['status_merchant']);
+            $user_id = mysqli_real_escape_string($db, trim($d['user_id']));
+            $tid     = mysqli_real_escape_string($db, trim($d['tid']));
+            $mid     = mysqli_real_escape_string($db, trim($d['mid']));
+            $nama    = mysqli_real_escape_string($db, trim($d['nama_merchant']));
+            $alamat  = mysqli_real_escape_string($db, trim($d['alamat']));
+            $status  = mysqli_real_escape_string($db, trim($d['status_merchant']));
+            $periode = mysqli_real_escape_string($db, trim($d['date_periode']));
 
-            // 🔥 CEK DUPLIKAT (PAKAI YANG SUDAH ESCAPE)
-            $cek = mysqli_query($db, "
-                SELECT id_fkm FROM fkm 
-                WHERE tid = '$tid' AND mid = '$mid'
-            ");
+            $tanggal = $periode . "-01";
 
-            if (mysqli_num_rows($cek) > 0) {
+            // cek duplikat
+            $cek = query("
+                        SELECT id_fkm FROM fkm 
+                        WHERE tid = '$tid' 
+                        AND mid = '$mid'
+                        AND date_periode = '$tanggal'
+                    ");
+
+            if (is_array($cek) && count($cek) > 0) {
                 $duplicate++;
                 continue;
             }
 
-            // 🔥 INSERT (PAKAI YANG SUDAH ESCAPE)
-            mysqli_query($db, "INSERT INTO fkm (
-                user_id, tid, mid, nama_merchant, alamat, status_merchant
+            // insert
+            query("INSERT INTO fkm (
+                user_id, tid, mid, nama_merchant, alamat, status_merchant, date_periode
             ) VALUES (
                 '$user_id',
                 '$tid',
                 '$mid',
                 '$nama',
                 '$alamat',
-                '$status'
+                '$status',
+                '$tanggal'
             )");
-
-            if (mysqli_error($db)) {
-                throw new Exception(mysqli_error($db));
-            }
 
             $inserted++;
         }
 
-        mysqli_commit($db);
-
         unset($_SESSION['preview']);
 
-        // 🔥 RESPONSE BERDASARKAN HASIL
         if ($inserted == 0 && $duplicate > 0) {
             echo json_encode([
                 'status' => 'duplicate'
@@ -210,8 +216,6 @@ if (isset($_POST['import'])) {
             ]);
         }
     } catch (Exception $e) {
-
-        mysqli_rollback($db);
 
         echo json_encode([
             'status' => 'error',

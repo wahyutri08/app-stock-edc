@@ -32,22 +32,40 @@ ini_set('display_errors', 1);
 
 $where = [];
 
-$keyword     = mysqli_real_escape_string($db, $_POST['search'] ?? '');
+$keyword = mysqli_real_escape_string($db, $_POST['search'] ?? '');
 
-$user_id     = $_POST['user_id'] ?? 'all';
-$status_merchant  = $_POST['status_merchant'] ?? 'all';
+$date_periode = $_POST['date_periode'] ?? '';
+$user_id = $_POST['user_id'] ?? 'all';
+$status_merchant = $_POST['status_merchant'] ?? 'all';
 
 /* =============================
    FILTER
 ============================= */
 
+if ($user_id != 'all') {
+    $user_id = (int)$user_id;
+    $where[] = "fkm.user_id = $user_id";
+}
 
-if ($user_id != 'all')
-    $where[] = "fkm.user_id = '$user_id'";
-
-if ($status_merchant != 'all')
+if ($status_merchant != 'all') {
+    $status_merchant = mysqli_real_escape_string($db, trim($status_merchant));
     $where[] = "fkm.status_merchant = '$status_merchant'";
+}
 
+/* =============================
+   FILTER DATE PERIODE (🔥 TAMBAHAN)
+============================= */
+
+if (!empty($date_periode)) {
+
+    $date_periode = mysqli_real_escape_string($db, trim($date_periode));
+
+    // contoh: 2024-01
+    $start = $date_periode . "-01";
+    $end   = date("Y-m-t", strtotime($start)); // akhir bulan
+
+    $where[] = "fkm.date_periode BETWEEN '$start' AND '$end'";
+}
 
 /* =============================
    KEYWORD SEARCH
@@ -110,7 +128,10 @@ ob_start();
         <div class="col">
             <div class="card card-warning">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-chart-bar"></i> Result Search</h3>
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Result Search (<?= count($data); ?> Data)
+                    </h3>
                 </div>
                 <div class="card-body table-responsive">
                     <table id="example1" class="table table-bordered table-hover">
@@ -121,6 +142,7 @@ ob_start();
                                 <th>TID</th>
                                 <th>MID</th>
                                 <th>Merchant</th>
+                                <th>Periode</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -129,14 +151,26 @@ ob_start();
                             <?php foreach ($data as $row): ?>
                                 <tr class="text-center">
                                     <td>
-                                        <input type="checkbox" class="check-item" value="<?= $row['id_fkm']; ?>">
+                                        <!-- 🔥 FIX CLASS -->
+                                        <input type="checkbox" class="checkbox-item" value="<?= $row['id_fkm']; ?>">
                                     </td>
+
                                     <td><?= htmlspecialchars((string)($row["name"] ?? '')) ?></td>
+
                                     <td><?= htmlspecialchars((string)($row["tid"] ?? '')) ?></td>
-                                    <td><?= htmlspecialchars((string)($row["mid"] ?? '')) ?>
+
+                                    <!-- 🔥 FIX TD -->
+                                    <td><?= htmlspecialchars((string)($row["mid"] ?? '')) ?></td>
+
                                     <td>
                                         <?= htmlspecialchars((string)($row["nama_merchant"] ?? '')) ?><br>
-                                        <h6 style="font-size:smaller;"><?= htmlspecialchars((string)($row["alamat"] ?? '')) ?></h6>
+                                        <h6 style="font-size:smaller;">
+                                            <?= htmlspecialchars((string)($row["alamat"] ?? '')) ?>
+                                        </h6>
+                                    </td>
+                                    <!-- 🔥 FORMAT BULAN TAHUN -->
+                                    <td>
+                                        <?= date('Y-m', strtotime($row['date_periode'])) ?>
                                     </td>
                                     <td>
                                         <?php if (($row["status_merchant"] ?? '') === 'Active'): ?>
@@ -149,35 +183,9 @@ ob_start();
                                             </span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="text-center">
-                                        <!-- <?php if ($_SESSION['role'] === 'Admin'): ?>
-                                            <div class="dropdown">
-                                                <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
-                                                    Action
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    <li>
-                                                        <a class="dropdown-item"
-                                                            href="<?= base_url('fkm_thermal/edit/' . $row['id_fkm']) ?>">
-                                                            <i class="fas fa-edit"></i> Edit
-                                                        </a>
-                                                    </li>
 
-                                                    <li>
-                                                        <button class="dropdown-item tombol-hapus" data-id="<?= $row['id_fkm']; ?>">
-                                                            <i class="far fa-trash-alt"></i> Delete
-                                                        </button>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        <?php elseif (
-                                                    $_SESSION['role'] === 'User'
-                                                ): ?>
-                                            <a class="btn btn-success btn-sm"
-                                                href="<?= base_url('fkm_thermal/edit/' . $row['id_fkm']) ?>">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        <?php endif; ?> -->
+                                    <td class="text-center">
+                                        <!-- ACTION OPTIONAL -->
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

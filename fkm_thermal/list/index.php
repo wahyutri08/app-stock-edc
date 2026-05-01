@@ -67,7 +67,10 @@ require_once '../../partials/header.php';
                                 <form method="POST" action="">
                                     <div class="card-body">
                                         <div class="form-row">
-
+                                            <div class="form-group col-md-3">
+                                                <label for="date_periode">Periode:</label>
+                                                <input type="month" class="form-control" name="date_periode" id="date_periode">
+                                            </div>
                                             <?php if ($role === 'Admin') : ?>
                                                 <div class="form-group col-md-3">
                                                     <label for="user_id">User:</label>
@@ -107,6 +110,9 @@ require_once '../../partials/header.php';
                                                 </button>
                                                 <button type="button" id="btn-cetak-terpilih" class="btn btn-danger btn-sm">
                                                     <i class="fa fa-file-pdf"></i> Export FKM Thermal PDF
+                                                </button>
+                                                <button type="button" id="btnDelete" class="btn btn-warning btn-sm" disabled>
+                                                    <i class="fa fa-trash"></i> Delete
                                                 </button>
                                                 <button type="reset" class="btn btn-sm btn-dark">
                                                     Reset
@@ -149,58 +155,128 @@ require_once '../../partials/header.php';
         });
     </script>
     <script>
-        // CHECK ALL
-        $(document).on('click', '#checkAll', function() {
-            $('.check-item').prop('checked', this.checked);
-        });
+        $(document).ready(function() {
 
-        // CETAK PDF
-        $(document).on('click', '#btn-cetak-terpilih', function(e) {
-            e.preventDefault();
-
-            let selected = [];
-
-            $('.check-item:checked').each(function() {
-                selected.push($(this).val());
+            // 🔥 CHECK ALL (SUPPORT AJAX)
+            $(document).on('change', '#checkAll', function() {
+                $('.checkbox-item').prop('checked', this.checked);
+                toggleDeleteButton();
             });
 
-            if (selected.length === 0) {
-                Swal.fire('Warning', 'Select At Least 1 Data', 'warning');
-                return;
+            // 🔥 CHECK PER ITEM
+            $(document).on('change', '.checkbox-item', function() {
+                $('#checkAll').prop(
+                    'checked',
+                    $('.checkbox-item:checked').length === $('.checkbox-item').length
+                );
+                toggleDeleteButton();
+            });
+
+            // 🔥 TOGGLE DELETE BUTTON (LEBIH AMAN)
+            function toggleDeleteButton() {
+                let hasChecked = $('.checkbox-item:checked').length > 0;
+
+                $('#btnDelete')
+                    .toggleClass('disabled', !hasChecked)
+                    .prop('disabled', !hasChecked);
             }
 
-            // 🔥 LOADING DISINI
-            Swal.fire({
-                title: 'Generating PDF...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading()
+            // 🔥 DELETE BULK
+            $(document).on('click', '#btnDelete', function(e) {
+
+                if ($(this).prop('disabled')) {
+                    e.preventDefault();
+                    return;
                 }
+
+                e.preventDefault();
+
+                let ids = $('.checkbox-item:checked').map(function() {
+                    return $(this).val();
+                }).get();
+
+                Swal.fire({
+                    title: 'Are You Sure?',
+                    text: ids.length + ' Data Will be Deleted',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Delete!'
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '<?= base_url('fkm_thermal/list/delete_list_bulk') ?>',
+                            type: 'POST',
+                            data: {
+                                ids: ids
+                            },
+
+                            beforeSend: function() {
+                                $('#pageLoader').show();
+                                $('#btnDelete').prop('disabled', true);
+                            },
+
+                            complete: function() {
+                                $('#pageLoader').hide();
+                                $('#btnDelete').prop('disabled', false);
+                            },
+
+                            success: function(res) {
+                                try {
+                                    let response = (typeof res === 'object') ? res : JSON.parse(res);
+
+                                    if (response.status === 'success') {
+                                        Swal.fire('Deleted!', response.message, 'success')
+                                            .then(() => location.reload());
+                                    } else {
+                                        Swal.fire('Error', response.message, 'error');
+                                    }
+
+                                } catch (e) {
+                                    console.log(res);
+                                    Swal.fire('Error', 'Invalid server response', 'error');
+                                }
+                            }
+                        });
+                    }
+                });
             });
 
-            let form = $('<form>', {
-                action: "<?= base_url('fkm_thermal/cetak') ?>",
-                method: 'POST'
+            // 🔥 CETAK PDF
+            $(document).on('click', '#btn-cetak-terpilih', function(e) {
+                e.preventDefault();
+
+                let selected = $('.checkbox-item:checked').map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (selected.length === 0) {
+                    Swal.fire('Warning', 'Select At Least 1 Data', 'warning');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Generating PDF...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                let form = $('<form>', {
+                    action: "<?= base_url('fkm_thermal/cetak') ?>",
+                    method: 'POST'
+                });
+
+                selected.forEach(function(id) {
+                    form.append(`<input type="hidden" name="ids[]" value="${id}">`);
+                });
+
+                $('body').append(form);
+                form.submit();
+
+                setTimeout(() => Swal.close(), 1000);
+                form.remove();
             });
 
-            selected.forEach(function(id) {
-                form.append($('<input>', {
-                    type: 'hidden',
-                    name: 'ids[]',
-                    value: id
-                }));
-            });
-
-            $('body').append(form);
-            form.hide();
-            form.submit();
-
-            // 🔥 TUTUP LOADING SETELAH KIRIM
-            setTimeout(() => {
-                Swal.close();
-            }, 1000);
-
-            form.remove();
         });
     </script>
     <script>

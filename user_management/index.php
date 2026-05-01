@@ -77,6 +77,7 @@ require_once '../partials/header.php';
                                                         <label for="checkAll" class="custom-control-label"></label>
                                                     </div>
                                                 </th>
+                                                <th class="text-center">ID User</th>
                                                 <th class="text-center">Username</th>
                                                 <th class="text-center">Name</th>
                                                 <th class="text-center">Email</th>
@@ -98,6 +99,7 @@ require_once '../partials/header.php';
                                                             <label for="check<?= $row['id']; ?>" class="custom-control-label"></label>
                                                         </div>
                                                     </td>
+                                                    <td class="text-center"><?= $row["id"]; ?></td>
                                                     <td class="text-center"><?= $row["username"]; ?></td>
                                                     <td class="text-center"><?= $row["name"]; ?></td>
                                                     <td class="text-center"><?= $row["email"]; ?></td>

@@ -4,7 +4,7 @@ if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {
     include("errors/404.html");
     exit();
 }
-require_once 'functions.php';
+require_once __DIR__ . '/functions.php';
 if (!is_user_active($_SESSION['id'])) {
     logout();
 }

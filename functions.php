@@ -4,6 +4,8 @@ if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {
     include("errors/404.html");
     exit();
 }
+
+// $db = mysqli_connect("sql212.infinityfree.com", "if0_41134007", "waRjfAMSr1", "if0_41134007_assetmanagementstock");
 $db = mysqli_connect("localhost", "root", "", "final-stock-edc");
 date_default_timezone_set('Asia/Jakarta');
 
@@ -20,24 +22,25 @@ function base_url($path = "")
 function query($query)
 {
     global $db;
-    $result = mysqli_query($db, $query);
-    $rows = [];
 
-    // Periksa apakah query berhasil dieksekusi
-    if ($result) {
-        if (mysqli_num_rows($result) > 0) {
-            // Loop melalui hasil query
-            while ($row = mysqli_fetch_assoc($result)) {
-                $rows[] = $row; // Menambahkan baris hasil ke dalam array $rows
-            }
-        }
-    } else {
-        echo "Error: " . mysqli_error($db);
+    $result = mysqli_query($db, $query);
+
+    if (!$result) {
+        throw new Exception(mysqli_error($db));
     }
 
-    return $rows;
-}
+    // kalau SELECT
+    if (stripos($query, 'SELECT') === 0) {
+        $rows = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $rows[] = $row;
+        }
+        return $rows;
+    }
 
+    // kalau INSERT/UPDATE/DELETE
+    return true;
+}
 function addUser($data)
 {
     global $db;
