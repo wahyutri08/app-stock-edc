@@ -11,6 +11,7 @@ date_default_timezone_set('Asia/Jakarta');
 
 
 // Base URL aplikasi
+// define("BASEURL", "https://reportstockedc.infinityfreeapp.com/");
 define("BASEURL", "http://localhost/app-stock-edc/");
 
 // Fungsi helper base_url
@@ -19,6 +20,29 @@ function base_url($path = "")
     return BASEURL . $path;
 }
 
+// function query($query)
+// {
+//     global $db;
+
+//     $result = mysqli_query($db, $query);
+
+//     if (!$result) {
+//         throw new Exception(mysqli_error($db));
+//     }
+
+//     // kalau SELECT
+//     if (stripos($query, 'SELECT') === 0) {
+//         $rows = [];
+//         while ($row = mysqli_fetch_assoc($result)) {
+//             $rows[] = $row;
+//         }
+//         return $rows;
+//     }
+
+//     // kalau INSERT/UPDATE/DELETE
+//     return true;
+// }
+
 function query($query)
 {
     global $db;
@@ -26,11 +50,13 @@ function query($query)
     $result = mysqli_query($db, $query);
 
     if (!$result) {
-        throw new Exception(mysqli_error($db));
+        // 🔥 tampilkan error tapi tidak mematikan sistem
+        echo "SQL Error: " . mysqli_error($db);
+        return [];
     }
 
-    // kalau SELECT
-    if (stripos($query, 'SELECT') === 0) {
+    // 🔥 cek apakah SELECT
+    if (stripos(trim($query), 'SELECT') === 0) {
         $rows = [];
         while ($row = mysqli_fetch_assoc($result)) {
             $rows[] = $row;
@@ -38,9 +64,16 @@ function query($query)
         return $rows;
     }
 
-    // kalau INSERT/UPDATE/DELETE
+    // 🔥 untuk INSERT/UPDATE/DELETE
     return true;
 }
+
+// function queryOne($query)
+// {
+//     $data = query($query);
+//     return $data[0] ?? null;
+// }
+
 function addUser($data)
 {
     global $db;
