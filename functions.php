@@ -416,62 +416,316 @@ function deleteStock($id_stock)
     return mysqli_affected_rows($db);
 }
 
-function clearDuplicateSN($db, $field, $value, $current_id)
+// back up jika error
+// function clearDuplicateSN($db, $field, $value, $current_id)
+// {
+//     if (empty($value)) return;
+
+//     $value = mysqli_real_escape_string($db, $value);
+
+//     $query = "SELECT id_stock FROM stock 
+//               WHERE $field = '$value' 
+//               AND id_stock != $current_id
+//               LIMIT 1";
+
+//     $result = mysqli_query($db, $query);
+
+//     if ($row = mysqli_fetch_assoc($result)) {
+//         $id_lama = $row['id_stock'];
+
+//         // 🔥 1. kosongkan SN di stock lama
+//         mysqli_query($db, "
+//             UPDATE stock 
+//             SET $field = NULL
+//             WHERE id_stock = $id_lama
+//         ");
+
+//         // 🔥 2. siapkan note
+//         $label = strtoupper(str_replace('sn_', '', $field));
+//         $note_text = "$label ($value) Transferred To Stock $current_id On " . date('d-m-Y H:i');
+
+//         // 🔥 3. cek apakah detail sudah ada
+//         $cekDetail = mysqli_query($db, "
+//             SELECT id_detail, note 
+//             FROM detail_list_stock 
+//             WHERE stock_id = $id_lama
+//             LIMIT 1
+//         ");
+
+//         if ($rowDetail = mysqli_fetch_assoc($cekDetail)) {
+
+//             // update note (append)
+//             $note_lama = $rowDetail['note'] ?? '';
+//             $note_baru = $note_lama . "\n" . $note_text;
+
+//             mysqli_query($db, "
+//                 UPDATE detail_list_stock 
+//                 SET note = '" . mysqli_real_escape_string($db, $note_baru) . "'
+//                 WHERE stock_id = $id_lama
+//             ");
+//         } else {
+
+//             // insert detail baru kalau belum ada
+//             mysqli_query($db, "
+//                 INSERT INTO detail_list_stock (stock_id, note, updated_at)
+//                 VALUES ($id_lama, '" . mysqli_real_escape_string($db, $note_text) . "', NOW())
+//             ");
+//         }
+//     }
+// }
+
+function moveOrSwapSN($db, $field, $newValue, $currentStockId, $oldValue)
 {
-    if (empty($value)) return;
+    $newValue = mysqli_real_escape_string($db, trim($newValue));
+    $oldValue = mysqli_real_escape_string($db, trim($oldValue));
 
-    $value = mysqli_real_escape_string($db, $value);
+    // Cari stock lain yang memakai SN tersebut
+    $q = mysqli_query($db, "
+        SELECT *
+        FROM stock
+        WHERE $field = '$newValue'
+        AND $field != ''
+        AND id_stock != $currentStockId
+        LIMIT 1
+    ");
 
-    $query = "SELECT id_stock FROM stock 
-              WHERE $field = '$value' 
-              AND id_stock != $current_id
-              LIMIT 1";
+    if (mysqli_num_rows($q) > 0) {
 
-    $result = mysqli_query($db, $query);
+        $dup = mysqli_fetch_assoc($q);
 
-    if ($row = mysqli_fetch_assoc($result)) {
-        $id_lama = $row['id_stock'];
+        $otherStockId = (int)$dup['id_stock'];
 
-        // 🔥 1. kosongkan SN di stock lama
-        mysqli_query($db, "
-            UPDATE stock 
-            SET $field = NULL
-            WHERE id_stock = $id_lama
-        ");
-
-        // 🔥 2. siapkan note
-        $label = strtoupper(str_replace('sn_', '', $field));
-        $note_text = "$label ($value) Transferred To Stock $current_id On " . date('d-m-Y H:i');
-
-        // 🔥 3. cek apakah detail sudah ada
-        $cekDetail = mysqli_query($db, "
-            SELECT id_detail, note 
-            FROM detail_list_stock 
-            WHERE stock_id = $id_lama
-            LIMIT 1
-        ");
-
-        if ($rowDetail = mysqli_fetch_assoc($cekDetail)) {
-
-            // update note (append)
-            $note_lama = $rowDetail['note'] ?? '';
-            $note_baru = $note_lama . "\n" . $note_text;
+        // =========================================
+        // CASE 1:
+        // STOCK SEKARANG SUDAH PUNYA SN
+        // => SWAP / TUKAR
+        // =========================================
+        if (!empty($oldValue)) {
 
             mysqli_query($db, "
-                UPDATE detail_list_stock 
-                SET note = '" . mysqli_real_escape_string($db, $note_baru) . "'
-                WHERE stock_id = $id_lama
+                UPDATE stock
+                SET $field = '$oldValue'
+                WHERE id_stock = $otherStockId
             ");
-        } else {
+        }
 
-            // insert detail baru kalau belum ada
+        // =========================================
+        // CASE 2:
+        // STOCK SEKARANG MASIH KOSONG
+        // => PINDAH + HAPUS STOCK LAMA
+        // =========================================
+        else {
+
+            // Kosongkan SN dari stock lama
             mysqli_query($db, "
-                INSERT INTO detail_list_stock (stock_id, note, updated_at)
-                VALUES ($id_lama, '" . mysqli_real_escape_string($db, $note_text) . "', NOW())
+                UPDATE stock
+                SET $field = ''
+                WHERE id_stock = $otherStockId
             ");
+
+            // Ambil data terbaru stock lama
+            $cekKosong = mysqli_fetch_assoc(mysqli_query($db, "
+                SELECT
+                    sn_edc,
+                    sn_simcard,
+                    sn_samcard1,
+                    sn_samcard2,
+                    sn_samcard3
+                FROM stock
+                WHERE id_stock = $otherStockId
+                LIMIT 1
+            "));
+
+            // Jika semua SN kosong
+            if (
+                empty($cekKosong['sn_edc']) &&
+                empty($cekKosong['sn_simcard']) &&
+                empty($cekKosong['sn_samcard1']) &&
+                empty($cekKosong['sn_samcard2']) &&
+                empty($cekKosong['sn_samcard3'])
+            ) {
+
+                // Hapus detail
+                mysqli_query($db, "
+                    DELETE FROM detail_list_stock
+                    WHERE stock_id = $otherStockId
+                ");
+
+                // Hapus stock
+                mysqli_query($db, "
+                    DELETE FROM stock
+                    WHERE id_stock = $otherStockId
+                ");
+            }
         }
     }
 }
+
+
+// Back up jika error
+// function editDetail($data)
+// {
+//     global $db;
+
+//     $stock_id = (int)$data['stock_id'];
+//     $now      = date('Y-m-d H:i:s');
+//     $role     = $_SESSION['role'];
+
+//     /* ================= AMBIL DATA LAMA ================= */
+//     $old = mysqli_fetch_assoc(mysqli_query($db, "
+//         SELECT * FROM stock WHERE id_stock = $stock_id LIMIT 1
+//     "));
+
+//     if (!$old) return 0;
+
+//     /* ================= TABLE STOCK ================= */
+//     $requirements = mysqli_real_escape_string($db, $data['requirements']);
+
+//     $sn_edc = mysqli_real_escape_string($db, trim($data['sn_edc']));
+//     $sn_simcard  = mysqli_real_escape_string($db, trim($data['sn_simcard']));
+//     $sn_samcard1 = mysqli_real_escape_string($db, trim($data['sn_samcard1']));
+//     $sn_samcard2 = mysqli_real_escape_string($db, trim($data['sn_samcard2']));
+//     $sn_samcard3 = mysqli_real_escape_string($db, trim($data['sn_samcard3']));
+
+//     $id_product_name = !empty($data['id_product_name']) ? (int)$data['id_product_name'] : "NULL";
+//     $id_edc_color    = !empty($data['id_edc_color']) ? (int)$data['id_edc_color'] : "NULL";
+
+//     $status_edc = mysqli_real_escape_string($db, $data['status_edc']);
+//     $status_condition = mysqli_real_escape_string($db, $data['status_condition']);
+//     $user_id    = (int)$data['user_id'];
+
+//     /* ================= 🔥 PROTEK SN ================= */
+//     if ($role !== 'Admin') {
+
+//         if (!empty($old['sn_edc'])) {
+//             $sn_edc = $old['sn_edc'];
+//         }
+
+//         if (!empty($old['sn_simcard'])) {
+//             $sn_simcard = $old['sn_simcard'];
+//         }
+
+//         if (!empty($old['sn_samcard1'])) {
+//             $sn_samcard1 = $old['sn_samcard1'];
+//         }
+
+//         if (!empty($old['sn_samcard2'])) {
+//             $sn_samcard2 = $old['sn_samcard2'];
+//         }
+
+//         if (!empty($old['sn_samcard3'])) {
+//             $sn_samcard3 = $old['sn_samcard3'];
+//         }
+//     }
+
+//     /* ================= DETAIL TABLE ================= */
+//     $tid           = mysqli_real_escape_string($db, trim($data['tid']));
+//     $mid           = mysqli_real_escape_string($db, trim($data['mid']));
+//     $merchant_name = mysqli_real_escape_string($db, trim($data['merchant_name']));
+//     $addres_name   = mysqli_real_escape_string($db, trim($data['addres_name']));
+//     $note          = mysqli_real_escape_string($db, trim($data['note']));
+
+//     $id_member_bank = !empty($data['id_member_bank']) ? (int)$data['id_member_bank'] : "NULL";
+
+//     $work_type = !empty($data['work_type'])
+//         ? "'" . mysqli_real_escape_string($db, $data['work_type']) . "'"
+//         : "NULL";
+
+//     $date = !empty($data['date_used'])
+//         ? "'" . mysqli_real_escape_string($db, $data['date_used']) . "'"
+//         : "NULL";
+
+//     $date_sendto_ho = !empty($data['date_sendto_ho'])
+//         ? "'" . mysqli_real_escape_string($db, $data['date_sendto_ho']) . "'"
+//         : "NULL";
+
+//     mysqli_begin_transaction($db);
+
+//     try {
+
+//         /* ================= 🔥 CLEAR DUPLICATE (JIKA ADA ISI) ================= */
+//         if (!empty($sn_edc)) clearDuplicateSN($db, 'sn_edc', $sn_edc, $stock_id);
+//         if (!empty($sn_simcard)) clearDuplicateSN($db, 'sn_simcard', $sn_simcard, $stock_id);
+//         if (!empty($sn_samcard1)) clearDuplicateSN($db, 'sn_samcard1', $sn_samcard1, $stock_id);
+//         if (!empty($sn_samcard2)) clearDuplicateSN($db, 'sn_samcard2', $sn_samcard2, $stock_id);
+//         if (!empty($sn_samcard3)) clearDuplicateSN($db, 'sn_samcard3', $sn_samcard3, $stock_id);
+
+//         /* ========= UPDATE STOCK ========= */
+//         $updateStock = mysqli_query($db, "
+//             UPDATE stock SET
+//                 sn_edc = '$sn_edc',
+//                 requirements = '$requirements',
+//                 id_product_name = $id_product_name,
+//                 id_edc_color = $id_edc_color,
+//                 sn_simcard = '$sn_simcard',
+//                 sn_samcard1 = '$sn_samcard1',
+//                 sn_samcard2 = '$sn_samcard2',
+//                 sn_samcard3 = '$sn_samcard3',
+//                 date_sendto_ho = $date_sendto_ho,
+//                 status_edc = '$status_edc',
+//                 status_condition = '$status_condition',
+//                 user_id = $user_id,
+//                 updated_at = '$now'
+//             WHERE id_stock = $stock_id
+//         ");
+
+//         if (!$updateStock) {
+//             throw new Exception(mysqli_error($db));
+//         }
+
+//         /* ========= CEK DETAIL ========= */
+//         $cek = mysqli_query($db, "
+//             SELECT id_detail 
+//             FROM detail_list_stock
+//             WHERE stock_id = $stock_id
+//             LIMIT 1
+//         ");
+
+//         if (!$cek) {
+//             throw new Exception(mysqli_error($db));
+//         }
+
+//         if (mysqli_num_rows($cek) > 0) {
+
+//             $updateDetail = mysqli_query($db, "
+//                 UPDATE detail_list_stock SET
+//                     tid = '$tid',
+//                     mid = '$mid',
+//                     merchant_name = '$merchant_name',
+//                     addres_name = '$addres_name',
+//                     id_member_bank = $id_member_bank,
+//                     work_type = $work_type,
+//                     date_used = $date,
+//                     note = '$note',
+//                     updated_at = '$now'
+//                 WHERE stock_id = $stock_id
+//             ");
+
+//             if (!$updateDetail) {
+//                 throw new Exception(mysqli_error($db));
+//             }
+//         } else {
+
+//             $insertDetail = mysqli_query($db, "
+//                 INSERT INTO detail_list_stock
+//                     (stock_id, tid, mid, merchant_name, addres_name, id_member_bank, work_type, date_used, note, updated_at)
+//                 VALUES
+//                     ($stock_id, '$tid', '$mid', '$merchant_name', '$addres_name', $id_member_bank, $work_type, $date, '$note', '$now')
+//             ");
+
+//             if (!$insertDetail) {
+//                 throw new Exception(mysqli_error($db));
+//             }
+//         }
+
+//         mysqli_commit($db);
+//         return 1;
+//     } catch (Exception $e) {
+
+//         mysqli_rollback($db);
+//         return 0;
+//     }
+// }
 
 function editDetail($data)
 {
@@ -554,11 +808,55 @@ function editDetail($data)
     try {
 
         /* ================= 🔥 CLEAR DUPLICATE (JIKA ADA ISI) ================= */
-        if (!empty($sn_edc)) clearDuplicateSN($db, 'sn_edc', $sn_edc, $stock_id);
-        if (!empty($sn_simcard)) clearDuplicateSN($db, 'sn_simcard', $sn_simcard, $stock_id);
-        if (!empty($sn_samcard1)) clearDuplicateSN($db, 'sn_samcard1', $sn_samcard1, $stock_id);
-        if (!empty($sn_samcard2)) clearDuplicateSN($db, 'sn_samcard2', $sn_samcard2, $stock_id);
-        if (!empty($sn_samcard3)) clearDuplicateSN($db, 'sn_samcard3', $sn_samcard3, $stock_id);
+        if (!empty($sn_edc)) {
+            moveOrSwapSN(
+                $db,
+                'sn_edc',
+                $sn_edc,
+                $stock_id,
+                $old['sn_edc']
+            );
+        }
+
+        if (!empty($sn_simcard)) {
+            moveOrSwapSN(
+                $db,
+                'sn_simcard',
+                $sn_simcard,
+                $stock_id,
+                $old['sn_simcard']
+            );
+        }
+
+        if (!empty($sn_samcard1)) {
+            moveOrSwapSN(
+                $db,
+                'sn_samcard1',
+                $sn_samcard1,
+                $stock_id,
+                $old['sn_samcard1']
+            );
+        }
+
+        if (!empty($sn_samcard2)) {
+            moveOrSwapSN(
+                $db,
+                'sn_samcard2',
+                $sn_samcard2,
+                $stock_id,
+                $old['sn_samcard2']
+            );
+        }
+
+        if (!empty($sn_samcard3)) {
+            moveOrSwapSN(
+                $db,
+                'sn_samcard3',
+                $sn_samcard3,
+                $stock_id,
+                $old['sn_samcard3']
+            );
+        }
 
         /* ========= UPDATE STOCK ========= */
         $updateStock = mysqli_query($db, "
@@ -1365,6 +1663,6 @@ function logout()
     session_destroy();
 
     // Alihkan ke halaman login
-    header("Location: ../login"); // Sesuaikan dengan halaman login Anda
+    header("Location: ../auth/login"); // Sesuaikan dengan halaman login Anda
     exit;
 }

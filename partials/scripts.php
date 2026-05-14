@@ -42,6 +42,3 @@ if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {
 <script src="<?= base_url('assets/js/logoutsweetalert.js') ?>"></script>
 <!-- Overlay -->
 <script src="<?= base_url('assets/js/overlay.js') ?>"></script>
-
-<!-- Sidebar JS -->
-<script src="<?= base_url('assets/js/sidebar.js') ?>"></script>

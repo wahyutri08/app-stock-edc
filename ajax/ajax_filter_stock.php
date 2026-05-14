@@ -256,7 +256,7 @@ ob_start();
                                                 <ul class="dropdown-menu">
                                                     <li>
                                                         <a class="dropdown-item"
-                                                            href="<?= base_url('all_data/edit/' . $row['id_stock']) ?>">
+                                                            href="<?= base_url('myassets/edit/' . $row['id_stock']) ?>">
                                                             <i class="fas fa-edit"></i> Edit
                                                         </a>
                                                     </li>
@@ -274,7 +274,7 @@ ob_start();
                                         ): ?>
                                             <!-- USER : hanya edit jika belum digunakan -->
                                             <a class="btn btn-success btn-sm"
-                                                href="<?= base_url('all_data/edit/' . $row['id_stock']) ?>">
+                                                href="<?= base_url('myassets/edit/' . $row['id_stock']) ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                         <?php endif; ?>

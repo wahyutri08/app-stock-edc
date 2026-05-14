@@ -4,6 +4,59 @@ if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {
     include("../errors/403.html");
     exit();
 }
+
+function currentPath()
+{
+    return trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+}
+
+function isModule($module)
+{
+    return strpos(currentPath(), $module) !== false;
+}
+
+function isRoute($routes = [])
+{
+    $path = currentPath();
+
+    foreach ($routes as $route) {
+        if (strpos($path, trim($route, '/')) !== false) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// function currentPath()
+// {
+//     return trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+// }
+
+// function segment($index = 0)
+// {
+//     $path = currentPath();
+//     $segments = explode('/', $path);
+//     return $segments[$index] ?? '';
+// }
+
+// function isModule($module)
+// {
+//     return segment(1) === $module; // myassets ada di segment ke-2
+// }
+
+// function isRoute($routes = [])
+// {
+//     $path = currentPath();
+
+//     foreach ($routes as $r) {
+//         if (strpos($path, $r) !== false) {
+//             return true;
+//         }
+//     }
+
+//     return false;
+// }
 // sidebar.php (partial) — tidak perlu logic aktif di PHP, aktif handle by JS!
 $id = $_SESSION["id"];
 $role = $_SESSION["role"];
@@ -87,15 +140,15 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                with font-awesome or any other icon font library -->
                 <li class="nav-header">MENU</li>
                 <li class="nav-item">
-                    <a href="<?= base_url('dashboard') ?>" class="nav-link">
+                    <a href="<?= base_url('dashboard') ?>" class="nav-link <?= isModule('dashboard') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
                             Dashboard
                         </p>
                     </a>
                 </li>
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
+                <li class="nav-item has-treeview <?= isModule('myassets') ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link <?= isModule('myassets') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-edit"></i>
                         <p>
                             My Assets
@@ -104,13 +157,15 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="<?= base_url('add_data_stock') ?>" class="nav-link">
+                            <a href="<?= base_url('myassets/add_data') ?>"
+                                class="nav-link <?= isRoute(['add_data']) ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Add Data</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('all_data') ?>" class="nav-link">
+                            <a href="<?= base_url('myassets/allData') ?>"
+                                class="nav-link <?= isRoute(['allData', 'edit']) ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>All Data</p>
                             </a>
@@ -118,8 +173,8 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                     </ul>
                 </li>
                 <?php if ($role === 'Admin') : ?>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= isModule('export_import') ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isModule('export_import') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-copy"></i>
                             <p>
                                 Export & Import Data
@@ -128,13 +183,13 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="<?= base_url('import_data') ?>" class="nav-link">
+                                <a href="<?= base_url('export_import/import') ?>" class="nav-link <?= isRoute(['export_import/import']) ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Import Data Excel</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="<?= base_url('export_data') ?>" class="nav-link">
+                                <a href="<?= base_url('export_import/export') ?>" class="nav-link <?= isRoute(['export_import/export']) ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Export Data Excel</p>
                                 </a>
@@ -142,8 +197,8 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                         </ul>
                     </li>
                 <?php endif; ?>
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
+                <li class="nav-item has-treeview <?= isModule('fkm_thermal') ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link <?= isModule('fkm_thermal') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-book"></i>
                         <p>
                             FKM Thermal
@@ -152,20 +207,20 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="<?= base_url('fkm_thermal/tambah_data') ?>" class="nav-link">
+                            <a href="<?= base_url('fkm_thermal/tambah_data') ?>" class="nav-link <?= isRoute(['fkm_thermal/tambah_data']) ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Add Data</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('fkm_thermal/list') ?>" class="nav-link">
+                            <a href="<?= base_url('fkm_thermal/list') ?>" class="nav-link <?= isRoute(['fkm_thermal/list']) ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>List</p>
                             </a>
                         </li>
                         <?php if ($role === 'Admin') : ?>
                             <li class="nav-item">
-                                <a href="<?= base_url('fkm_thermal/importData') ?>" class="nav-link">
+                                <a href="<?= base_url('fkm_thermal/import') ?>" class="nav-link <?= isRoute(['fkm_thermal/import']) ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Import Data</p>
                                 </a>
@@ -174,8 +229,8 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                     </ul>
                 </li>
                 <li class="nav-header">SETTINGS</li>
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
+                <li class="nav-item has-treeview <?= isModule('account') ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link <?= isModule('account') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-user"></i>
                         <p>
                             Account
@@ -184,13 +239,13 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="<?= base_url('profile') ?>" class="nav-link">
+                            <a href="<?= base_url('account/profile') ?>" class="nav-link <?= isRoute(['account/profile']) ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Profile</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('change_password') ?>" class="nav-link">
+                            <a href="<?= base_url('account/change_password') ?>" class="nav-link <?= isRoute(['account/change_password']) ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Change Password</p>
                             </a>
@@ -198,8 +253,8 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                     </ul>
                 </li>
                 <?php if ($role === 'Admin') : ?>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= isModule('type_settings') ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= isModule('type_settings') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-cog"></i>
                             <p>
                                 Type Setting
@@ -208,19 +263,19 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="<?= base_url('product_name') ?>" class="nav-link">
+                                <a href="<?= base_url('type_settings/product_name') ?>" class="nav-link <?= isRoute(['type_settings/product_name']) ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Product Name</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="<?= base_url('color_type') ?>" class="nav-link">
+                                <a href="<?= base_url('type_settings/color_type') ?>" class="nav-link <?= isRoute(['type_settings/color_type']) ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Color Type</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="<?= base_url('member_bank') ?>" class="nav-link">
+                                <a href="<?= base_url('type_settings/member_bank') ?>" class="nav-link <?= isRoute(['type_settings/member_bank']) ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Member Bank</p>
                                 </a>
@@ -230,7 +285,7 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                 <?php endif; ?>
                 <?php if ($role === 'Admin') : ?>
                     <li class="nav-item">
-                        <a href="<?= base_url('user_management') ?>" class="nav-link">
+                        <a href="<?= base_url('user_management') ?>" class="nav-link <?= isModule('user_management') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-users"></i>
                             <p>User Management</p>
                         </a>

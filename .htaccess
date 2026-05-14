@@ -8,10 +8,16 @@ Options -Indexes
 # ======================================
 RewriteEngine On
 
-RewriteRule ^product_name/edit/([0-9]+)$ product_name/edit.php?id_product=$1 [L,QSA]
-RewriteRule ^product_name/delete/([0-9]+)$ product_name/delete.php?id_product=$1 [L,QSA]
-RewriteRule ^all_data/edit/([0-9]+)$ all_data/edit.php?id_stock=$1 [L,QSA]
-RewriteRule ^all_data/delete/([0-9]+)$ all_data/delete.php?id_stock=$1 [L,QSA]
+RewriteRule ^type_settings/product_name/edit/([0-9]+)$ type_settings/product_name/edit.php?id_product=$1 [L,QSA]
+RewriteRule ^type_settings/product_name/delete/([0-9]+)$ type_settings/product_name/delete.php?id_product=$1 [L,QSA]
+RewriteRule ^type_settings/color_type/edit/([0-9]+)$ type_settings/color_type/edit.php?id_color=$1 [L,QSA]
+RewriteRule ^type_settings/color_type/delete/([0-9]+)$ type_settings/color_type/delete.php?id_color=$1 [L,QSA]
+RewriteRule ^type_settings/member_bank/edit/([0-9]+)$ type_settings/member_bank/edit.php?id_member=$1 [L,QSA]
+RewriteRule ^type_settings/member_bank/delete/([0-9]+)$ type_settings/member_bank/delete.php?id_member=$1 [L,QSA]
+RewriteRule ^user_management/edit/([0-9]+)$ user_management/edit.php?id=$1 [L,QSA]
+RewriteRule ^user_management/delete/([0-9]+)$ user_management/delete.php?id=$1 [L,QSA]
+RewriteRule ^myassets/edit/([0-9]+)$ myassets/edit.php?id_stock=$1 [L,QSA]
+RewriteRule ^myassets/delete/([0-9]+)$ myassets/delete.php?id_stock=$1 [L,QSA]
 
 # ======================================
 # Remove .php extension

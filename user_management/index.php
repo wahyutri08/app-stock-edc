@@ -8,7 +8,7 @@ if (!isset($_SESSION["login"]) || $_SESSION["login"] !== true) {
 
 if ($_SESSION['role'] !== 'Admin') {
     header("HTTP/1.1 403 Not Found");
-    include("../errors/403.html");
+    http_response_code(403);
     exit;
 }
 
@@ -41,7 +41,7 @@ require_once '../partials/header.php';
                         </div><!-- /.col -->
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="../dashboard">Home</a></li>
+                                <li class="breadcrumb-item"><a href="<?= base_url('dashboard') ?>">Home</a></li>
                                 <li class="breadcrumb-item">Settings</li>
                                 <li class="breadcrumb-item active"><?= $title;  ?></li>
                             </ol>
@@ -58,7 +58,7 @@ require_once '../partials/header.php';
                         <div class="col">
                             <div class="card card-outline card-warning">
                                 <div class="card-header text-left">
-                                    <a href="../add_user" class="btn btn-sm bg-warning mr-2">
+                                    <a href="<?= base_url('user_management/add_user') ?>" class="btn btn-sm bg-warning mr-2">
                                         <i class="fas fa-plus"></i> Add User
                                     </a>
                                     <a href="#" id="btnDelete" class="btn btn-sm bg-danger disabled">
@@ -120,8 +120,8 @@ require_once '../partials/header.php';
                                                                 Action
                                                             </button>
                                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                                <li><a class="dropdown-item" href="edit_user.php?id=<?= $row["id"]; ?>"><i class="fas fa-edit"></i> Edit</a></li>
-                                                                <li><a class="dropdown-item tombol-hapus" href="delete_users.php?id=<?= $row["id"]; ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
+                                                                <li><a class="dropdown-item" href="<?= base_url('user_management/edit/' . $row['id']) ?>"><i class="fas fa-edit"></i> Edit</a></li>
+                                                                <li><a class="dropdown-item tombol-hapus" href="<?= base_url('user_management/delete/' . $row['id']) ?>"><i class="far fa-trash-alt"></i> Delete</a></li>
                                                             </ul>
                                                         </div>
                                                     </td>
@@ -165,7 +165,7 @@ require_once '../partials/header.php';
                 "autoWidth": true,
                 "responsive": false,
                 "buttons": ["excel", "print", "colvis"]
-            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            }).container().appendTo('#example1_wrapper .col-md-6:eq(0)');
         });
     </script>
     <script>
@@ -220,7 +220,7 @@ require_once '../partials/header.php';
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: 'delete_user_bulk.php',
+                            url: '<?= base_url('user_management/delete_user_bulk') ?>',
                             type: 'POST',
                             data: {
                                 ids: ids
