@@ -353,6 +353,9 @@ include '../partials/header.php';
                                                         <option value="Terlink" <?= ($stock['status_edc'] == 'Terlink') ? 'selected' : '' ?>>
                                                             Terlink
                                                         </option>
+                                                        <option value="Send To HO" <?= ($stock['status_edc'] == 'Send To HO') ? 'selected' : '' ?>>
+                                                            Send To HO
+                                                        </option>
                                                         <option value="HO Santana" <?= ($stock['status_edc'] == 'HO Santana') ? 'selected' : '' ?>>
                                                             HO Santana
                                                         </option>

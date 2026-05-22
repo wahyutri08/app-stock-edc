@@ -239,6 +239,10 @@ ob_start();
                                             <span class="badge bg-primary">
                                                 <?= htmlspecialchars((string)$row["status_edc"]) ?>
                                             </span>
+                                        <?php elseif (($row["status_edc"] ?? '') === 'Send To HO'): ?>
+                                            <span class="badge bg-indigo">
+                                                <?= htmlspecialchars((string)$row["status_edc"]) ?>
+                                            </span>
                                         <?php elseif (($row["status_edc"] ?? '') === 'HO Santana'): ?>
                                             <span class="badge bg-info">
                                                 <?= htmlspecialchars((string)$row["status_edc"]) ?>
@@ -270,7 +274,7 @@ ob_start();
                                             </div>
                                         <?php elseif (
                                             $_SESSION['role'] === 'User' &&
-                                            in_array($row["status_edc"], ['Not yet used', 'None'])
+                                            in_array($row["status_edc"], ['Not yet used', 'None', 'Send To HO'])
                                         ): ?>
                                             <!-- USER : hanya edit jika belum digunakan -->
                                             <a class="btn btn-success btn-sm"

@@ -110,6 +110,9 @@ if (isset($_POST['preview'])) {
         if (!in_array($data['status_edc'], ['Not yet used', 'Used', 'None']))
             $error[] = "Status EDC salah";
 
+        if (!in_array($data['status_condition'], ['GOOD COMPLETE (EDC baik & lengkap)', 'GOOD INCOMPLETE (EDC baik tapi tidak lengkap)', 'DAMAGE COMPLETE (EDC rusak tapi lengkap)', 'DAMAGE INCOMPLETE (EDC rusak & tidak lengkap)']))
+            $error[] = "Status EDC salah";
+
         if (!$data['product_id']) $error[] = "Produk tidak ditemukan";
         if (!$data['color_id']) $error[] = "Warna tidak ditemukan";
 
