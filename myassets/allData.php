@@ -44,7 +44,7 @@ require_once '../partials/header.php';
                         </div><!-- /.col -->
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="../dashboard">Home</a></li>
+                                <li class="breadcrumb-item"><a href="<?= base_url('dashboard') ?>">Home</a></li>
                                 <li class="breadcrumb-item">My Assets</li>
                                 <li class="breadcrumb-item"><?= $title;  ?></li>
                             </ol>
@@ -183,12 +183,34 @@ require_once '../partials/header.php';
             </div>
             <div class="content" id="result-table">
             </div>
-            <!-- /.content -->
+            <div class="modal fade" id="modal-overlay">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info">
+                            <h4 class="modal-title"><i class="fas fa-eye"></i>&nbsp; Detail Data</h4>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="detail-content">
+                            <div class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-dialog -->
         </div>
-        <!-- /.content-wrapper -->
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
 
-        <!-- Main Footer -->
-        <?php include '../partials/footer.php'; ?>
+    <!-- Main Footer -->
+    <?php include '../partials/footer.php'; ?>
     </div>
     <!-- ./wrapper -->
 
@@ -390,6 +412,35 @@ require_once '../partials/header.php';
                             );
                         }
                     });
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).on('click', '.btn-detail', function() {
+            let id_stock = $(this).data('id');
+
+            $('#detail-content').html(`
+            <div class="text-center">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+            `);
+
+            $.ajax({
+                url: "<?= base_url('ajax/ajax_detail_stock') ?>",
+                type: "POST",
+                data: {
+                    id_stock: id_stock
+                },
+                success: function(res) {
+                    $('#detail-content').html(res);
+                },
+                error: function() {
+                    $('#detail-content').html(`
+                <div class="alert alert-danger">
+                    Failed load detail data
+                </div>
+            `);
                 }
             });
         });

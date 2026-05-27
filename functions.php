@@ -758,36 +758,21 @@ function editDetail($data)
     $status_condition = mysqli_real_escape_string($db, $data['status_condition']);
     $user_id    = (int)$data['user_id'];
 
-    /* ================= 🔥 PROTEK SN ================= */
+    /* ================= PROTEK SN ================= */
     if ($role !== 'Admin') {
-
-        if (!empty($old['sn_edc'])) {
-            $sn_edc = $old['sn_edc'];
-        }
-
-        if (!empty($old['sn_simcard'])) {
-            $sn_simcard = $old['sn_simcard'];
-        }
-
-        if (!empty($old['sn_samcard1'])) {
-            $sn_samcard1 = $old['sn_samcard1'];
-        }
-
-        if (!empty($old['sn_samcard2'])) {
-            $sn_samcard2 = $old['sn_samcard2'];
-        }
-
-        if (!empty($old['sn_samcard3'])) {
-            $sn_samcard3 = $old['sn_samcard3'];
-        }
+        $sn_edc       = $old['sn_edc'] ?? $sn_edc;
+        $sn_simcard   = $old['sn_simcard'] ?? $sn_simcard;
+        $sn_samcard1  = $old['sn_samcard1'] ?? $sn_samcard1;
+        $sn_samcard2  = $old['sn_samcard2'] ?? $sn_samcard2;
+        $sn_samcard3  = $old['sn_samcard3'] ?? $sn_samcard3;
     }
 
     /* ================= DETAIL TABLE ================= */
-    $tid           = mysqli_real_escape_string($db, trim($data['tid']));
-    $mid           = mysqli_real_escape_string($db, trim($data['mid']));
-    $merchant_name = mysqli_real_escape_string($db, trim($data['merchant_name']));
-    $addres_name   = mysqli_real_escape_string($db, trim($data['addres_name']));
-    $note          = mysqli_real_escape_string($db, trim($data['note']));
+    $tid           = mysqli_real_escape_string($db, trim($data['tid'] ?? ''));
+    $mid           = mysqli_real_escape_string($db, trim($data['mid'] ?? ''));
+    $merchant_name = mysqli_real_escape_string($db, trim($data['merchant_name'] ?? ''));
+    $addres_name   = mysqli_real_escape_string($db, trim($data['addres_name'] ?? ''));
+    $note          = mysqli_real_escape_string($db, trim($data['note'] ?? ''));
 
     $id_member_bank = !empty($data['id_member_bank']) ? (int)$data['id_member_bank'] : "NULL";
 
@@ -807,56 +792,12 @@ function editDetail($data)
 
     try {
 
-        /* ================= 🔥 CLEAR DUPLICATE (JIKA ADA ISI) ================= */
-        if (!empty($sn_edc)) {
-            moveOrSwapSN(
-                $db,
-                'sn_edc',
-                $sn_edc,
-                $stock_id,
-                $old['sn_edc']
-            );
-        }
-
-        if (!empty($sn_simcard)) {
-            moveOrSwapSN(
-                $db,
-                'sn_simcard',
-                $sn_simcard,
-                $stock_id,
-                $old['sn_simcard']
-            );
-        }
-
-        if (!empty($sn_samcard1)) {
-            moveOrSwapSN(
-                $db,
-                'sn_samcard1',
-                $sn_samcard1,
-                $stock_id,
-                $old['sn_samcard1']
-            );
-        }
-
-        if (!empty($sn_samcard2)) {
-            moveOrSwapSN(
-                $db,
-                'sn_samcard2',
-                $sn_samcard2,
-                $stock_id,
-                $old['sn_samcard2']
-            );
-        }
-
-        if (!empty($sn_samcard3)) {
-            moveOrSwapSN(
-                $db,
-                'sn_samcard3',
-                $sn_samcard3,
-                $stock_id,
-                $old['sn_samcard3']
-            );
-        }
+        /* ================= CLEAR DUPLICATE SN ================= */
+        if (!empty($sn_edc)) moveOrSwapSN($db, 'sn_edc', $sn_edc, $stock_id, $old['sn_edc']);
+        if (!empty($sn_simcard)) moveOrSwapSN($db, 'sn_simcard', $sn_simcard, $stock_id, $old['sn_simcard']);
+        if (!empty($sn_samcard1)) moveOrSwapSN($db, 'sn_samcard1', $sn_samcard1, $stock_id, $old['sn_samcard1']);
+        if (!empty($sn_samcard2)) moveOrSwapSN($db, 'sn_samcard2', $sn_samcard2, $stock_id, $old['sn_samcard2']);
+        if (!empty($sn_samcard3)) moveOrSwapSN($db, 'sn_samcard3', $sn_samcard3, $stock_id, $old['sn_samcard3']);
 
         /* ========= UPDATE STOCK ========= */
         $updateStock = mysqli_query($db, "
@@ -881,7 +822,7 @@ function editDetail($data)
             throw new Exception(mysqli_error($db));
         }
 
-        /* ========= CEK DETAIL ========= */
+        /* ================= CEK DETAIL ================= */
         $cek = mysqli_query($db, "
             SELECT id_detail 
             FROM detail_list_stock
@@ -889,13 +830,9 @@ function editDetail($data)
             LIMIT 1
         ");
 
-        if (!$cek) {
-            throw new Exception(mysqli_error($db));
-        }
-
         if (mysqli_num_rows($cek) > 0) {
 
-            $updateDetail = mysqli_query($db, "
+            mysqli_query($db, "
                 UPDATE detail_list_stock SET
                     tid = '$tid',
                     mid = '$mid',
@@ -908,31 +845,91 @@ function editDetail($data)
                     updated_at = '$now'
                 WHERE stock_id = $stock_id
             ");
-
-            if (!$updateDetail) {
-                throw new Exception(mysqli_error($db));
-            }
         } else {
 
-            $insertDetail = mysqli_query($db, "
-                INSERT INTO detail_list_stock
-                    (stock_id, tid, mid, merchant_name, addres_name, id_member_bank, work_type, date_used, note, updated_at)
-                VALUES
-                    ($stock_id, '$tid', '$mid', '$merchant_name', '$addres_name', $id_member_bank, $work_type, $date, '$note', '$now')
-            ");
+            /* ================= FIX IMPORTANT ================= */
+            if ($tid !== '' || $mid !== '' || $merchant_name !== '' || $addres_name !== '') {
 
-            if (!$insertDetail) {
-                throw new Exception(mysqli_error($db));
+                mysqli_query($db, "
+                    INSERT INTO detail_list_stock
+                    (stock_id, tid, mid, merchant_name, addres_name, id_member_bank, work_type, date_used, note, updated_at)
+                    VALUES
+                    ($stock_id, '$tid', '$mid', '$merchant_name', '$addres_name', $id_member_bank, $work_type, $date, '$note', '$now')
+                ");
             }
         }
+
+        /* ================= HISTORY ================= */
+        saveStockHistory($stock_id);
 
         mysqli_commit($db);
         return 1;
     } catch (Exception $e) {
-
         mysqli_rollback($db);
         return 0;
     }
+}
+
+function saveStockHistory($stock_id)
+{
+    global $db;
+
+    $stock_id = (int)$stock_id;
+
+    $sql = "
+        INSERT INTO stock_history (
+            stock_id,
+            requirements,
+            id_product_name,
+            id_edc_color,
+            sn_edc,
+            sn_simcard,
+            sn_samcard1,
+            sn_samcard2,
+            sn_samcard3,
+            status_edc,
+            status_condition,
+            user_id,
+            tid,
+            mid,
+            merchant_name,
+            addres_name,
+            id_member_bank,
+            work_type,
+            date_used,
+            date_sendto_ho,
+            note,
+            created_at
+        )
+        SELECT
+            s.id_stock,
+            s.requirements,
+            s.id_product_name,
+            s.id_edc_color,
+            s.sn_edc,
+            s.sn_simcard,
+            s.sn_samcard1,
+            s.sn_samcard2,
+            s.sn_samcard3,
+            s.status_edc,
+            s.status_condition,
+            s.user_id,
+            d.tid,
+            d.mid,
+            d.merchant_name,
+            d.addres_name,
+            d.id_member_bank,
+            d.work_type,
+            d.date_used,
+            s.date_sendto_ho,
+            d.note,
+            s.updated_at
+        FROM stock s
+        LEFT JOIN detail_list_stock d ON s.id_stock = d.stock_id
+        WHERE s.id_stock = $stock_id
+    ";
+
+    return mysqli_query($db, $sql);
 }
 
 // back up jika ada yang error

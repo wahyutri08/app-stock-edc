@@ -36,6 +36,8 @@ if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {
 <script src="<?= base_url('assets/plugins/datatables-buttons/js/buttons.colVis.min.js') ?>"></script>
 <!-- AdminLTE App -->
 <script src="<?= base_url('assets/dist/js/adminlte.min.js') ?>"></script>
+<!-- Toaster -->
+<script src="<?= base_url('assets/plugins/toastr/toastr.min.js') ?>"></script>
 <!-- dropzonejs -->
 <script src="<?= base_url('assets/plugins/dropzone/min/dropzone.min.js') ?>"></script>
 <script src="<?= base_url('assets/plugins/sweetalert/sweetalert2.all.min.js') ?>"></script>

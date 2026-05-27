@@ -58,6 +58,30 @@ if (in_array($stock['status_edc'], $lockedStatus) && $role !== 'Admin') {
     exit;
 }
 
+// $history = query("
+//     SELECT *
+//     FROM stock_history
+//     WHERE stock_id = $id_stock
+//     ORDER BY created_at DESC
+// ");
+
+$history = query("
+    SELECT 
+        stock_history.*,
+        users.name AS user_name,
+        product_type.name_product,
+        member_bank.name_member,
+        color_type.name_color
+    FROM stock_history
+    LEFT JOIN users ON stock_history.user_id = users.id
+    LEFT JOIN stock ON stock_history.stock_id = stock.id_stock
+    LEFT JOIN product_type ON stock_history.id_product_name = product_type.id_product
+    LEFT JOIN member_bank ON stock_history.id_member_bank = member_bank.id_member
+    LEFT JOIN color_type ON stock_history.id_edc_color = color_type.id_color
+    WHERE stock_history.stock_id = $id_stock
+    ORDER BY stock_history.created_at DESC
+");
+
 /* ================= SN STATUS ================= */
 $snEdcFilled = !empty($stock['sn_edc']);
 $snSimFilled = !empty($stock['sn_simcard']);
@@ -140,12 +164,103 @@ include '../partials/header.php';
             <section class="content">
                 <div class="container-fluid">
                     <div class="row">
+                        <div class="col">
+
+                            <div class="card card-info">
+                                <div class="card-header">
+                                    <div class="card-tools">
+                                        &nbsp;
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <h3 class="card-title">
+                                        <i class="fas fa-history"></i>&nbsp; History Data
+                                    </h3>
+                                </div>
+                                <div class="card-body table-responsive">
+                                    <table id="example1" class="table table-bordered table-hover">
+                                        <thead class="text-center">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>SN EDC</th>
+                                                <th>Simcard</th>
+                                                <th>Samcard (MANDIRI)</th>
+                                                <th>Samcard (BRI)</th>
+                                                <th>Samcard (BNI)</th>
+                                                <th>TID</th>
+                                                <th>MID</th>
+                                                <th>Merchant</th>
+                                                <th>Member Bank</th>
+                                                <th>Work Type</th>
+                                                <th>Date Used</th>
+                                                <th>Note</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="text-center">
+                                            <?php foreach ($history as $h): ?>
+                                                <tr>
+                                                    <td><?= e($h['created_at']) ?></td>
+                                                    <td><?= e($h['sn_edc']) ?></td>
+                                                    <td><?= e($h['sn_simcard']) ?></td>
+                                                    <td><?= e($h['sn_samcard1']) ?></td>
+                                                    <td><?= e($h['sn_samcard2']) ?></td>
+                                                    <td><?= e($h['sn_samcard3']) ?></td>
+                                                    <td><?= e($h['tid']) ?></td>
+                                                    <td><?= e($h['mid']) ?></td>
+                                                    <td><?= e($h['merchant_name']) ?>
+                                                        <h6 style="font-size:smaller;"><?= e($h['addres_name']) ?></h6>
+                                                    </td>
+                                                    <td><?= e($h['name_member']) ?></td>
+                                                    <td><?= e($h['work_type']) ?></td>
+                                                    <td><?= e($h['date_used']) ?></td>
+                                                    <td><?= e($h['note']) ?></td>
+                                                    <td>
+                                                        <?php if (($h["status_edc"] ?? '') === 'Used'): ?>
+                                                            <span class="badge bg-success">
+                                                                <?= htmlspecialchars((string)$h["status_edc"]) ?>
+                                                            </span>
+                                                        <?php elseif (($h["status_edc"] ?? '') === 'None'): ?>
+                                                            <span class="badge bg-danger">
+                                                                <?= htmlspecialchars((string)$h["status_edc"]) ?>
+                                                            </span>
+                                                        <?php elseif (($h["status_edc"] ?? '') === 'Not yet used'): ?>
+                                                            <span class="badge bg-warning">
+                                                                <?= htmlspecialchars((string)$h["status_edc"]) ?>
+                                                            </span>
+                                                        <?php elseif (($h["status_edc"] ?? '') === 'Terlink'): ?>
+                                                            <span class="badge bg-primary">
+                                                                <?= htmlspecialchars((string)$h["status_edc"]) ?>
+                                                            </span>
+                                                        <?php elseif (($h["status_edc"] ?? '') === 'Send To HO'): ?>
+                                                            <span class="badge bg-indigo">
+                                                                <?= htmlspecialchars((string)$h["status_edc"]) ?>
+                                                            </span>
+                                                        <?php elseif (($h["status_edc"] ?? '') === 'HO Santana'): ?>
+                                                            <span class="badge bg-info">
+                                                                <?= htmlspecialchars((string)$h["status_edc"]) ?>
+                                                            </span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
                         <!-- left column -->
                         <div class="col-md-12">
                             <!-- jquery validation -->
                             <div class="card card-success">
                                 <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-edit"></i> <?= $title; ?></h3>
+                                    <h3 class="card-title">
+                                        <i class="fas fa-edit"></i> <?= $title; ?>
+                                    </h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <!-- form start -->
@@ -407,6 +522,21 @@ include '../partials/header.php';
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             });
+            // Init ulang setelah html masuk
+            $("#example1").DataTable({
+                paging: true,
+                lengthChange: true,
+                pageLength: 5,
+                lengthMenu: [
+                    [5, 10, 25, 50, 100, -1],
+                    [5, 10, 25, 50, 100, "All"]
+                ],
+                searching: true,
+                ordering: true,
+                info: true,
+                autoWidth: true,
+                responsive: false
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
         });
     </script>
     <script>

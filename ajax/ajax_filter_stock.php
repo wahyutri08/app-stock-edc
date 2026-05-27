@@ -183,17 +183,12 @@ ob_start();
                                 <th>Samcard (MANDIRI)</th>
                                 <th>Samcard (BRI)</th>
                                 <th>Samcard (BNI)</th>
-                                <th>TID</th>
-                                <th>MID</th>
-                                <th>Merchant</th>
-                                <th>Member Bank</th>
-                                <th>Work Type</th>
                                 <th>Date Pickup</th>
                                 <th>Date Used</th>
                                 <th>Date Send To HO</th>
                                 <th>Status</th>
-                                <th>Status Condition</th>
-                                <th>Note</th>
+                                <!-- <th>Status Condition</th> -->
+                                <!-- <th>Note</th> -->
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -211,14 +206,6 @@ ob_start();
                                     <td><?= htmlspecialchars((string)($row["sn_samcard1"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["sn_samcard2"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["sn_samcard3"] ?? '')) ?></td>
-                                    <td><?= htmlspecialchars((string)($row["tid"] ?? '')) ?></td>
-                                    <td><?= htmlspecialchars((string)($row["mid"] ?? '')) ?></td>
-                                    <td>
-                                        <?= htmlspecialchars((string)($row["merchant_name"] ?? '')) ?><br>
-                                        <h6 style="font-size:smaller;"><?= htmlspecialchars((string)($row["addres_name"] ?? '')) ?></h6>
-                                    </td>
-                                    <td><?= htmlspecialchars((string)($row["name_member"] ?? '')) ?></td>
-                                    <td><?= htmlspecialchars((string)($row["work_type"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["date_pickup"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["date_used"] ?? '')) ?></td>
                                     <td><?= htmlspecialchars((string)($row["date_sendto_ho"] ?? '')) ?></td>
@@ -249,39 +236,62 @@ ob_start();
                                             </span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?= htmlspecialchars((string)($row["status_condition"] ?? '')) ?></td>
-                                    <td><?= htmlspecialchars((string)($row["note"] ?? '')) ?></td>
+                                    <!-- <td><?= htmlspecialchars((string)($row["status_condition"] ?? '')) ?></td> -->
+                                    <!-- <td><?= htmlspecialchars((string)($row["note"] ?? '')) ?></td> -->
                                     <td class="text-center">
-                                        <?php if ($_SESSION['role'] === 'Admin'): ?>
-                                            <div class="dropdown">
-                                                <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
-                                                    Action
-                                                </button>
-                                                <ul class="dropdown-menu">
+                                        <div class="dropdown">
+                                            <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
+                                                Action
+                                            </button>
+
+                                            <ul class="dropdown-menu">
+
+                                                <!-- DETAIL SELALU TAMPIL (tanpa kondisi role) -->
+                                                <li>
+                                                    <button type="button"
+                                                        class="dropdown-item btn-detail"
+                                                        data-id="<?= $row['id_stock']; ?>"
+                                                        data-toggle="modal"
+                                                        data-target="#modal-overlay">
+                                                        <i class="fas fa-eye"></i> Detail Data
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="<?= base_url('myassets/history/' . $row['id_stock']) ?>">
+                                                        <i class="fas fa-history"></i> History Data
+                                                    </a>
+                                                </li>
+                                                <?php if ($_SESSION['role'] === 'Admin'): ?>
+                                                    <!-- ADMIN FULL AKSES -->
                                                     <li>
                                                         <a class="dropdown-item"
                                                             href="<?= base_url('myassets/edit/' . $row['id_stock']) ?>">
-                                                            <i class="fas fa-edit"></i> Edit
+                                                            <i class="fas fa-edit"></i> Add / Edit
                                                         </a>
                                                     </li>
 
                                                     <li>
-                                                        <button class="dropdown-item tombol-hapus" data-id="<?= $row['id_stock']; ?>">
+                                                        <button class="dropdown-item tombol-hapus"
+                                                            data-id="<?= $row['id_stock']; ?>">
                                                             <i class="far fa-trash-alt"></i> Delete
                                                         </button>
                                                     </li>
-                                                </ul>
-                                            </div>
-                                        <?php elseif (
-                                            $_SESSION['role'] === 'User' &&
-                                            in_array($row["status_edc"], ['Not yet used', 'None', 'Send To HO'])
-                                        ): ?>
-                                            <!-- USER : hanya edit jika belum digunakan -->
-                                            <a class="btn btn-success btn-sm"
-                                                href="<?= base_url('myassets/edit/' . $row['id_stock']) ?>">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        <?php endif; ?>
+                                                <?php elseif (
+                                                    $_SESSION['role'] === 'User' &&
+                                                    in_array($row["status_edc"], ['Not yet used', 'None', 'Send To HO'])
+                                                ): ?>
+                                                    <!-- USER TERBATAS -->
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="<?= base_url('myassets/edit/' . $row['id_stock']) ?>">
+                                                            <i class="fas fa-edit"></i> Add / Edit
+                                                        </a>
+                                                    </li>
+                                                <?php endif; ?>
+
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

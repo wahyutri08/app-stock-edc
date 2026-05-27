@@ -165,7 +165,7 @@ $totalReturnHo    = $query[0]['total_return_ho'];
                         </li>
                         <li class="nav-item">
                             <a href="<?= base_url('myassets/allData') ?>"
-                                class="nav-link <?= isRoute(['allData', 'edit']) ? 'active' : '' ?>">
+                                class="nav-link <?= isRoute(['allData', 'edit', 'history']) ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>All Data</p>
                             </a>

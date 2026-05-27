@@ -18,6 +18,7 @@ RewriteRule ^user_management/edit/([0-9]+)$ user_management/edit.php?id=$1 [L,QS
 RewriteRule ^user_management/delete/([0-9]+)$ user_management/delete.php?id=$1 [L,QSA]
 RewriteRule ^myassets/edit/([0-9]+)$ myassets/edit.php?id_stock=$1 [L,QSA]
 RewriteRule ^myassets/delete/([0-9]+)$ myassets/delete.php?id_stock=$1 [L,QSA]
+RewriteRule ^myassets/history/([0-9]+)$ myassets/history.php?id_stock=$1 [L,QSA]
 
 # ======================================
 # Remove .php extension
