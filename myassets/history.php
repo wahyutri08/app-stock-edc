@@ -126,6 +126,7 @@ require_once '../partials/header.php';
                                                     </div>
                                                 </th> -->
                                                 <th>Updated At</th>
+                                                <th>User</th>
                                                 <th>SN EDC</th>
                                                 <th>Simcard</th>
                                                 <th>Samcard (MANDIRI)</th>
@@ -146,6 +147,7 @@ require_once '../partials/header.php';
                                             <?php foreach ($history as $h): ?>
                                                 <tr>
                                                     <td><?= e($h['created_at']) ?></td>
+                                                    <td><?= e($h['user_name']) ?></td>
                                                     <td><?= e($h['sn_edc']) ?></td>
                                                     <td><?= e($h['sn_simcard']) ?></td>
                                                     <td><?= e($h['sn_samcard1']) ?></td>

@@ -182,7 +182,8 @@ include '../partials/header.php';
                                     <table id="example1" class="table table-bordered table-hover">
                                         <thead class="text-center">
                                             <tr>
-                                                <th>Date</th>
+                                                <th>Updated At</th>
+                                                <th>User</th>
                                                 <th>SN EDC</th>
                                                 <th>Simcard</th>
                                                 <th>Samcard (MANDIRI)</th>
@@ -202,6 +203,7 @@ include '../partials/header.php';
                                             <?php foreach ($history as $h): ?>
                                                 <tr>
                                                     <td><?= e($h['created_at']) ?></td>
+                                                    <td><?= e($h['user_name']) ?></td>
                                                     <td><?= e($h['sn_edc']) ?></td>
                                                     <td><?= e($h['sn_simcard']) ?></td>
                                                     <td><?= e($h['sn_samcard1']) ?></td>

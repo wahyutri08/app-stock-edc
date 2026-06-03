@@ -832,30 +832,57 @@ function editDetail($data)
 
         if (mysqli_num_rows($cek) > 0) {
 
-            mysqli_query($db, "
-                UPDATE detail_list_stock SET
-                    tid = '$tid',
-                    mid = '$mid',
-                    merchant_name = '$merchant_name',
-                    addres_name = '$addres_name',
-                    id_member_bank = $id_member_bank,
-                    work_type = $work_type,
-                    date_used = $date,
-                    note = '$note',
-                    updated_at = '$now'
-                WHERE stock_id = $stock_id
-            ");
+            $updateDetail = mysqli_query($db, "
+            UPDATE detail_list_stock SET
+                tid = '$tid',
+                mid = '$mid',
+                merchant_name = '$merchant_name',
+                addres_name = '$addres_name',
+                id_member_bank = $id_member_bank,
+                work_type = $work_type,
+                date_used = $date,
+                note = '$note',
+                updated_at = '$now'
+            WHERE stock_id = $stock_id
+             ");
+
+            if (!$updateDetail) {
+                throw new Exception(mysqli_error($db));
+            }
         } else {
 
-            /* ================= FIX IMPORTANT ================= */
-            if ($tid !== '' || $mid !== '' || $merchant_name !== '' || $addres_name !== '') {
+            /* INSERT SELALU SAAT BELUM ADA DETAIL */
+            $insertDetail = mysqli_query($db, "
+            INSERT INTO detail_list_stock
+            (
+                stock_id,
+                tid,
+                mid,
+                merchant_name,
+                addres_name,
+                id_member_bank,
+                work_type,
+                date_used,
+                note,
+                updated_at
+            )
+            VALUES
+            (
+                $stock_id,
+                '$tid',
+                '$mid',
+                '$merchant_name',
+                '$addres_name',
+                $id_member_bank,
+                $work_type,
+                $date,
+                '$note',
+                '$now'
+            )
+        ");
 
-                mysqli_query($db, "
-                    INSERT INTO detail_list_stock
-                    (stock_id, tid, mid, merchant_name, addres_name, id_member_bank, work_type, date_used, note, updated_at)
-                    VALUES
-                    ($stock_id, '$tid', '$mid', '$merchant_name', '$addres_name', $id_member_bank, $work_type, $date, '$note', '$now')
-                ");
+            if (!$insertDetail) {
+                throw new Exception(mysqli_error($db));
             }
         }
 
