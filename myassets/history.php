@@ -180,6 +180,10 @@ require_once '../partials/header.php';
                                                             <span class="badge bg-primary">
                                                                 <?= htmlspecialchars((string)$h["status_edc"]) ?>
                                                             </span>
+                                                        <?php elseif (($h["status_edc"] ?? '') === 'Pending'): ?>
+                                                            <span class="badge bg-primary">
+                                                                <?= htmlspecialchars((string)$h["status_edc"]) ?>
+                                                            </span>
                                                         <?php elseif (($h["status_edc"] ?? '') === 'Send To HO'): ?>
                                                             <span class="badge bg-indigo">
                                                                 <?= htmlspecialchars((string)$h["status_edc"]) ?>

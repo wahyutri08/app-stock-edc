@@ -187,7 +187,7 @@ ob_start();
                                 <th>Date Used</th>
                                 <th>Date Send To HO</th>
                                 <th>Status</th>
-                                <!-- <th>Status Condition</th> -->
+                                <th>Status Condition</th>
                                 <!-- <th>Note</th> -->
                                 <th>Action</th>
                             </tr>
@@ -226,6 +226,10 @@ ob_start();
                                             <span class="badge bg-primary">
                                                 <?= htmlspecialchars((string)$row["status_edc"]) ?>
                                             </span>
+                                        <?php elseif (($row["status_edc"] ?? '') === 'Pending'): ?>
+                                            <span class="badge bg-primary">
+                                                <?= htmlspecialchars((string)$row["status_edc"]) ?>
+                                            </span>
                                         <?php elseif (($row["status_edc"] ?? '') === 'Send To HO'): ?>
                                             <span class="badge bg-indigo">
                                                 <?= htmlspecialchars((string)$row["status_edc"]) ?>
@@ -236,7 +240,7 @@ ob_start();
                                             </span>
                                         <?php endif; ?>
                                     </td>
-                                    <!-- <td><?= htmlspecialchars((string)($row["status_condition"] ?? '')) ?></td> -->
+                                    <td><?= htmlspecialchars((string)($row["status_condition"] ?? '')) ?></td>
                                     <!-- <td><?= htmlspecialchars((string)($row["note"] ?? '')) ?></td> -->
                                     <td class="text-center">
                                         <div class="dropdown">

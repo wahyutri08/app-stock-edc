@@ -139,6 +139,7 @@ require_once '../partials/header.php';
                                                     <option value="Not yet used">Not yet used</option>
                                                     <option value="Used">Used</option>
                                                     <option value="Terlink">Terlink</option>
+                                                    <option value="Pending">Pending</option>
                                                     <option value="Send To HO">Send To HO</option>
                                                     <option value="HO Santana">HO Santana</option>
                                                 </select>

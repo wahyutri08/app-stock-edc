@@ -235,6 +235,10 @@ include '../partials/header.php';
                                                             <span class="badge bg-primary">
                                                                 <?= htmlspecialchars((string)$h["status_edc"]) ?>
                                                             </span>
+                                                        <?php elseif (($h["status_edc"] ?? '') === 'Pending'): ?>
+                                                            <span class="badge bg-primary">
+                                                                <?= htmlspecialchars((string)$h["status_edc"]) ?>
+                                                            </span>
                                                         <?php elseif (($h["status_edc"] ?? '') === 'Send To HO'): ?>
                                                             <span class="badge bg-indigo">
                                                                 <?= htmlspecialchars((string)$h["status_edc"]) ?>
@@ -469,6 +473,9 @@ include '../partials/header.php';
                                                         </option>
                                                         <option value="Terlink" <?= ($stock['status_edc'] == 'Terlink') ? 'selected' : '' ?>>
                                                             Terlink
+                                                        </option>
+                                                        <option value="Pending" <?= ($stock['status_edc'] == 'Pending') ? 'selected' : '' ?>>
+                                                            Pending
                                                         </option>
                                                         <option value="Send To HO" <?= ($stock['status_edc'] == 'Send To HO') ? 'selected' : '' ?>>
                                                             Send To HO
